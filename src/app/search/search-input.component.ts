@@ -1,6 +1,7 @@
 import { Component } from '@angular/core'
 import { Router } from '@angular/router'
 import { Subscription } from 'rxjs/Subscription'
+import { Observable } from 'rxjs/Observable'
 
 import { SearchTerms } from './search-terms.service'
 
@@ -11,12 +12,15 @@ import { SearchTerms } from './search-terms.service'
 })
 export class SearchInputComponent {
   private terms: String
+  private termsStream: Observable<String>
   private onTerms: Subscription
 
-  constructor(private router: Router, private searchTerms: SearchTerms) {}
+  constructor(private router: Router, searchTerms: SearchTerms) {
+    this.termsStream = searchTerms.stream
+  }
 
   ngOnInit() {
-    this.searchTerms.stream.subscribe(terms => { this.terms = terms })
+    this.termsStream.subscribe(terms => { this.terms = terms })
   }
 
   ngOnDestroy() {
