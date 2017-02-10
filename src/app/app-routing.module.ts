@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core'
 import { RouterModule, Routes } from '@angular/router'
 
-import { SearchResultsComponent } from './search-results/search-results.component'
+import { SearchResultsComponent } from './search/search-results.component'
 import { MusicQueueComponent } from './music-queue/music-queue.component'
 
 const appRoutes: Routes = [

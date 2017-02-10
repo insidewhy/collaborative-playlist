@@ -4,12 +4,14 @@ import { FormsModule } from '@angular/forms'
 import { HttpModule } from '@angular/http'
 
 import { AppComponent } from './app.component'
-import { SearchInputComponent } from './search-input/search-input.component'
+import { SearchInputComponent } from './search/search-input.component'
 import { PlayerControlsComponent } from './player-controls/player-controls.component'
 
 import { AppRoutingModule } from './app-routing.module'
-import { SearchResultsComponent } from './search-results/search-results.component'
+import { SearchResultsComponent } from './search/search-results.component'
 import { MusicQueueComponent } from './music-queue/music-queue.component'
+
+import { SearchTerms } from './search/search-terms.service'
 
 @NgModule({
   imports: [
@@ -25,7 +27,9 @@ import { MusicQueueComponent } from './music-queue/music-queue.component'
     SearchResultsComponent,
     MusicQueueComponent,
   ],
-  providers: [],
+  providers: [
+    SearchTerms,
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
