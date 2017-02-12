@@ -7,6 +7,10 @@ import 'rxjs/add/operator/map'
 
 import { SearchTerms } from './search-terms.service'
 
+interface SearchResult {
+  title: String,
+}
+
 @Component({
   selector: 'search-results',
   templateUrl: './search-results.component.html',
@@ -15,6 +19,7 @@ import { SearchTerms } from './search-terms.service'
 export class SearchResultsComponent {
   private terms: String
   private onTerms: Subscription
+  private searchResults: SearchResult[]
 
   constructor(private searchTerms: SearchTerms, private route: ActivatedRoute, private jsonp: Jsonp) {}
 
@@ -33,10 +38,14 @@ export class SearchResultsComponent {
   private updateTerms(terms) {
     this.terms = terms
 
-    this.jsonp.get(`http://api.deezer.com/search?q=${terms}&output=jsonp&callback=JSONP_CALLBACK`).map(data => {
-      console.dir(data)
-      console.debug('TODO: results from `%s`', data)
+    this.jsonp.get(`http://api.deezer.com/search?q=${terms}&output=jsonp&callback=JSONP_CALLBACK`)
+    .map(data => data.json().data)
+    .subscribe(results => {
+      console.debug(results)
+      this.searchResults = results.map(result => {
+        const {title} = result
+        return {title}
+      })
     })
-    .subscribe()
   }
 }
