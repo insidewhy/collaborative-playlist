@@ -1,7 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser'
 import { NgModule } from '@angular/core'
 import { FormsModule } from '@angular/forms'
-import { HttpModule } from '@angular/http'
+import { JsonpModule } from '@angular/http'
 
 import { AppComponent } from './app.component'
 import { SearchInputComponent } from './search/search-input.component'
@@ -17,7 +17,7 @@ import { SearchTerms } from './search/search-terms.service'
   imports: [
     BrowserModule,
     FormsModule,
-    HttpModule,
+    JsonpModule,
     AppRoutingModule,
   ],
   declarations: [
