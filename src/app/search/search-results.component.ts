@@ -7,8 +7,19 @@ import 'rxjs/add/operator/map'
 
 import { SearchTerms } from './search-terms.service'
 
+interface Artist {
+  name: String,
+}
+
+interface Album {
+  title: String,
+}
+
 interface SearchResult {
   title: String,
+  type: String,
+  album: Album,
+  artist: Artist,
 }
 
 @Component({
@@ -43,8 +54,8 @@ export class SearchResultsComponent {
     .subscribe(results => {
       console.debug(results)
       this.searchResults = results.map(result => {
-        const {title} = result
-        return {title}
+        const {title, type, album, artist} = result
+        return {title, type, album, artist}
       })
     })
   }

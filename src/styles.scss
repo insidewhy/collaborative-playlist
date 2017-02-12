@@ -9,6 +9,19 @@ html {
   box-sizing: border-box;
 }
 
+ul, li {
+  margin: 0;
+  padding: 0;
+}
+
+input:focus, button:focus, button:active {
+  outline: 0;
+}
+
+button {
+  padding: 0;
+}
+
 *, *::before, *::after {
   -webkit-box-sizing: inherit;
   box-sizing: inherit;

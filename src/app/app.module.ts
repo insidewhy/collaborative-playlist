@@ -2,6 +2,7 @@ import { BrowserModule } from '@angular/platform-browser'
 import { NgModule } from '@angular/core'
 import { FormsModule } from '@angular/forms'
 import { JsonpModule } from '@angular/http'
+import { MdIconModule, MdIconRegistry } from '@angular2-material/icon'
 
 import { AppComponent } from './app.component'
 import { SearchInputComponent } from './search/search-input.component'
@@ -18,6 +19,7 @@ import { SearchTerms } from './search/search-terms.service'
     BrowserModule,
     FormsModule,
     JsonpModule,
+    MdIconModule,
     AppRoutingModule,
   ],
   declarations: [
@@ -28,6 +30,7 @@ import { SearchTerms } from './search/search-terms.service'
     MusicQueueComponent,
   ],
   providers: [
+    MdIconRegistry,
     SearchTerms,
   ],
   bootstrap: [AppComponent]
