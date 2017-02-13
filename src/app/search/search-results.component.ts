@@ -49,7 +49,8 @@ export class SearchResultsComponent {
   private updateTerms(terms) {
     this.terms = terms
 
-    this.jsonp.get(`http://api.deezer.com/search?q=${terms}&output=jsonp&callback=JSONP_CALLBACK`)
+    // 100 is the maximum supported limit
+    this.jsonp.get(`http://api.deezer.com/search?q=${terms}&limit=100&output=jsonp&callback=JSONP_CALLBACK`)
     .map(data => data.json().data)
     .subscribe(results => {
       console.debug(results)
