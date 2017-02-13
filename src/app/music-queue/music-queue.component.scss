@@ -1,1 +1,6 @@
 @import '../_config';
+
+:host {
+  padding: 2px $top-layer-horizontal-padding;
+  flex-grow: 1;
+}
