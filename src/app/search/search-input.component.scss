@@ -1,14 +1,18 @@
 @import '../_config';
 
+:host {
+  padding: 0 $top-layer-horizontal-padding;
+  border-bottom: solid 1px #ccc;
+}
+
 form {
   display: flex;
-  border-bottom: solid 1px #ccc;
 }
 
 input[type=text] {
   flex-grow: 1;
   border-width: 0;
-  padding: 5px $top-layer-horizontal-padding;
+  padding: 12px 0;
 }
 
 button {
