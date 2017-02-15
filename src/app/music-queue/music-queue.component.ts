@@ -19,6 +19,6 @@ export class MusicQueueComponent {
       console.log('message ', JSON.stringify(message))
     })
 
-    this.socket.send('hey bro')
+    this.socket.send({ type: 'getMusicQueue' })
   }
 }

@@ -23,6 +23,6 @@ export class ServerSocket {
   }
 
   public send(message: any):void {
-    this.inputStream.next(JSON.stringify(message))
+    this.inputStream.next(message)
   }
 }
