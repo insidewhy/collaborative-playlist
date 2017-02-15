@@ -1,22 +1,22 @@
 import { Injectable } from '@angular/core'
-import { Subject } from 'rxjs/Subject'
+import { QueueingSubject } from 'queueing-subject'
 import { Observable } from 'rxjs/Observable'
 import { WebSocketService } from 'angular2-websocket-service'
 
 @Injectable()
 export class ServerSocket {
-  private inputStream: Subject<any>
+  private inputStream: QueueingSubject<any>
   public outputStream: Observable<any>
 
   constructor(private socketFactory: WebSocketService) {}
 
-  public async connect() {
+  public connect() {
     if (this.outputStream)
       return this.outputStream
 
-    this.outputStream = await this.socketFactory.connect(
+    this.outputStream = this.socketFactory.connect(
       'ws://127.0.0.1:4201/ws',
-      this.inputStream = new Subject<any>()
+      this.inputStream = new QueueingSubject<any>()
     )
 
     return this.outputStream

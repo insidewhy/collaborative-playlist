@@ -12,8 +12,8 @@ export class MusicQueueComponent {
     this.subscribeToMessages()
   }
 
-  async subscribeToMessages() {
-    const stream = await this.socket.connect()
+  subscribeToMessages() {
+    const stream = this.socket.connect()
 
     stream.subscribe(message => {
       console.log('message ', JSON.stringify(message))
