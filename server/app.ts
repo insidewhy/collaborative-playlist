@@ -24,8 +24,9 @@ function installSocketRoutes() {
     const {websocket} = ctxt as any
 
     websocket.on('message', message => {
+      const { type, payload } = JSON.parse(message)
+
       try {
-        const { type, payload } = JSON.parse(message)
         const handler = messageHandlers[type]
         if (! handler) {
           websocket.send(JSON.stringify({ type, payload: 'message type not understood' }))
