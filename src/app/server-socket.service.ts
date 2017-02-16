@@ -3,6 +3,8 @@ import { QueueingSubject } from 'queueing-subject'
 import { Observable } from 'rxjs/Observable'
 import { WebSocketService } from 'angular2-websocket-service'
 
+import 'rxjs/add/operator/share'
+
 @Injectable()
 export class ServerSocket {
   private inputStream: QueueingSubject<any>
@@ -14,12 +16,11 @@ export class ServerSocket {
     if (this.outputStream)
       return this.outputStream
 
-    this.outputStream = this.socketFactory.connect(
+    return this.outputStream = this.socketFactory.connect(
       'ws://127.0.0.1:4201/ws',
       this.inputStream = new QueueingSubject<any>()
     )
-
-    return this.outputStream
+    .share()
   }
 
   public send(message: any):void {
