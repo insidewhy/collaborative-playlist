@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core'
 import { QueueingSubject } from 'queueing-subject'
 import { Observable } from 'rxjs/Observable'
-import { WebSocketService } from 'angular2-websocket-service'
+import websocketConnect from 'rxjs-websockets'
 
 import 'rxjs/add/operator/share'
 
@@ -10,13 +10,11 @@ export class ServerSocket {
   private inputStream: QueueingSubject<any>
   public outputStream: Observable<any>
 
-  constructor(private socketFactory: WebSocketService) {}
-
   public connect() {
     if (this.outputStream)
       return this.outputStream
 
-    return this.outputStream = this.socketFactory.connect(
+    return this.outputStream = websocketConnect(
       'ws://127.0.0.1:4201/ws',
       this.inputStream = new QueueingSubject<any>()
     )
