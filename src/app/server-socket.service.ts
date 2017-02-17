@@ -7,7 +7,7 @@ import 'rxjs/add/operator/share'
 
 @Injectable()
 export class ServerSocket {
-  public inputStream: QueueingSubject<any>
+  private input: QueueingSubject<any>
   public messages: Observable<any>
   public connectionStatus: Observable<any>
 
@@ -17,7 +17,7 @@ export class ServerSocket {
 
     const {messages, connectionStatus} = websocketConnect(
       'ws://127.0.0.1:4201/ws',
-      this.inputStream = new QueueingSubject<any>()
+      this.input = new QueueingSubject<any>()
     )
 
     this.messages = messages.share()
@@ -25,6 +25,6 @@ export class ServerSocket {
   }
 
   public send(message: any):void {
-    this.inputStream.next(message)
+    this.input.next(message)
   }
 }

@@ -14,6 +14,7 @@ import { SearchResultsComponent } from './search/search-results.component'
 import { MusicQueueComponent } from './music-queue/music-queue.component'
 
 import { SearchTerms } from './search/search-terms.service'
+import { MusicQueue } from './music-queue/music-queue.service'
 
 @NgModule({
   imports: [
@@ -34,6 +35,7 @@ import { SearchTerms } from './search/search-terms.service'
     MdIconRegistry,
     ServerSocket,
     SearchTerms,
+    MusicQueue,
   ],
   bootstrap: [AppComponent]
 })

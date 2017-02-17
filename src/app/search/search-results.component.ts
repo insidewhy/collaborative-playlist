@@ -1,9 +1,10 @@
 import { Component } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
 import { Jsonp } from '@angular/http'
-
 import { Subscription } from 'rxjs/Subscription'
 import 'rxjs/add/operator/map'
+// using `import {pick} from 'lodash'` isn't handled by the tree shaker :(
+const pick = require('lodash/pick')
 
 import { SearchTerms } from './search-terms.service'
 import { Track } from '../track'
@@ -41,9 +42,15 @@ export class SearchResultsComponent {
     .subscribe(results => {
       console.debug(results)
       this.searchResults = results.map(result => {
-        const {id, title, type, album, artist} = result
-        return {id, title, type, album, artist}
+        const {id, title} = result
+        const album = pick(result.album, 'title')
+        const artist = pick(result.artist, 'name')
+        return {id, title, album, artist}
       })
     })
+  }
+
+  private selectTrack(track) {
+    console.log('TODO: add track to music queue', JSON.stringify(track, null, 2))
   }
 }

@@ -15,4 +15,9 @@ li {
   &:nth-child(odd) {
     background-color: #eee;
   }
+
+  &:hover {
+    background-color: #f8f3cb;
+    cursor: pointer;
+  }
 }

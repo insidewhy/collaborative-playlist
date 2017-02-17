@@ -1,5 +1,5 @@
 <ul>
-  <li *ngFor="let result of searchResults">
-    {{result.artist.name}} - {{result.album.title}} - {{result.title}}
+  <li *ngFor="let track of searchResults" (click)="selectTrack(track)">
+    {{track.artist.name}} - {{track.album.title}} - {{track.title}}
   </li>
 </ul>
