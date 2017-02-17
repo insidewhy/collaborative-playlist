@@ -9,7 +9,7 @@ import { ServerSocket } from '../server-socket.service'
   styleUrls: ['./music-queue.component.scss']
 })
 export class MusicQueueComponent {
-  private socketSubscription: Subscription
+  private messagesSubscription: Subscription
   private connectionStatusSubscription: Subscription
 
   constructor(private socket: ServerSocket) {}
@@ -22,14 +22,14 @@ export class MusicQueueComponent {
         this.socket.send({ type: 'getMusicQueue' })
     })
 
-    this.socketSubscription = this.socket.messages.subscribe(message => {
+    this.messagesSubscription = this.socket.messages.subscribe(message => {
       console.debug('message:', JSON.stringify(message))
     })
   }
 
   ngOnDestroy() {
-    if (this.socketSubscription)
-      this.socketSubscription.unsubscribe()
+    if (this.messagesSubscription)
+      this.messagesSubscription.unsubscribe()
 
     if (this.connectionStatusSubscription)
       this.connectionStatusSubscription.unsubscribe()
