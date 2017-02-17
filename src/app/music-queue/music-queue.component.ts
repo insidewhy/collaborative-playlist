@@ -17,8 +17,8 @@ export class MusicQueueComponent {
   ngOnInit() {
     this.socket.connect()
 
-    this.connectionStatusSubscription = this.socket.connectionStatus.subscribe(connected => {
-      if (connected)
+    this.connectionStatusSubscription = this.socket.connectionStatus.subscribe(nConnected => {
+      if (nConnected)
         this.socket.send({ type: 'getMusicQueue' })
     })
 
@@ -28,9 +28,10 @@ export class MusicQueueComponent {
   }
 
   ngOnDestroy() {
-    if (this.socketSubscription) {
+    if (this.socketSubscription)
       this.socketSubscription.unsubscribe()
+
+    if (this.connectionStatusSubscription)
       this.connectionStatusSubscription.unsubscribe()
-    }
   }
 }
