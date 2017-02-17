@@ -6,21 +6,7 @@ import { Subscription } from 'rxjs/Subscription'
 import 'rxjs/add/operator/map'
 
 import { SearchTerms } from './search-terms.service'
-
-interface Artist {
-  name: String,
-}
-
-interface Album {
-  title: String,
-}
-
-interface SearchResult {
-  title: String,
-  type: String,
-  album: Album,
-  artist: Artist,
-}
+import { Track } from '../track'
 
 @Component({
   selector: 'search-results',
@@ -30,7 +16,7 @@ interface SearchResult {
 export class SearchResultsComponent {
   private terms: String
   private onTerms: Subscription
-  private searchResults: SearchResult[]
+  private searchResults: Track[]
 
   constructor(private searchTerms: SearchTerms, private route: ActivatedRoute, private jsonp: Jsonp) {}
 
@@ -55,8 +41,8 @@ export class SearchResultsComponent {
     .subscribe(results => {
       console.debug(results)
       this.searchResults = results.map(result => {
-        const {title, type, album, artist} = result
-        return {title, type, album, artist}
+        const {id, title, type, album, artist} = result
+        return {id, title, type, album, artist}
       })
     })
   }
