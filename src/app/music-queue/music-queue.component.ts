@@ -10,24 +10,27 @@ import { ServerSocket } from '../server-socket.service'
 })
 export class MusicQueueComponent {
   private socketSubscription: Subscription
+  private connectionStatusSubscription: Subscription
 
-  constructor(private socket: ServerSocket) {
-    this.subscribeToMessages()
-  }
+  constructor(private socket: ServerSocket) {}
 
-  subscribeToMessages() {
-    const stream = this.socket.connect()
+  ngOnInit() {
+    this.socket.connect()
 
-    this.socketSubscription = stream.subscribe(message => {
-      console.log('message ', JSON.stringify(message))
+    this.connectionStatusSubscription = this.socket.connectionStatus.subscribe(connected => {
+      if (connected)
+        this.socket.send({ type: 'getMusicQueue' })
     })
 
-    this.socket.send({ type: 'getMusicQueue' })
+    this.socketSubscription = this.socket.messages.subscribe(message => {
+      console.debug('message:', JSON.stringify(message))
+    })
   }
 
   ngOnDestroy() {
-    // TODO: delay so the next component can reuse?
-    if (this.socketSubscription)
+    if (this.socketSubscription) {
       this.socketSubscription.unsubscribe()
+      this.connectionStatusSubscription.unsubscribe()
+    }
   }
 }
