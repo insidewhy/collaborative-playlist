@@ -9,14 +9,15 @@ const saveQueue = _.debounce(() => {
   console.log('TODO: save queue')
 }, 1000)
 
-export function addTrack(track, position: number): Track[] {
+export function addTrack(track, position: number) {
   musicQueue.splice(position, 0, track)
   saveQueue()
-  return musicQueue
+  return { insert: position, track }
 }
 
-export function removeTrack(trackId): Track[] {
-  return musicQueue = musicQueue.filter(track => track.id !== trackId)
+export function removeTrack(trackId) {
+  musicQueue = musicQueue.filter(track => track.id !== trackId)
+  return { remove: trackId }
 }
 
 export function getMusicQueue(): Track[] {
