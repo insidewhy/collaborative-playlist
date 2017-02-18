@@ -35,7 +35,7 @@ function installSocketRoutes() {
         }
 
         const response = handler(payload)
-        websocket.send(JSON.stringify({ type, payload: response }))
+        websocket.send(JSON.stringify(response))
       }
       catch (e) {
         console.log('unexpected error', e.stack || e)

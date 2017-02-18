@@ -21,5 +21,5 @@ export function removeTrack(trackId) {
 }
 
 export function getMusicQueue(): Track[] {
-  return musicQueue
+  return { musicQueue }
 }
