@@ -10,7 +10,8 @@ ul {
 }
 
 li {
-  padding: 2px $top-layer-horizontal-padding;
+  padding: 3px $top-layer-horizontal-padding;
+  font-family: sans-serif;
 
   &:nth-child(odd) {
     background-color: #eee;
