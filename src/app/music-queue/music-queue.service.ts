@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core'
 import { Subscription } from 'rxjs/Subscription'
 
-import { onDestroy, OnDestroy } from '../on-destroy'
+import { OnDestroy } from '../on-destroy'
 import { ServerSocket } from '../server-socket.service'
 
-@OnDestroy()
 @Injectable()
-export class MusicQueue {
+export class MusicQueue extends OnDestroy {
   constructor(private socket: ServerSocket) {
+    super()
     this.socket.connect()
 
     const connectionStatusSubscription = this.socket.connectionStatus.subscribe(nConnected => {
@@ -19,7 +19,7 @@ export class MusicQueue {
       console.debug('message:', JSON.stringify(message))
     })
 
-    onDestroy(this, () => {
+    this.onDestroy(() => {
       messagesSubscription.unsubscribe()
       connectionStatusSubscription.unsubscribe()
     })

@@ -8,19 +8,20 @@ const pick = require('lodash/pick')
 
 import { SearchTerms } from './search-terms.service'
 import { Track } from '../track'
-import { onDestroy, OnDestroy } from '../on-destroy'
+import { OnDestroy } from '../on-destroy'
 
-@OnDestroy()
 @Component({
   selector: 'search-results',
   templateUrl: './search-results.component.html',
   styleUrls: ['./search-results.component.scss']
 })
-export class SearchResultsComponent {
+export class SearchResultsComponent extends OnDestroy {
   private terms: String
   private searchResults: Track[]
 
-  constructor(private searchTerms: SearchTerms, private route: ActivatedRoute, private jsonp: Jsonp) {}
+  constructor(private searchTerms: SearchTerms, private route: ActivatedRoute, private jsonp: Jsonp) {
+    super()
+  }
 
   ngOnInit() {
     const termsStream = this.route.params.map(params => params['terms'])
@@ -28,10 +29,7 @@ export class SearchResultsComponent {
     this.searchTerms.addRouteStream(termsStream)
 
     const onTerms = termsStream.subscribe(terms => { this.updateTerms(terms) })
-
-    onDestroy(this, () => {
-      onTerms.unsubscribe()
-    })
+    this.onDestroy(() => { onTerms.unsubscribe() })
   }
 
   private updateTerms(terms) {

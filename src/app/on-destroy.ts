@@ -1,27 +1,37 @@
-function objOnDestroy(obj, callback) {
-  const {__destroyCallbacks} = obj
-  if (! __destroyCallbacks)
-    obj.__destroyCallbacks = []
+type Constructor<T> = new(...args: any[]) => T
 
+function onDestroyHelper(obj, callback:Function) {
+  if (! obj.__destroyCallbacks)
+    obj.__destroyCallbacks = []
   obj.__destroyCallbacks.push(callback)
 }
 
-export function onDestroy(obj: any, callback: Function) {
-  obj.onDestroy(callback)
+function ngOnDestroyHelper(obj):void {
+  const {__destroyCallbacks} = obj
+  if (! __destroyCallbacks)
+    return
+  __destroyCallbacks.forEach(callback => callback.apply(obj))
+  __destroyCallbacks.length = 0
 }
 
-export function OnDestroy() {
-  return klass => {
-    klass.prototype.onDestroy = function(callback) { objOnDestroy(this, callback) }
+export function OnDestroyMixin<T extends Constructor<{}>>(Base: T) {
+  return class extends Base {
+    private __destroyCallbacks: Function[]
 
-    klass.prototype.ngOnDestroy = function() {
-      const {__destroyCallbacks} = this
-      if (! __destroyCallbacks)
-        return
-      __destroyCallbacks.forEach(callback => callback.apply(this))
-      __destroyCallbacks.length = 0
+    constructor(...args: any[]) {
+      super(...args)
+      this.__destroyCallbacks = []
+
+      this.onDestroy = onDestroyHelper.bind(null, this)
+      this.ngOnDestroy = ngOnDestroyHelper.bind(null, this)
     }
 
-    return klass
+    declare onDestroy(callback:Function):void
+    declare ngOnDestroy()
   }
+}
+
+export class OnDestroy {
+  onDestroy(callback:Function):void { onDestroyHelper(this, callback) }
+  ngOnDestroy() { ngOnDestroyHelper(this) }
 }
