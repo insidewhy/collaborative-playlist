@@ -25,7 +25,10 @@ export class SearchInputComponent extends OnDestroy {
     this.onDestroy(() => { onTerms.unsubscribe() })
   }
 
-  onSubmit(terms:String) {
-    this.router.navigate(['search', this.terms])
+  onSubmit() {
+    if (! this.terms.length)
+      this.router.navigate([''])
+    else
+      this.router.navigate(['search', this.terms])
   }
 }
