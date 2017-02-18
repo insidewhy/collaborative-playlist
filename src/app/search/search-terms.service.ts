@@ -3,10 +3,11 @@ import { ReplaySubject } from 'rxjs/ReplaySubject'
 import { Observable } from 'rxjs/Observable'
 
 import 'rxjs/add/operator/mergeMap'
+import 'rxjs/add/observable/from'
 
 @Injectable()
 export class SearchTerms {
-  private subject: ReplaySubject<String | Observable<String>>
+  private subject: ReplaySubject<Observable<String>>
   public stream: Observable<String>
 
   constructor() {
@@ -19,6 +20,6 @@ export class SearchTerms {
   }
 
   setTerms(terms: String) {
-    this.subject.next(terms)
+    this.subject.next(Observable.from([ terms ]))
   }
 }

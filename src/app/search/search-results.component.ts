@@ -29,7 +29,10 @@ export class SearchResultsComponent extends OnDestroy {
     this.searchTerms.addRouteStream(termsStream)
 
     const onTerms = termsStream.subscribe(terms => { this.updateTerms(terms) })
-    this.onDestroy(() => { onTerms.unsubscribe() })
+    this.onDestroy(() => {
+      onTerms.unsubscribe()
+      this.searchTerms.setTerms('')
+    })
   }
 
   private updateTerms(terms) {
