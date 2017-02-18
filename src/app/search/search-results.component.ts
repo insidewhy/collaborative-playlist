@@ -7,6 +7,7 @@ import 'rxjs/add/operator/map'
 const pick = require('lodash/pick')
 
 import { SearchTerms } from './search-terms.service'
+import { MusicQueue } from '../music-queue/music-queue.service'
 import { Track } from '../track'
 import { OnDestroy } from '../on-destroy'
 
@@ -19,9 +20,13 @@ export class SearchResultsComponent extends OnDestroy {
   private terms: String
   private searchResults: Track[]
 
-  constructor(private searchTerms: SearchTerms, private route: ActivatedRoute, private jsonp: Jsonp) {
-    super()
-  }
+  constructor(
+    private searchTerms: SearchTerms,
+    private route: ActivatedRoute,
+    private musicQueue: MusicQueue,
+    private jsonp: Jsonp
+  )
+  { super() }
 
   ngOnInit() {
     const termsStream = this.route.params.map(params => params['terms'])
@@ -53,6 +58,6 @@ export class SearchResultsComponent extends OnDestroy {
   }
 
   private selectTrack(track) {
-    console.log('TODO: add track to music queue', JSON.stringify(track, null, 2))
+    this.musicQueue.insertTrack(track, this.musicQueue.tracks.length)
   }
 }

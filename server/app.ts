@@ -1,7 +1,7 @@
 import * as Koa from 'koa'
 import * as Router from 'koa-router'
 
-import {addTrack, getMusicQueue} from './music-queue'
+import { getMusicQueue, insertTrack, removeTrack } from './music-queue'
 
 const websockify = require('koa-websocket')
 const app: Koa = websockify(new Koa())
@@ -14,7 +14,8 @@ function main() {
 
 const messageHandlers = {
   getMusicQueue,
-  addTrack,
+  insertTrack,
+  removeTrack,
 }
 
 function installSocketRoutes() {
