@@ -3,8 +3,10 @@ import { Router } from '@angular/router'
 import { Subscription } from 'rxjs/Subscription'
 import { Observable } from 'rxjs/Observable'
 
+import { onDestroy, OnDestroy } from '../on-destroy'
 import { SearchTerms } from './search-terms.service'
 
+@OnDestroy()
 @Component({
   selector: 'search-input',
   templateUrl: './search-input.component.html',
@@ -13,18 +15,16 @@ import { SearchTerms } from './search-terms.service'
 export class SearchInputComponent {
   private terms: String
   private termsStream: Observable<String>
-  private onTerms: Subscription
 
   constructor(private router: Router, searchTerms: SearchTerms) {
     this.termsStream = searchTerms.stream
   }
 
   ngOnInit() {
-    this.termsStream.subscribe(terms => { this.terms = terms })
-  }
-
-  ngOnDestroy() {
-    this.onTerms.unsubscribe()
+    const onTerms = this.termsStream.subscribe(terms => { this.terms = terms })
+    onDestroy(this, () => {
+      onTerms.unsubscribe()
+    })
   }
 
   onSubmit(terms:String) {

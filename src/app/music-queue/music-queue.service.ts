@@ -1,35 +1,27 @@
 import { Injectable } from '@angular/core'
 import { Subscription } from 'rxjs/Subscription'
 
+import { onDestroy, OnDestroy } from '../on-destroy'
 import { ServerSocket } from '../server-socket.service'
 
+@OnDestroy()
 @Injectable()
 export class MusicQueue {
-  private messagesSubscription: Subscription
-  private connectionStatusSubscription: Subscription
-
   constructor(private socket: ServerSocket) {
     this.socket.connect()
 
-    this.connectionStatusSubscription = this.socket.connectionStatus.subscribe(nConnected => {
+    const connectionStatusSubscription = this.socket.connectionStatus.subscribe(nConnected => {
       if (nConnected)
         this.socket.send({ type: 'getMusicQueue' })
     })
 
-    this.messagesSubscription = this.socket.messages.subscribe(message => {
+    const messagesSubscription = this.socket.messages.subscribe(message => {
       console.debug('message:', JSON.stringify(message))
     })
-  }
 
-  /**
-   * https://angular.io/docs/ts/latest/api/core/index/OnDestroy-class.html says that it
-   * is called when a service is destroyed.
-   */
-  ngOnDestroy() {
-    if (this.messagesSubscription)
-      this.messagesSubscription.unsubscribe()
-
-    if (this.connectionStatusSubscription)
-      this.connectionStatusSubscription.unsubscribe()
+    onDestroy(this, () => {
+      messagesSubscription.unsubscribe()
+      connectionStatusSubscription.unsubscribe()
+    })
   }
 }
