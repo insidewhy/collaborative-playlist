@@ -1,4 +1,4 @@
-<ul>
+<ul class="track-list">
   <li *ngFor="let track of searchResults" (click)="selectTrack(track)">
     {{track.artist.name}} - {{track.album.title}} - {{track.title}}
   </li>

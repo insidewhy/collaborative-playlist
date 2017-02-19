@@ -1,1 +1,5 @@
-<div>TODO: music queue goes here</div>
+<ul class="track-list">
+  <li *ngFor="let track of musicQueue.tracks">
+    {{track.artist.name}} - {{track.album.title}} - {{track.title}}
+  </li>
+</ul>

@@ -1,5 +1,7 @@
 /* You can add global styles to this file, and also import other style files */
 
+@import './app/_config';
+
 html, body {
   margin: 0;
   padding: 0;
@@ -26,4 +28,22 @@ button {
 *, *::before, *::after {
   -webkit-box-sizing: inherit;
   box-sizing: inherit;
+}
+
+ul.track-list {
+  list-style: none;
+
+  li {
+    padding: 3px $top-layer-horizontal-padding;
+    font-family: sans-serif;
+
+    &:nth-child(odd) {
+      background-color: #eee;
+    }
+
+    &:hover {
+      background-color: #f8f3cb;
+      cursor: pointer;
+    }
+  }
 }

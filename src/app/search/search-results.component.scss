@@ -4,21 +4,3 @@
   overflow-y: scroll;
   flex-grow: 1;
 }
-
-ul {
-  list-style: none;
-}
-
-li {
-  padding: 3px $top-layer-horizontal-padding;
-  font-family: sans-serif;
-
-  &:nth-child(odd) {
-    background-color: #eee;
-  }
-
-  &:hover {
-    background-color: #f8f3cb;
-    cursor: pointer;
-  }
-}

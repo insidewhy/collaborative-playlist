@@ -1,6 +1,6 @@
 @import '../_config';
 
 :host {
-  padding: 2px $top-layer-horizontal-padding;
+  overflow-y: scroll;
   flex-grow: 1;
 }
