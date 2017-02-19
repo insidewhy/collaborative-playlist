@@ -5,13 +5,18 @@ import { OnDestroy } from '../on-destroy'
 import { Track } from '../track'
 import { ServerSocket } from '../server-socket.service'
 
+interface TrackStatus {
+  trackIdx: number
+  elapsed: number
+}
+
 @Injectable()
 export class CurrentTrack extends OnDestroy {
   // the index within the tracklist of the playing track
   public index = -1
   // public track?: Track = null
 
-  public stream = new ReplaySubject<number>(1)
+  public stream = new ReplaySubject<TrackStatus>(1)
 
   // TODO: provide stream to subscribe to current track
   constructor(private socket: ServerSocket) {
@@ -24,10 +29,11 @@ export class CurrentTrack extends OnDestroy {
     })
 
     const messagesSubscription = this.socket.messages.subscribe(message => {
-      const {currentTrack} = message
-      if (currentTrack !== undefined) {
-        this.index = currentTrack
-        this.stream.next(currentTrack)
+      const {currentTrack: trackIdx} = message
+      if (trackIdx !== undefined) {
+        const {elapsed} = message
+        this.index = trackIdx
+        this.stream.next({ trackIdx, elapsed })
         return
       }
 

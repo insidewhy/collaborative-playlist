@@ -9,6 +9,7 @@ declare var DZ: any
 @Injectable()
 export class DeezerPlayer extends OnDestroy {
   private activated = false
+  private seekOnNext = 0
 
   constructor(private musicQueue: MusicQueue, private currentTrack: CurrentTrack) {
     super()
@@ -21,10 +22,13 @@ export class DeezerPlayer extends OnDestroy {
     this.activated = true
 
     const onload = dzState => {
-      const trackSubscription = this.currentTrack.stream.subscribe((trackIdx: number) => {
+      DZ.Event.subscribe('player_play', this.onPlay.bind(this))
+
+      const trackSubscription = this.currentTrack.stream.subscribe(({trackIdx, elapsed}) => {
         if (trackIdx !== -1) {
           const track = this.musicQueue.tracks[trackIdx]
           DZ.player.playTracks([ track.id ])
+          this.seekOnNext = (elapsed / track.duration) * 100
         }
       })
 
@@ -39,5 +43,12 @@ export class DeezerPlayer extends OnDestroy {
 
       player: { onload },
     })
+  }
+
+  private onPlay() {
+    if (this.seekOnNext) {
+      DZ.player.seek(this.seekOnNext)
+      this.seekOnNext = 0
+    }
   }
 }
