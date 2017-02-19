@@ -19,10 +19,23 @@ export class MusicQueue extends OnDestroy {
     })
 
     const messagesSubscription = this.socket.messages.subscribe(message => {
+      // console.debug('got message', message)
       const {musicQueue} = message
+
       if (musicQueue) {
         this.tracks = musicQueue
-        console.debug('set tracks', this.tracks)
+        return
+      }
+
+      const {insert: insertIdx} = message
+      if (insertIdx !== undefined) {
+        this.tracks.splice(insertIdx, 0, message.track)
+        return
+      }
+
+      const {remove: removeIdx} = message
+      if (removeIdx !== undefined) {
+        this.tracks.splice(removeIdx, 1)
         return
       }
     })
