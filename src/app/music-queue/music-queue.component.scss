@@ -4,3 +4,13 @@
   overflow-y: scroll;
   flex-grow: 1;
 }
+
+ul {
+  li {
+    background-color: $color-music-queue;
+
+    &:nth-child(even) {
+      background-color: $color-music-queue-alt;
+    }
+  }
+}
