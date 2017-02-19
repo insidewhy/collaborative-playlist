@@ -10,7 +10,10 @@ const writeFile = promisify(fs.writeFile)
 const readFile = promisify(fs.readFile)
 
 const musicQueue: Track[] = []
+// index within musicQueue of current playing track
 let currentTrackIndex = -1
+// time current track started playing
+let trackStarted = new Date()
 
 const getConfigPath = () => `${process.env.HOME}/.local/share/share-deezer`
 
@@ -90,12 +93,16 @@ export function playTrack(
   const idx = findTrack(position, trackId)
   if (idx !== -1) {
     currentTrackIndex = idx
-    socket.broadcast({ currentTrack: idx })
+    trackStarted = new Date()
+    socket.broadcast({ currentTrack: idx, elapsed: 0 })
   }
 }
 
 export function getCurrentTrackStatus(socket: SocketCommunicator) {
-  socket.send({ currentTrack: currentTrackIndex })
+  socket.send({
+    currentTrack: currentTrackIndex,
+    elapsed: (Date.now() - trackStarted.getTime()) / 1000,
+  })
 }
 
 export async function getMusicQueue(socket: SocketCommunicator): Promise<void> {
