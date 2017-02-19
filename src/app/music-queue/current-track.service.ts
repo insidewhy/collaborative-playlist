@@ -10,6 +10,7 @@ export class CurrentTrack extends OnDestroy {
   public index = -1
   // public track?: Track = null
 
+  // TODO: provide stream to subscribe to current track
   constructor(private socket: ServerSocket) {
     super()
     this.socket.connect()

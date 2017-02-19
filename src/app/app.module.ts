@@ -16,6 +16,7 @@ import { MusicQueueComponent } from './music-queue/music-queue.component'
 import { SearchTerms } from './search/search-terms.service'
 import { MusicQueue } from './music-queue/music-queue.service'
 import { CurrentTrack } from './music-queue/current-track.service'
+import { DeezerPlayer } from './deezer-player/deezer-player.service'
 
 @NgModule({
   imports: [
@@ -38,7 +39,13 @@ import { CurrentTrack } from './music-queue/current-track.service'
     SearchTerms,
     MusicQueue,
     CurrentTrack,
+    DeezerPlayer,
   ],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {
+  constructor(deezerPlayer: DeezerPlayer) {
+    // TODO: activate only if volume isn't muted later
+    deezerPlayer.activate()
+  }
+}
