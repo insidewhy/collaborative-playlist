@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core'
+import { ReplaySubject } from 'rxjs/ReplaySubject'
 
 import { OnDestroy } from '../on-destroy'
 import { Track } from '../track'
@@ -9,6 +10,8 @@ export class CurrentTrack extends OnDestroy {
   // the index within the tracklist of the playing track
   public index = -1
   // public track?: Track = null
+
+  public stream = new ReplaySubject<number>(1)
 
   // TODO: provide stream to subscribe to current track
   constructor(private socket: ServerSocket) {
@@ -24,6 +27,7 @@ export class CurrentTrack extends OnDestroy {
       const {currentTrack} = message
       if (currentTrack !== undefined) {
         this.index = currentTrack
+        this.stream.next(currentTrack)
         return
       }
 
