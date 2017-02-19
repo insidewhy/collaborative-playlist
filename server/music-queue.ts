@@ -11,7 +11,7 @@ const readFile = promisify(fs.readFile)
 
 const musicQueue: Track[] = []
 
-const getConfigPath = () => `${process.env.HOME}/.config/share-deezer`
+const getConfigPath = () => `${process.env.HOME}/.local/share/share-deezer`
 
 const saveQueue = _.debounce(async () => {
   console.log('saving queue')
