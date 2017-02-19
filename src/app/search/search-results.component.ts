@@ -47,12 +47,12 @@ export class SearchResultsComponent extends OnDestroy {
     this.jsonp.get(`http://api.deezer.com/search?q=${terms}&limit=100&output=jsonp&callback=JSONP_CALLBACK`)
     .map(data => data.json().data)
     .subscribe(results => {
-      console.debug(results)
-      this.searchResults = results.map(result => {
-        const {id, title} = result
-        const album = pick(result.album, 'title')
-        const artist = pick(result.artist, 'name')
-        return {id, title, album, artist}
+      // console.debug(results)
+      this.searchResults = results.map(track => {
+        const {id, title, duration} = track
+        const album = pick(track.album, 'title')
+        const artist = pick(track.artist, 'name')
+        return {id, title, album, artist, duration}
       })
     })
   }

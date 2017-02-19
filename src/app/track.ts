@@ -6,4 +6,5 @@ export interface Track {
   title: String,
   album: Album,
   artist: Artist,
+  duration: Number,
 }
