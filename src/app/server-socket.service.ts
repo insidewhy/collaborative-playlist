@@ -16,7 +16,8 @@ export class ServerSocket {
       return
 
     const {messages, connectionStatus} = websocketConnect(
-      'ws://127.0.0.1:4201/ws',
+      // TODO: get host/port from window object
+      'ws://127.0.0.1:4200/ws',
       this.input = new QueueingSubject<any>()
     )
 

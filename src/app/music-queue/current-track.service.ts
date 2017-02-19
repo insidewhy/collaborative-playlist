@@ -36,6 +36,7 @@ export class CurrentTrack extends OnDestroy {
       const {remove: removeIdx} = message
       if (removeIdx !== undefined) {
         if (removeIdx === this.index) {
+          // TODO: skip to next song?
         }
         else if (removeIdx < this.index) {
           --this.index
