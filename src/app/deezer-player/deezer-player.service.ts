@@ -23,6 +23,7 @@ export class DeezerPlayer extends OnDestroy {
 
     const onload = dzState => {
       DZ.Event.subscribe('player_play', this.onPlay.bind(this))
+      DZ.Event.subscribe('track_end', this.onTrackEnd.bind(this))
 
       const trackSubscription = this.currentTrack.stream.subscribe(({trackIdx, elapsed}) => {
         if (trackIdx !== -1) {
@@ -49,6 +50,14 @@ export class DeezerPlayer extends OnDestroy {
     if (this.seekOnNext) {
       DZ.player.seek(this.seekOnNext)
       this.seekOnNext = 0
+    }
+  }
+
+  private onTrackEnd() {
+    const nextIdx = this.currentTrack.index + 1
+    if (nextIdx < this.musicQueue.tracks.length) {
+      const track = this.musicQueue.tracks[nextIdx]
+      this.currentTrack.playTrack(track, nextIdx)
     }
   }
 }
