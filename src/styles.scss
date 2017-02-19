@@ -42,7 +42,7 @@ ul.track-list {
     }
 
     &:hover {
-      background-color: #f8f3cb;
+      background-color: $color-pink !important;
       cursor: pointer;
     }
   }
