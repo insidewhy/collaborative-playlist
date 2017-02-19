@@ -2,7 +2,7 @@ import * as Koa from 'koa'
 import * as Router from 'koa-router'
 import * as _ from 'lodash'
 
-import { getMusicQueue, insertTrack, removeTrack } from './music-queue'
+import { getMusicQueue, insertTrack, removeTrack, playTrack, getCurrentTrackStatus } from './music-queue'
 import { SocketCommunicator } from './socket-communicator'
 
 const websockify = require('koa-websocket')
@@ -18,6 +18,8 @@ const messageHandlers = {
   getMusicQueue,
   insertTrack,
   removeTrack,
+  playTrack,
+  getCurrentTrackStatus,
 }
 
 function installSocketRoutes() {
@@ -45,6 +47,7 @@ function installSocketRoutes() {
     }
 
     websocket.on('message', message => {
+      console.log('got message', message)
       const { type, payload } = JSON.parse(message)
 
       try {

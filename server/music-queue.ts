@@ -10,6 +10,7 @@ const writeFile = promisify(fs.writeFile)
 const readFile = promisify(fs.readFile)
 
 const musicQueue: Track[] = []
+let currentTrackIndex = -1
 
 const getConfigPath = () => `${process.env.HOME}/.local/share/share-deezer`
 
@@ -38,8 +39,31 @@ const loadQueue = _.once(async () => {
 
 export function insertTrack(socket: SocketCommunicator, { position, track }: { position: number, track: Track }): void {
   musicQueue.splice(position, 0, track)
+  if (position <= currentTrackIndex)
+    ++currentTrackIndex
   saveQueue()
   socket.broadcast({ insert: position, track })
+}
+
+// Get track with given ID closest to position.
+function findTrack(position: number, trackId: string) {
+  let idx = -1
+  let nextIdx
+  let bestDistance = Infinity
+  // Array#findIndex doesn't accept fromIndex argument
+  while ((nextIdx = _.findIndex(musicQueue, track => track.id === trackId, idx + 1)) !== -1) {
+    const distance = Math.abs(nextIdx - position)
+    if (distance > bestDistance) {
+      // we're getting further so give up
+      return idx
+    }
+    else {
+      bestDistance = distance
+      idx = nextIdx
+    }
+  }
+
+  return idx
 }
 
 export function removeTrack(
@@ -48,25 +72,30 @@ export function removeTrack(
 ): void
 {
   // find the entry for trackId closest to `position`
-  let idx = -1
-  let nextIdx
-  let bestDistance = Infinity
-  while ((nextIdx = musicQueue.findIndex(track => track.id !== trackId, idx + 1)) !== -1) {
-    const distance = Math.abs(nextIdx - position)
-    if (distance > bestDistance) {
-      // we're getting further so give up
-      break
-    }
-    else {
-      bestDistance = distance
-      idx = nextIdx
-    }
-  }
-
+  const idx = findTrack(position, trackId)
   if (idx !== -1) {
+    if (idx < currentTrackIndex)
+      --currentTrackIndex
+
     musicQueue.splice(idx, 1)
     socket.broadcast({ remove: idx })
   }
+}
+
+export function playTrack(
+  socket: SocketCommunicator,
+  { position, trackId } : { position: number, trackId: string }
+): void
+{
+  const idx = findTrack(position, trackId)
+  if (idx !== -1) {
+    currentTrackIndex = idx
+    socket.broadcast({ currentTrack: idx })
+  }
+}
+
+export function getCurrentTrackStatus(socket: SocketCommunicator) {
+  socket.send({ currentTrack: currentTrackIndex })
 }
 
 export async function getMusicQueue(socket: SocketCommunicator): Promise<void> {

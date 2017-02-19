@@ -1,6 +1,8 @@
 import { Component } from '@angular/core'
 
+import { Track } from '../track'
 import { MusicQueue } from './music-queue.service'
+import { CurrentTrack } from './current-track.service'
 
 @Component({
   selector: 'music-queue',
@@ -8,6 +10,9 @@ import { MusicQueue } from './music-queue.service'
   styleUrls: ['./music-queue.component.scss']
 })
 export class MusicQueueComponent {
-  constructor(private musicQueue: MusicQueue) {}
+  constructor(private musicQueue: MusicQueue, private currentTrack: CurrentTrack) {}
 
+  playTrack(track: Track, position: number) {
+    this.currentTrack.playTrack(track, position)
+  }
 }

@@ -15,6 +15,7 @@ import { MusicQueueComponent } from './music-queue/music-queue.component'
 
 import { SearchTerms } from './search/search-terms.service'
 import { MusicQueue } from './music-queue/music-queue.service'
+import { CurrentTrack } from './music-queue/current-track.service'
 
 @NgModule({
   imports: [
@@ -36,6 +37,7 @@ import { MusicQueue } from './music-queue/music-queue.service'
     ServerSocket,
     SearchTerms,
     MusicQueue,
+    CurrentTrack,
   ],
   bootstrap: [AppComponent]
 })

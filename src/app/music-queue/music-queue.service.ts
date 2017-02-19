@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core'
-import { Subscription } from 'rxjs/Subscription'
 
 import groupBy from '../lib/group-by'
 import { Track } from '../track'
@@ -21,7 +20,7 @@ export class MusicQueue extends OnDestroy {
     })
 
     const messagesSubscription = this.socket.messages.subscribe(message => {
-      // console.debug('got message', message)
+      console.debug('got message', message)
       const {musicQueue} = message
 
       if (musicQueue) {

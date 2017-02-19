@@ -41,6 +41,10 @@ ul.track-list {
       background-color: #eee;
     }
 
+    &.active {
+      background-color: $color-blue !important;
+    }
+
     &:hover {
       background-color: $color-pink !important;
       cursor: pointer;
