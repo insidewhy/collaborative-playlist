@@ -1,7 +1,9 @@
 import * as Koa from 'koa'
 import * as Router from 'koa-router'
+import * as _ from 'lodash'
 
 import { getMusicQueue, insertTrack, removeTrack } from './music-queue'
+import { SocketCommunicator } from './socket-communicator'
 
 const websockify = require('koa-websocket')
 const app: Koa = websockify(new Koa())
@@ -19,11 +21,28 @@ const messageHandlers = {
 }
 
 function installSocketRoutes() {
+  let socketCount = 0
+  // sockets by id
+  let allSockets = {}
+
   const wsRouter = new Router()
   const {ws} = app as any
   ws.use(wsRouter.all('/ws', ctxt => {
-
     const {websocket} = ctxt as any
+
+    const socketId = (++socketCount).toString(36)
+    allSockets[socketId] = websocket
+    websocket.on('close', () => { delete allSockets[socketId] })
+
+    const broadcast = data => {
+      const dataStr = JSON.stringify(data)
+      _.forEach(allSockets, (socket: SocketCommunicator) => { socket.send(dataStr) })
+    }
+
+    const socketParam = {
+      send(data) { websocket.send(JSON.stringify(data)) },
+      broadcast,
+    }
 
     websocket.on('message', message => {
       const { type, payload } = JSON.parse(message)
@@ -35,8 +54,7 @@ function installSocketRoutes() {
           return
         }
 
-        const response = handler(payload)
-        websocket.send(JSON.stringify(response))
+        handler(socketParam, payload)
       }
       catch (e) {
         console.log('unexpected error', e.stack || e)

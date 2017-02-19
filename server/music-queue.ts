@@ -1,5 +1,6 @@
 import * as _ from 'lodash'
 
+import { SocketCommunicator } from './socket-communicator'
 import { Track } from '../src/app/track'
 
 // TODO: read from fs
@@ -9,17 +10,17 @@ const saveQueue = _.debounce(() => {
   console.log('TODO: save queue')
 }, 1000)
 
-export function insertTrack({ track, position }: { track: Track, position: number }) {
+export function insertTrack(socket: SocketCommunicator, { position, track }: { position: number, track: Track }): void {
   musicQueue.splice(position, 0, track)
   saveQueue()
-  return { insert: position, track }
+  socket.broadcast({ insert: position, track })
 }
 
-export function removeTrack({ trackId }: { trackId: string }) {
+export function removeTrack(socket: SocketCommunicator, { trackId }, { trackId: string }): void {
   musicQueue = musicQueue.filter(track => track.id !== trackId)
-  return { remove: trackId }
+  socket.broadcast({ remove: trackId })
 }
 
-export function getMusicQueue(): { musicQueue: Track[] } {
-  return { musicQueue }
+export function getMusicQueue(socket: SocketCommunicator): void {
+  socket.send({ musicQueue })
 }
