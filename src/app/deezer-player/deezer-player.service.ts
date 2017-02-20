@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core'
+import { Subscription } from 'rxjs/Subscription'
 
 import { OnDestroy } from '../on-destroy'
 import { MusicQueue } from '../music-queue/music-queue.service'
@@ -8,24 +9,46 @@ declare var DZ: any
 
 @Injectable()
 export class DeezerPlayer extends OnDestroy {
+  private loadedPromise: Promise<null>
+  // whether the deezer api is being used
   private activated = false
+
   private seekOnNext = 0
 
   constructor(private musicQueue: MusicQueue, private currentTrack: CurrentTrack) {
     super()
   }
 
+  load(): Promise<null> {
+    if (this.loadedPromise)
+      return this.loadedPromise
+
+    return this.loadedPromise = new Promise(resolve => {
+      const onload = dzState => {
+        DZ.Event.subscribe('player_play', this.onPlay.bind(this))
+        DZ.Event.subscribe('track_end', this.onTrackEnd.bind(this))
+        resolve()
+      }
+
+      DZ.init({
+        appId: '225524',
+        channelUrl: window.location + '/assets/channel.html',
+
+        player: { onload },
+      })
+    })
+  }
+
   activate() {
     if (this.activated)
       return
-
     this.activated = true
 
-    const onload = dzState => {
-      DZ.Event.subscribe('player_play', this.onPlay.bind(this))
-      DZ.Event.subscribe('track_end', this.onTrackEnd.bind(this))
+    this.load().then(() => {
+      if (! this.activated)
+        return
 
-      const trackSubscription = this.currentTrack.stream.subscribe(({trackIdx, elapsed}) => {
+      const currentTrackSubscription = this.currentTrack.stream.subscribe(({trackIdx, elapsed}) => {
         if (trackIdx !== -1) {
           const track = this.musicQueue.tracks[trackIdx]
           DZ.player.playTracks([ track.id ])
@@ -33,17 +56,26 @@ export class DeezerPlayer extends OnDestroy {
         }
       })
 
-      this.onDestroy(() => {
-        trackSubscription.unsubscribe()
+      const changesSubscription = this.musicQueue.changeStream.subscribe(change => {
+        const {removeIdx} = change
+        if (removeIdx === this.currentTrack.index) {
+            const track = this.musicQueue.tracks[removeIdx]
+            DZ.player.playTracks([ track.id ])
+        }
       })
-    }
 
-    DZ.init({
-      appId: '225524',
-      channelUrl: window.location + '/assets/channel.html',
-
-      player: { onload },
+      this.onDestroy(() => {
+        currentTrackSubscription.unsubscribe()
+        changesSubscription.unsubscribe()
+      })
     })
+  }
+
+  deactivate() {
+    if (! this.activated)
+      return
+    this.activated = false
+    this.ngOnDestroy()
   }
 
   private onPlay() {
@@ -57,7 +89,7 @@ export class DeezerPlayer extends OnDestroy {
     const nextIdx = this.currentTrack.index + 1
     if (nextIdx < this.musicQueue.tracks.length) {
       const track = this.musicQueue.tracks[nextIdx]
-      this.currentTrack.playTrack(track, nextIdx)
+      this.musicQueue.playTrack(track, nextIdx)
     }
   }
 }

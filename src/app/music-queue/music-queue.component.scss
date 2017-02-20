@@ -7,7 +7,25 @@
 
 ul {
   li {
+    padding-left: $top-layer-horizontal-padding;
+    display: flex;
     background-color: $color-music-queue;
+    align-items: center;
+
+    > span {
+      padding: 4px 0;
+      flex-grow: 1;
+    }
+
+    a {
+      display: flex;
+      align-items: center;
+      padding: 0 #{$top-layer-horizontal-padding - 2px};
+
+      &:hover {
+        background-color: darken($color-pink, 10%);
+      }
+    }
 
     &:nth-child(even) {
       background-color: $color-music-queue-alt;

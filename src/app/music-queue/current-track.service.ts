@@ -46,11 +46,8 @@ export class CurrentTrack extends OnDestroy {
 
       const {remove: removeIdx} = message
       if (removeIdx !== undefined) {
-        if (removeIdx === this.index) {
-        }
-        else if (removeIdx < this.index) {
+        if (removeIdx < this.index)
           --this.index
-        }
         return
       }
     })
@@ -59,9 +56,5 @@ export class CurrentTrack extends OnDestroy {
       messagesSubscription.unsubscribe()
       connectionStatusSubscription.unsubscribe()
     })
-  }
-
-  public playTrack(track: Track, position: number):void {
-    this.socket.send({ type: 'playTrack', payload: { trackId: track.id, position } })
   }
 }

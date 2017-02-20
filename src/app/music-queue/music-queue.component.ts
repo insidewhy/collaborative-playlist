@@ -13,6 +13,10 @@ export class MusicQueueComponent {
   constructor(private musicQueue: MusicQueue, private currentTrack: CurrentTrack) {}
 
   playTrack(track: Track, position: number) {
-    this.currentTrack.playTrack(track, position)
+    this.musicQueue.playTrack(track, position)
+  }
+
+  removeTrack(track: Track, position: number) {
+    this.musicQueue.removeTrack(track, position)
   }
 }
