@@ -87,13 +87,17 @@ export function removeTrack(
   }
 }
 
+/**
+ * A position of -1 is used to indicate that no track should be the current track.
+ */
 export function playTrack(
   socket: SocketCommunicator,
-  { position, trackId } : { position: number, trackId: string }
+  { position, trackId } : { position: number, trackId?: string }
 ): void
 {
-  const idx = findTrack(position, trackId)
-  if (idx !== -1) {
+  const playNoTrack = position === -1
+  const idx = playNoTrack ? -1 : findTrack(position, trackId)
+  if (playNoTrack || idx !== -1) {
     currentTrackIndex = idx
     trackStarted = new Date()
     socket.broadcast({ currentTrack: idx, elapsed: 0 })

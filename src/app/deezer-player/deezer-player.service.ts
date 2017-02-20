@@ -91,11 +91,11 @@ export class DeezerPlayer extends OnDestroy {
   private onTrackEnd() {
     const nextIdx = this.currentTrack.index + 1
     if (nextIdx >= this.musicQueue.tracks.length) {
-      console.debug('TODO: set current track to -1')
+      this.musicQueue.playTrack(null, -1)
     }
     else {
       const track = this.musicQueue.tracks[nextIdx]
-      this.musicQueue.playTrack(track, nextIdx)
+      this.musicQueue.playTrack(track.id, nextIdx)
     }
   }
 }

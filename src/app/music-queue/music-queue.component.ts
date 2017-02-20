@@ -12,8 +12,8 @@ import { CurrentTrack } from './current-track.service'
 export class MusicQueueComponent {
   constructor(private musicQueue: MusicQueue, private currentTrack: CurrentTrack) {}
 
-  playTrack(track: Track, position: number) {
-    this.musicQueue.playTrack(track, position)
+  playTrack(trackId: string, position: number) {
+    this.musicQueue.playTrack(trackId, position)
   }
 
   removeTrack(track: Track, position: number) {

@@ -1,7 +1,7 @@
 <ul class="track-list">
   <li *ngFor="let track of musicQueue.tracks; let position = index"
       [class.active]="currentTrack.index === position" >
-    <span (click)="playTrack(track, position)">
+    <span (click)="playTrack(track.id, position)">
       {{track.artist.name}} - {{track.album.title}} - {{track.title}}
     </span>
     <a (click)="removeTrack(track, position)">

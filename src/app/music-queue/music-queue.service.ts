@@ -79,14 +79,14 @@ export class MusicQueue extends OnDestroy {
     this.socket.send({ type: 'removeTrack', payload: { trackId: track.id, position } })
   }
 
-  public playTrack(track: Track, position: number):void {
-    this.socket.send({ type: 'playTrack', payload: { trackId: track.id, position } })
+  public playTrack(trackId: string, position: number):void {
+    this.socket.send({ type: 'playTrack', payload: { trackId, position } })
   }
 
   public skipTrack(offset: number):void {
     const nextIdx = this.currentTrack.index + offset
     const track = this.tracks[nextIdx]
     if (track)
-      this.playTrack(track, nextIdx)
+      this.playTrack(track.id, nextIdx)
   }
 }
