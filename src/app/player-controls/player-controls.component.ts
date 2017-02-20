@@ -9,15 +9,20 @@ import { DeezerPlayer } from '../deezer-player/deezer-player.service'
 export class PlayerControlsComponent {
   constructor(private deezerPlayer: DeezerPlayer) {
     // TODO: read mute status from local storage and apply to deezerPlayer
+    const muted = window.localStorage.getItem('muted')
+    if (! muted)
+      deezerPlayer.activate()
   }
 
   private toggleMute() {
     const {deezerPlayer} = this
-    if (deezerPlayer.activated)
+    if (deezerPlayer.activated) {
       deezerPlayer.deactivate()
-    else
+      window.localStorage.setItem('muted', 'true')
+    }
+    else {
       deezerPlayer.activate()
-
-    // TODO: store mute status in local storage
+      window.localStorage.removeItem('muted')
+    }
   }
 }
