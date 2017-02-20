@@ -45,7 +45,7 @@ export function insertTrack(socket: SocketCommunicator, { position, track }: { p
   if (position <= currentTrackIndex)
     ++currentTrackIndex
   saveQueue()
-  socket.broadcast({ insert: position, track })
+  socket.broadcast('insert', { track, index: position })
 }
 
 // Get track with given ID closest to position.
@@ -83,7 +83,7 @@ export function removeTrack(
       --currentTrackIndex
 
     musicQueue.splice(idx, 1)
-    socket.broadcast({ remove: idx })
+    socket.broadcast('remove', idx)
   }
 }
 
@@ -100,18 +100,18 @@ export function playTrack(
   if (playNoTrack || idx !== -1) {
     currentTrackIndex = idx
     trackStarted = new Date()
-    socket.broadcast({ currentTrack: idx, elapsed: 0 })
+    socket.broadcast('currentTrack', { index: idx, elapsed: 0 })
   }
 }
 
 export function getCurrentTrackStatus(socket: SocketCommunicator) {
-  socket.send({
-    currentTrack: currentTrackIndex,
+  socket.send('currentTrack', {
+    index: currentTrackIndex,
     elapsed: (Date.now() - trackStarted.getTime()) / 1000,
   })
 }
 
 export async function getMusicQueue(socket: SocketCommunicator): Promise<void> {
   await loadQueue()
-  socket.send({ musicQueue })
+  socket.send('musicQueue', musicQueue)
 }

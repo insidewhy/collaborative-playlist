@@ -24,17 +24,15 @@ export class MusicQueue extends OnDestroy {
 
     const messagesSubscription = this.socket.messages.subscribe(message => {
       console.debug('got message', message)
-      const {musicQueue} = message
 
-      if (musicQueue) {
-        this.tracks = musicQueue
+      if (message.type === 'musicQueue') {
+        this.tracks = message.payload
         this.tracksById = groupBy(this.tracks, track => track.id)
         return
       }
 
-      const {insert: insertIdx} = message
-      if (insertIdx !== undefined) {
-        const {track} = message
+      if (message.type === 'insert') {
+        const {track, index: insertIdx} = message.payload
 
         // send before modifications to queue/currentTrack below
         this.changeStream.next({ insertIdx, track })
@@ -52,8 +50,8 @@ export class MusicQueue extends OnDestroy {
         return
       }
 
-      const {remove: removeIdx} = message
-      if (removeIdx !== undefined) {
+      if (message.type === 'remove') {
+        const removeIdx = message.payload
         // send before modifications to queue/track below
         this.changeStream.next({ removeIdx })
 

@@ -29,9 +29,8 @@ export class CurrentTrack extends OnDestroy {
     })
 
     const messagesSubscription = this.socket.messages.subscribe(message => {
-      const {currentTrack: trackIdx} = message
-      if (trackIdx !== undefined) {
-        const {elapsed} = message
+      if (message.type === 'currentTrack') {
+        const {elapsed, index: trackIdx} = message.payload
         this.index = trackIdx
         this.stream.next({ trackIdx, elapsed })
         return

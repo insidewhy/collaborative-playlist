@@ -3,7 +3,6 @@ import * as Router from 'koa-router'
 import * as _ from 'lodash'
 
 import { getMusicQueue, insertTrack, removeTrack, playTrack, getCurrentTrackStatus } from './music-queue'
-import { SocketCommunicator } from './socket-communicator'
 
 const websockify = require('koa-websocket')
 const app: Koa = websockify(new Koa())
@@ -27,6 +26,13 @@ function installSocketRoutes() {
   // sockets by id
   let allSockets = {}
 
+  const broadcast = (type, payload) => {
+    const dataStr = JSON.stringify({ type, payload })
+    _.forEach(allSockets, (socket: any) => { socket.send(dataStr) })
+  }
+
+  const send = (websocket, type, payload) => { websocket.send(JSON.stringify({ type, payload })) }
+
   const wsRouter = new Router()
   const {ws} = app as any
   ws.use(wsRouter.all('/ws', ctxt => {
@@ -36,15 +42,7 @@ function installSocketRoutes() {
     allSockets[socketId] = websocket
     websocket.on('close', () => { delete allSockets[socketId] })
 
-    const broadcast = data => {
-      const dataStr = JSON.stringify(data)
-      _.forEach(allSockets, (socket: SocketCommunicator) => { socket.send(dataStr) })
-    }
-
-    const socketParam = {
-      send(data) { websocket.send(JSON.stringify(data)) },
-      broadcast,
-    }
+    const socketParam = { send: send.bind(null, websocket), broadcast }
 
     websocket.on('message', message => {
       console.log('got message', message)

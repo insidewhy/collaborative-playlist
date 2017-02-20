@@ -1,4 +1,4 @@
 export interface SocketCommunicator {
-  send(data: any): void
-  broadcast(data: any): void
+  send(type: string, payload: any): void
+  broadcast(type: string, payload: any): void
 }
