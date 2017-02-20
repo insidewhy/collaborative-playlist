@@ -11,7 +11,7 @@ declare var DZ: any
 export class DeezerPlayer extends OnDestroy {
   private loadedPromise: Promise<null>
   // whether the deezer api is being used
-  private activated = false
+  public activated = false
   private seekOnNext = 0
 
   constructor(private musicQueue: MusicQueue, private currentTrack: CurrentTrack) {
@@ -64,7 +64,7 @@ export class DeezerPlayer extends OnDestroy {
           if (track)
             DZ.player.playTracks([ track.id ])
           else
-            DZ.player.pause() // sending an empty array to playTracks does nothing!
+            this.stopPlayer()
         }
       })
 
@@ -78,8 +78,15 @@ export class DeezerPlayer extends OnDestroy {
   deactivate() {
     if (! this.activated)
       return
+
+    this.stopPlayer()
     this.activated = false
     this.ngOnDestroy()
+  }
+
+  private stopPlayer() {
+    // sending an empty array to playTracks does nothing!
+    DZ.player.pause()
   }
 
   private onPlay() {

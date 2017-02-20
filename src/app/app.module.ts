@@ -43,9 +43,4 @@ import { DeezerPlayer } from './deezer-player/deezer-player.service'
   ],
   bootstrap: [AppComponent]
 })
-export class AppModule {
-  constructor(deezerPlayer: DeezerPlayer) {
-    // TODO: activate only if volume isn't muted later
-    deezerPlayer.activate()
-  }
-}
+export class AppModule {}
