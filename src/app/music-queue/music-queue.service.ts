@@ -69,16 +69,16 @@ export class MusicQueue extends OnDestroy {
     })
   }
 
-  public insertTrack(track: Track, position: number):void {
-    this.socket.send({ type: 'insertTrack', payload: { track, position } })
+  public insertTrack(track: Track, index: number):void {
+    this.socket.send({ type: 'insertTrack', payload: { track, index } })
   }
 
-  public removeTrack(track: Track, position: number):void {
-    this.socket.send({ type: 'removeTrack', payload: { trackId: track.id, position } })
+  public removeTrack(track: Track, index: number):void {
+    this.socket.send({ type: 'removeTrack', payload: { trackId: track.id, index } })
   }
 
-  public playTrack(trackId: string, position: number):void {
-    this.socket.send({ type: 'playTrack', payload: { trackId, position } })
+  public playTrack(trackId: string, index: number):void {
+    this.socket.send({ type: 'playTrack', payload: { trackId, index } })
   }
 
   public skipTrack(offset: number):void {

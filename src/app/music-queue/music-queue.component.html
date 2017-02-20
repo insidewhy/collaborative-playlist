@@ -1,10 +1,10 @@
 <ul class="track-list">
-  <li *ngFor="let track of musicQueue.tracks; let position = index"
-      [class.active]="currentTrack.index === position" >
-    <span (click)="playTrack(track.id, position)">
+  <li *ngFor="let track of musicQueue.tracks; let index = index"
+      [class.active]="currentTrack.index === index" >
+    <span (click)="playTrack(track.id, index)">
       {{track.artist.name}} - {{track.album.title}} - {{track.title}}
     </span>
-    <a (click)="removeTrack(track, position)">
+    <a (click)="removeTrack(track, index)">
       <md-icon >delete</md-icon>
     </a>
   </li>

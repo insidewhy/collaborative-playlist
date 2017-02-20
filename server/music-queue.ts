@@ -40,67 +40,67 @@ const loadQueue = _.once(async () => {
   }
 })
 
-export function insertTrack(socket: SocketCommunicator, { position, track }: { position: number, track: Track }): void {
-  musicQueue.splice(position, 0, track)
-  if (position <= currentTrackIndex)
+export function insertTrack(socket: SocketCommunicator, { index, track }: { index: number, track: Track }): void {
+  musicQueue.splice(index, 0, track)
+  if (index <= currentTrackIndex)
     ++currentTrackIndex
   saveQueue()
-  socket.broadcast('insert', { track, index: position })
+  socket.broadcast('insert', { track, index })
 }
 
-// Get track with given ID closest to position.
-function findTrack(position: number, trackId: string) {
-  let idx = -1
+// Get track with given ID closest to index.
+function findTrack(index: number, trackId: string) {
+  let searchIndex = -1
   let nextIdx
   let bestDistance = Infinity
   // Array#findIndex doesn't accept fromIndex argument
-  while ((nextIdx = _.findIndex(musicQueue, track => track.id === trackId, idx + 1)) !== -1) {
-    const distance = Math.abs(nextIdx - position)
+  while ((nextIdx = _.findIndex(musicQueue, track => track.id === trackId, searchIndex + 1)) !== -1) {
+    const distance = Math.abs(nextIdx - index)
     if (distance > bestDistance) {
       // we're getting further so give up
-      return idx
+      return searchIndex
     }
     else {
       bestDistance = distance
-      idx = nextIdx
+      searchIndex = nextIdx
     }
   }
 
-  return idx
+  return searchIndex
 }
 
 export function removeTrack(
   socket: SocketCommunicator,
-  { position, trackId } : { position: number, trackId: string }
+  { index, trackId } : { index: number, trackId: string }
 ): void
 {
-  // find the entry for trackId closest to `position`
-  const idx = findTrack(position, trackId)
-  if (idx !== -1) {
-    if (idx === currentTrackIndex)
+  // find the entry for trackId closest to `index`
+  index = findTrack(index, trackId)
+  if (index !== -1) {
+    if (index === currentTrackIndex)
       trackStarted = new Date()
-    else if (idx < currentTrackIndex)
+    else if (index < currentTrackIndex)
       --currentTrackIndex
 
-    musicQueue.splice(idx, 1)
-    socket.broadcast('remove', idx)
+    musicQueue.splice(index, 1)
+    socket.broadcast('remove', index)
   }
 }
 
 /**
- * A position of -1 is used to indicate that no track should be the current track.
+ * A index of -1 is used to indicate that no track should be the current track.
  */
 export function playTrack(
   socket: SocketCommunicator,
-  { position, trackId } : { position: number, trackId?: string }
+  { index, trackId } : { index: number, trackId?: string }
 ): void
 {
-  const playNoTrack = position === -1
-  const idx = playNoTrack ? -1 : findTrack(position, trackId)
-  if (playNoTrack || idx !== -1) {
-    currentTrackIndex = idx
+  const playNoTrack = index === -1
+  index = playNoTrack ? -1 : findTrack(index, trackId)
+  if (playNoTrack || index !== -1) {
+    currentTrackIndex = index
     trackStarted = new Date()
-    socket.broadcast('currentTrack', { index: idx, elapsed: 0 })
+    socket.broadcast('currentTrack', { index, elapsed: 0 })
   }
 }
 
