@@ -77,7 +77,9 @@ export function removeTrack(
   // find the entry for trackId closest to `position`
   const idx = findTrack(position, trackId)
   if (idx !== -1) {
-    if (idx < currentTrackIndex)
+    if (idx === currentTrackIndex)
+      trackStarted = new Date()
+    else if (idx < currentTrackIndex)
       --currentTrackIndex
 
     musicQueue.splice(idx, 1)
