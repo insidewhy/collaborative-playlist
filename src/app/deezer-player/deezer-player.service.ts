@@ -12,14 +12,13 @@ export class DeezerPlayer extends OnDestroy {
   private loadedPromise: Promise<null>
   // whether the deezer api is being used
   private activated = false
-
   private seekOnNext = 0
 
   constructor(private musicQueue: MusicQueue, private currentTrack: CurrentTrack) {
     super()
   }
 
-  load(): Promise<null> {
+  private load(): Promise<null> {
     if (this.loadedPromise)
       return this.loadedPromise
 
@@ -61,9 +60,11 @@ export class DeezerPlayer extends OnDestroy {
       const changesSubscription = this.musicQueue.changeStream.subscribe(change => {
         const {removeIdx} = change
         if (removeIdx === this.currentTrack.index) {
-            const track = this.musicQueue.tracks[removeIdx + 1]
-            if (track)
-              DZ.player.playTracks([ track.id ])
+          const track = this.musicQueue.tracks[removeIdx + 1]
+          if (track)
+            DZ.player.playTracks([ track.id ])
+          else
+            DZ.player.pause() // sending an empty array to playTracks does nothing!
         }
       })
 
