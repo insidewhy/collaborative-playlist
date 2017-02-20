@@ -36,20 +36,6 @@ export class CurrentTrack extends OnDestroy {
         this.stream.next({ trackIdx, elapsed })
         return
       }
-
-      const {insert: insertIdx} = message
-      if (insertIdx !== undefined) {
-        if (insertIdx <= this.index)
-          ++this.index
-        return
-      }
-
-      const {remove: removeIdx} = message
-      if (removeIdx !== undefined) {
-        if (removeIdx < this.index)
-          --this.index
-        return
-      }
     })
 
     this.onDestroy(() => {

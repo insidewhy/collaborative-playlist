@@ -61,7 +61,7 @@ export class DeezerPlayer extends OnDestroy {
       const changesSubscription = this.musicQueue.changeStream.subscribe(change => {
         const {removeIdx} = change
         if (removeIdx === this.currentTrack.index) {
-            const track = this.musicQueue.tracks[removeIdx]
+            const track = this.musicQueue.tracks[removeIdx + 1]
             if (track)
               DZ.player.playTracks([ track.id ])
         }
@@ -90,7 +90,10 @@ export class DeezerPlayer extends OnDestroy {
 
   private onTrackEnd() {
     const nextIdx = this.currentTrack.index + 1
-    if (nextIdx < this.musicQueue.tracks.length) {
+    if (nextIdx >= this.musicQueue.tracks.length) {
+      console.debug('TODO: set current track to -1')
+    }
+    else {
       const track = this.musicQueue.tracks[nextIdx]
       this.musicQueue.playTrack(track, nextIdx)
     }

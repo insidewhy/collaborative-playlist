@@ -35,6 +35,10 @@ export class MusicQueue extends OnDestroy {
       const {insert: insertIdx} = message
       if (insertIdx !== undefined) {
         const {track} = message
+
+        // send before modifications to queue/currentTrack below
+        this.changeStream.next({ insertIdx, track })
+
         this.tracks.splice(insertIdx, 0, track)
         const existing = this.tracksById.get(track.id)
         if (existing)
@@ -42,16 +46,21 @@ export class MusicQueue extends OnDestroy {
         else
           this.tracksById.set(track.id, [ track ])
 
-        this.changeStream.next({ insertIdx })
+        if (insertIdx <= this.currentTrack.index)
+          ++this.currentTrack.index
+
         return
       }
 
       const {remove: removeIdx} = message
       if (removeIdx !== undefined) {
-        // ensure it happens on the next tick so other subscribers can
-        // handle the event before the track is spliced
-        this.tracks.splice(removeIdx, 1)
+        // send before modifications to queue/track below
         this.changeStream.next({ removeIdx })
+
+        this.tracks.splice(removeIdx, 1)
+
+        if (removeIdx < this.currentTrack.index)
+          --this.currentTrack.index
         return
       }
     })
