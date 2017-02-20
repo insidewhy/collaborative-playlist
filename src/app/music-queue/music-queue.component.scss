@@ -18,6 +18,7 @@ ul {
     }
 
     a {
+      align-self: stretch;
       display: flex;
       align-items: center;
       padding: 0 #{$top-layer-horizontal-padding - 2px};
