@@ -34,9 +34,15 @@ ul {
 
     &:nth-child(even) {
       background-color: $color-music-queue-alt;
-
       &:hover {
         background-color: darken($color-music-queue-alt, 10%);
+      }
+    }
+
+    &.selected {
+      background-color: $color-green !important;
+      &:hover {
+        background-color: darken($color-green, 10%) !important;
       }
     }
   }

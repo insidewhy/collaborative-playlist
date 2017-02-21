@@ -3,6 +3,7 @@ import { Component } from '@angular/core'
 import { Track } from '../track'
 import { MusicQueue } from './music-queue.service'
 import { CurrentTrack } from './current-track.service'
+import { SelectedTracks } from './selected-tracks.service'
 
 @Component({
   selector: 'music-queue',
@@ -10,13 +11,16 @@ import { CurrentTrack } from './current-track.service'
   styleUrls: ['./music-queue.component.scss']
 })
 export class MusicQueueComponent {
-  constructor(private musicQueue: MusicQueue, private currentTrack: CurrentTrack) {}
+  constructor(private musicQueue: MusicQueue,
+              private currentTrack: CurrentTrack,
+              private selectedTracks: SelectedTracks)
+  {}
 
   playTrack(trackId: string, index: number) {
     this.musicQueue.playTrack(trackId, index)
   }
 
-  removeTrack(track: Track, index: number) {
-    this.musicQueue.removeTrack(track, index)
+  toggleSelection(index: number) {
+    this.selectedTracks.toggle(index)
   }
 }

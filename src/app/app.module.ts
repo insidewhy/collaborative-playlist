@@ -12,9 +12,11 @@ import { PlayerControlsComponent } from './player-controls/player-controls.compo
 import { AppRoutingModule } from './app-routing.module'
 import { SearchResultsComponent } from './search/search-results.component'
 import { MusicQueueComponent } from './music-queue/music-queue.component'
+import { SelectedTracksControlsComponent } from './music-queue/selected-tracks-controls.component'
 
 import { SearchTerms } from './search/search-terms.service'
 import { MusicQueue } from './music-queue/music-queue.service'
+import { SelectedTracks } from './music-queue/selected-tracks.service'
 import { CurrentTrack } from './music-queue/current-track.service'
 import { DeezerPlayer } from './deezer-player/deezer-player.service'
 
@@ -32,12 +34,14 @@ import { DeezerPlayer } from './deezer-player/deezer-player.service'
     PlayerControlsComponent,
     SearchResultsComponent,
     MusicQueueComponent,
+    SelectedTracksControlsComponent,
   ],
   providers: [
     MdIconRegistry,
     ServerSocket,
     SearchTerms,
     MusicQueue,
+    SelectedTracks,
     CurrentTrack,
     DeezerPlayer,
   ],
