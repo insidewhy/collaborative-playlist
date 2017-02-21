@@ -1,5 +1,10 @@
-<button>
+<button *ngIf="this.currentTrack.index === -1"
+        (click)="play()">
   <md-icon>play_arrow</md-icon>
+</button>
+<button *ngIf="this.currentTrack.index !== -1"
+        (click)="pause()">
+  <md-icon>pause</md-icon>
 </button>
 <button>
   <md-icon>skip_previous</md-icon>
