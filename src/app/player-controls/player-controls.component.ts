@@ -29,8 +29,11 @@ export class PlayerControlsComponent {
   }
 
   private play() {
+    // TODO: if no track is playing then play the first track instead of resuming
+    this.currentTrack.unpause()
   }
 
   private pause() {
+    this.currentTrack.pause()
   }
 }

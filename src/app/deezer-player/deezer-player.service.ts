@@ -47,12 +47,17 @@ export class DeezerPlayer extends OnDestroy {
       if (! this.activated)
         return
 
-      const currentTrackSubscription = this.currentTrack.stream.subscribe(({trackIdx, elapsed}) => {
+      const currentTrackSubscription = this.currentTrack.stream.subscribe(({trackIdx, elapsed, paused}) => {
         if (trackIdx !== -1) {
           const track = this.musicQueue.tracks[trackIdx]
           if (track) {
-            DZ.player.playTracks([ track.id ])
-            this.seekOnNext = (elapsed / track.duration) * 100
+            if (paused) {
+              DZ.player.pause()
+            }
+            else {
+              DZ.player.playTracks([ track.id ])
+              this.seekOnNext = (elapsed / (track.duration * 1000)) * 100
+            }
           }
         }
       })

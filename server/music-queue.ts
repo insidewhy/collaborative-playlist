@@ -78,13 +78,19 @@ export function removeTrack(
   index = findTrack(index, trackId)
   if (index !== -1) {
     if (index === trackState.index)
-      trackState.started = new Date()
+      trackState.play()
     else if (index < trackState.index)
       --trackState.index
 
     musicQueue.splice(index, 1)
     socket.broadcast('remove', index)
   }
+}
+
+function sendCurrentTrackState(socket: SocketCommunicator) {
+  const { index, paused } = trackState
+  const elapsed = trackState.getElapsed()
+  socket.broadcast('currentTrack', { index, elapsed, paused })
 }
 
 /**
@@ -100,14 +106,23 @@ export function playTrack(
   if (playNoTrack || index !== -1) {
     trackState.index = index
     trackState.play()
-    socket.broadcast('currentTrack', { index, elapsed: 0 })
+    sendCurrentTrackState(socket)
   }
+}
+
+export function pauseTrack(socket: SocketCommunicator, unpause: boolean): void {
+  if (unpause)
+    trackState.play()
+  else
+    trackState.pause()
+  sendCurrentTrackState(socket)
 }
 
 export function getCurrentTrackStatus(socket: SocketCommunicator) {
   socket.send('currentTrack', {
     index: trackState.index,
     elapsed: trackState.getElapsed(),
+    paused: trackState.paused,
   })
 }
 
