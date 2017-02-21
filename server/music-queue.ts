@@ -4,16 +4,16 @@ import * as fs from 'fs'
 
 import { SocketCommunicator } from './socket-communicator'
 import { Track } from '../src/app/track'
+import { TrackState } from './track-state'
 
 const mkpath = promisify(require('mkpath'))
 const writeFile = promisify(fs.writeFile)
 const readFile = promisify(fs.readFile)
 
 const musicQueue: Track[] = []
-// index within musicQueue of current playing track
-let currentTrackIndex = -1
 // time current track started playing
-let trackStarted = new Date()
+
+const trackState = new TrackState()
 
 const getConfigPath = () => `${process.env.HOME}/.local/share/share-deezer`
 
@@ -42,8 +42,8 @@ const loadQueue = _.once(async () => {
 
 export function insertTrack(socket: SocketCommunicator, { index, track }: { index: number, track: Track }): void {
   musicQueue.splice(index, 0, track)
-  if (index <= currentTrackIndex)
-    ++currentTrackIndex
+  if (index <= trackState.index)
+    ++trackState.index
   saveQueue()
   socket.broadcast('insert', { track, index })
 }
@@ -77,10 +77,10 @@ export function removeTrack(
   // find the entry for trackId closest to `index`
   index = findTrack(index, trackId)
   if (index !== -1) {
-    if (index === currentTrackIndex)
-      trackStarted = new Date()
-    else if (index < currentTrackIndex)
-      --currentTrackIndex
+    if (index === trackState.index)
+      trackState.started = new Date()
+    else if (index < trackState.index)
+      --trackState.index
 
     musicQueue.splice(index, 1)
     socket.broadcast('remove', index)
@@ -98,16 +98,16 @@ export function playTrack(
   const playNoTrack = index === -1
   index = playNoTrack ? -1 : findTrack(index, trackId)
   if (playNoTrack || index !== -1) {
-    currentTrackIndex = index
-    trackStarted = new Date()
+    trackState.index = index
+    trackState.play()
     socket.broadcast('currentTrack', { index, elapsed: 0 })
   }
 }
 
 export function getCurrentTrackStatus(socket: SocketCommunicator) {
   socket.send('currentTrack', {
-    index: currentTrackIndex,
-    elapsed: (Date.now() - trackStarted.getTime()) / 1000,
+    index: trackState.index,
+    elapsed: trackState.getElapsed(),
   })
 }
 
