@@ -1,4 +1,5 @@
 @import '../_config';
+@import '../music-queue/_queued';
 
 :host {
   overflow-y: scroll;
@@ -7,20 +8,17 @@
 
 ul li {
   padding: 3px $top-layer-horizontal-padding;
+  background-color: $color-yellow;
+
+  &:nth-child(even) {
+    background-color: lighten($color-yellow, 5%);
+  }
 
   &.queued {
-    background-color: $color-music-queue;
+    @extend %music-queue-colors;
+  }
 
-    &:hover {
-      background-color: darken($color-music-queue, 10%) !important;
-    }
-
-    &:nth-child(even) {
-      background-color: $color-music-queue-alt;
-
-      &:hover {
-        background-color: darken($color-music-queue-alt, 10%) !important;
-      }
-    }
+  &:hover {
+    background-color: darken($color-yellow, 10%);
   }
 }

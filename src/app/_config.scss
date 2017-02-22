@@ -7,4 +7,4 @@ $color-green: #baffc9;
 $color-blue: #bae1ff;
 
 $color-music-queue: $color-orange;
-$color-music-queue-alt: $color-yellow;
+$color-music-queue-alt: lighten($color-orange, 5%);

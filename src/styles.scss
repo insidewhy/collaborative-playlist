@@ -40,8 +40,8 @@ ul.track-list {
   li {
     font-family: sans-serif;
 
-    &:nth-child(odd) {
-      background-color: #eee;
+    &:hover {
+      cursor: pointer;
     }
 
     &.active {
@@ -50,11 +50,6 @@ ul.track-list {
       &:hover {
         background-color: darken($color-blue, 10%) !important;
       }
-    }
-
-    &:hover {
-      background-color: $color-pink;
-      cursor: pointer;
     }
   }
 }

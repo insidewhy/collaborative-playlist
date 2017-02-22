@@ -1,0 +1,13 @@
+@import '../_config';
+
+%music-queue-colors {
+  background-color: $color-music-queue;
+
+  &:nth-child(even) {
+    background-color: $color-music-queue-alt;
+  }
+
+  &:hover {
+    background-color: darken($color-music-queue, 10%);
+  }
+}
