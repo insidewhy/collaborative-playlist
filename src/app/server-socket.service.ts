@@ -15,8 +15,14 @@ export class ServerSocket {
     if (this.messages)
       return
 
+    let {port} = window.location
+    if (port === '')
+      port = '80'
+
+    const wsPort = port === '9000' ? '4201' : port
+
     const {messages, connectionStatus} = websocketConnect(
-      `ws://${window.location.hostname}:4201/ws`,
+      `ws://${window.location.hostname}:${wsPort}/ws`,
       this.input = new QueueingSubject<any>()
     )
 
