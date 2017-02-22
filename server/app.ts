@@ -1,5 +1,7 @@
+import {join as pathJoin} from 'path'
 import * as Koa from 'koa'
 import * as Router from 'koa-router'
+import * as koaStatic from 'koa-static'
 import * as _ from 'lodash'
 
 import * as musicQueueHandlers from './music-queue'
@@ -10,7 +12,10 @@ const app: Koa = websockify(new Koa())
 function main() {
   console.log('TODO: start server')
   installSocketRoutes()
-  app.listen(process.env.API_PORT || 4201)
+
+  app.use(koaStatic(pathJoin(__dirname, '..', 'client')))
+
+  app.listen(process.env.PORT || 4201)
 }
 
 const messageHandlers = {}
