@@ -15,12 +15,4 @@ export class MusicQueueComponent {
               private currentTrack: CurrentTrack,
               private selectedTracks: SelectedTracks)
   {}
-
-  playTrack(trackId: string, index: number) {
-    this.musicQueue.playTrack(trackId, index)
-  }
-
-  toggleSelection(index: number) {
-    this.selectedTracks.toggle(index)
-  }
 }
