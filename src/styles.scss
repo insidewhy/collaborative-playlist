@@ -38,7 +38,14 @@ ul.track-list {
   list-style: none;
 
   li {
+    display: flex;
+    align-items: center;
     font-family: sans-serif;
+
+    > div {
+      padding: 4px 0;
+      flex-grow: 1;
+    }
 
     &:hover {
       cursor: pointer;

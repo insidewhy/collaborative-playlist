@@ -2,6 +2,11 @@
   <li *ngFor="let track of searchResults"
       [class.queued]="this.musicQueue.tracksById.get(track.id)"
       (click)="selectTrack(track)">
-    {{track.artist.name}} - {{track.album.title}} - {{track.title}}
+    <div>
+      {{track.artist.name}} - {{track.album.title}} - {{track.title}}
+    </div>
+    <time>
+      {{track.duration | trackDuration}}
+    </time>
   </li>
 </ul>

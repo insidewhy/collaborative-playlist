@@ -52,7 +52,7 @@ export class SearchResultsComponent extends OnDestroy {
         const {id, title, duration} = track
         const album = pick(track.album, 'title')
         const artist = pick(track.artist, 'name')
-        return {id, title, album, artist, duration}
+        return {id, title, album, artist, duration: duration * 1000}
       })
     })
   }

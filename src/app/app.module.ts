@@ -13,6 +13,7 @@ import { AppRoutingModule } from './app-routing.module'
 import { SearchResultsComponent } from './search/search-results.component'
 import { MusicQueueComponent } from './music-queue/music-queue.component'
 import { SelectedTracksControlsComponent } from './music-queue/selected-tracks-controls.component'
+import { TrackDurationPipe } from './track-duration'
 
 import { SearchTerms } from './search/search-terms.service'
 import { MusicQueue } from './music-queue/music-queue.service'
@@ -35,6 +36,7 @@ import { DeezerPlayer } from './deezer-player/deezer-player.service'
     SearchResultsComponent,
     MusicQueueComponent,
     SelectedTracksControlsComponent,
+    TrackDurationPipe,
   ],
   providers: [
     MdIconRegistry,

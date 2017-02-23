@@ -10,8 +10,11 @@
        (click)="currentTrack.pause()">
       <md-icon >pause</md-icon>
     </a>
-    <span (click)="selectedTracks.toggle(index)">
+    <div (click)="selectedTracks.toggle(index)">
       {{track.artist.name}} - {{track.album.title}} - {{track.title}}
-    </span>
+    </div>
+    <time>
+      {{track.duration | trackDuration}}
+    </time>
   </li>
 </ul>
