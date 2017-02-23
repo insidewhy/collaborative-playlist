@@ -4,6 +4,8 @@ import { Observable } from 'rxjs/Observable'
 import websocketConnect from 'rxjs-websockets'
 
 import 'rxjs/add/operator/share'
+import 'rxjs/add/operator/retryWhen'
+import 'rxjs/add/operator/delay'
 
 @Injectable()
 export class ServerSocket {
@@ -26,7 +28,7 @@ export class ServerSocket {
       this.input = new QueueingSubject<any>()
     )
 
-    this.messages = messages.share()
+    this.messages = messages.share().retryWhen(errors => errors.delay(1000))
     this.connectionStatus = connectionStatus
   }
 
