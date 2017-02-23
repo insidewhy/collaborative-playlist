@@ -13,7 +13,7 @@ import { AppRoutingModule } from './app-routing.module'
 import { SearchResultsComponent } from './search/search-results.component'
 import { MusicQueueComponent } from './music-queue/music-queue.component'
 import { SelectedTracksControlsComponent } from './music-queue/selected-tracks-controls.component'
-import { TrackDurationPipe } from './track-duration'
+import { TrackDurationPipe } from './track-duration.pipe'
 
 import { SearchTerms } from './search/search-terms.service'
 import { MusicQueue } from './music-queue/music-queue.service'
