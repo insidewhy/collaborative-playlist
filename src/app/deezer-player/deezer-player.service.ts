@@ -56,7 +56,7 @@ export class DeezerPlayer extends OnDestroy {
             }
             else {
               DZ.player.playTracks([ track.id ])
-              this.seekOnNext = (elapsed / (track.duration * 1000)) * 100
+              this.seekOnNext = (elapsed / track.duration) * 100
             }
           }
         }
