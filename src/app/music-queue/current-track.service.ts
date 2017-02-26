@@ -9,12 +9,11 @@ import { ServerSocket } from '../server-socket.service'
 export class CurrentTrack extends OnDestroy {
   // TODO: remove these
   public index = -1
-  public paused = false
 
   // stream that relays the above two pieces of information along with the elapsed time
   public indexStream = new BehaviorSubject<number>(-1)
   public elapsedStream = new BehaviorSubject<number>(0)
-  public pausedStream = new BehaviorSubject<boolean>(true)
+  public paused = new BehaviorSubject<boolean>(true)
 
   // public track?: Track = null
 
@@ -31,11 +30,10 @@ export class CurrentTrack extends OnDestroy {
       if (message.type === 'currentTrack') {
         const { index: trackIdx, elapsed, paused } = message.payload
         // TODO: remove {
-        this.paused = paused
         this.index = trackIdx
         // TODO: }
         this.indexStream.next(trackIdx)
-        this.pausedStream.next(paused)
+        this.paused.next(paused)
         this.elapsedStream.next(elapsed)
         return
       }

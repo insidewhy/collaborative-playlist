@@ -1,8 +1,8 @@
-<button *ngIf="this.currentTrack.index === -1 || this.currentTrack.paused"
+<button *ngIf="this.currentTrack.index === -1 || (this.currentTrack.paused | async)"
         (click)="play()">
   <md-icon>play_arrow</md-icon>
 </button>
-<button *ngIf="this.currentTrack.index !== -1 && ! this.currentTrack.paused"
+<button *ngIf="this.currentTrack.index !== -1 && ! (this.currentTrack.paused | async)"
         (click)="pause()">
   <md-icon>pause</md-icon>
 </button>

@@ -54,7 +54,7 @@ export class DeezerPlayer extends OnDestroy {
       const trackStream = Observable.combineLatest(
         this.currentTrack.indexStream,
         this.currentTrack.elapsedStream,
-        this.currentTrack.pausedStream,
+        this.currentTrack.paused,
         (trackIdx, elapsed, paused) => ({ trackIdx, elapsed, paused })
       ).debounce(() => Observable.timer(10))
 

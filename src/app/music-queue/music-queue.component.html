@@ -2,11 +2,11 @@
   <li *ngFor="let track of musicQueue.tracks; let index = index"
       [class.active]="currentTrack.index === index"
       [class.selected]="selectedTracks.selected(index)">
-    <a *ngIf="currentTrack.index !== index || currentTrack.paused"
+    <a *ngIf="currentTrack.index !== index || (currentTrack.paused | async)"
        (click)="musicQueue.playTrack(track.id, index)">
       <md-icon >play_arrow</md-icon>
     </a>
-    <a *ngIf="currentTrack.index === index && ! currentTrack.paused"
+    <a *ngIf="currentTrack.index === index && ! (currentTrack.paused | async)"
        (click)="currentTrack.pause()">
       <md-icon >pause</md-icon>
     </a>
