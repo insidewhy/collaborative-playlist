@@ -15,7 +15,7 @@ export class SelectedTracksControlsComponent {
 
   private getSelectedTracks() {
     const tracks = []
-    this.selectedTracks.indexes.forEach(index => {
+    this.selectedTracks.indexes.getValue().forEach(index => {
       tracks.push({ index, track: this.musicQueue.tracks.getValue()[index] })
     })
     return sortBy(tracks, 'index')

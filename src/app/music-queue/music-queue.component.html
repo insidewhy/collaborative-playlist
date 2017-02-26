@@ -1,7 +1,7 @@
 <ul class="track-list">
   <li *ngFor="let track of (musicQueue.tracks | async); let index = index"
       [class.active]="(currentTrack.index | async) === index"
-      [class.selected]="selectedTracks.selected(index)">
+      [class.selected]="(selectedTracks.indexes | async).has(index)">
 
     <ng-container [ngSwitch]="(currentTrack.index | async) !== index || (currentTrack.paused | async)">
       <a *ngSwitchCase="true"

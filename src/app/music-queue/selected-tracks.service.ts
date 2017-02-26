@@ -1,17 +1,20 @@
 import { Injectable } from '@angular/core'
+import { BehaviorSubject } from 'rxjs/BehaviorSubject'
 
 @Injectable()
 export class SelectedTracks {
-  public indexes = new Set<number>()
-
-  selected(index: number):boolean { return this.indexes.has(index) }
+  public indexes = new BehaviorSubject<Set<number>>(new Set<number>())
 
   toggle(index: number):void {
-    if (this.indexes.has(index))
-      this.indexes.delete(index)
+    const indexesVal = new Set(this.indexes.getValue())
+    if (indexesVal.has(index))
+      indexesVal.delete(index)
     else
-      this.indexes.add(index)
+      indexesVal.add(index)
+    this.indexes.next(indexesVal)
   }
 
-  clear() { this.indexes.clear() }
+  clear() {
+    this.indexes.next(new Set<number>())
+  }
 }
