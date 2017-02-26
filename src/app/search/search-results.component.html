@@ -1,6 +1,6 @@
 <ul class="track-list">
   <li *ngFor="let track of searchResults"
-      [class.queued]="this.musicQueue.tracksById.get(track.id)"
+      [class.queued]="(this.musicQueue.tracksById | async)?.get(track.id)"
       (click)="selectTrack(track)">
     <div>
       {{track.artist.name}} - {{track.album.title}} - {{track.title}}

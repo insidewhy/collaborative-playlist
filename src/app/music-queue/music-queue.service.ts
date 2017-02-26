@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core'
 import { Subject } from 'rxjs/Subject'
+import { BehaviorSubject } from 'rxjs/BehaviorSubject'
 
 import groupBy from '../lib/group-by'
 import { Track } from '../track'
@@ -7,10 +8,13 @@ import { OnDestroy } from '../on-destroy'
 import { ServerSocket } from '../server-socket.service'
 import { CurrentTrack } from './current-track.service'
 
+type TracksById = Map<string, Track[]>
+
 @Injectable()
 export class MusicQueue extends OnDestroy {
   public tracks: Track[]
-  public tracksById: Map<string, Track[]> = new Map()
+
+  public tracksById = new BehaviorSubject<TracksById>(new Map<string, Track[]>())
   public changeStream = new Subject<any>()
 
   constructor(private socket: ServerSocket, private currentTrack: CurrentTrack) {
@@ -27,7 +31,7 @@ export class MusicQueue extends OnDestroy {
 
       if (message.type === 'musicQueue') {
         this.tracks = message.payload
-        this.tracksById = groupBy(this.tracks, track => track.id)
+        this.emitTracksById()
         return
       }
 
@@ -38,11 +42,7 @@ export class MusicQueue extends OnDestroy {
         this.changeStream.next({ insertIdx, track })
 
         this.tracks.splice(insertIdx, 0, track)
-        const existing = this.tracksById.get(track.id)
-        if (existing)
-          existing.push(track)
-        else
-          this.tracksById.set(track.id, [ track ])
+        this.emitTracksById()
 
         const currentIndex = this.currentTrack.index.getValue()
         if (insertIdx <= currentIndex)
@@ -57,6 +57,7 @@ export class MusicQueue extends OnDestroy {
         this.changeStream.next({ removeIdx })
 
         this.tracks.splice(removeIdx, 1)
+        this.emitTracksById()
 
         const currentIndex = this.currentTrack.index.getValue()
         if (removeIdx < currentIndex)
@@ -69,6 +70,10 @@ export class MusicQueue extends OnDestroy {
       messagesSubscription.unsubscribe()
       connectionStatusSubscription.unsubscribe()
     })
+  }
+
+  private emitTracksById() {
+    this.tracksById.next(groupBy(this.tracks, track => track.id))
   }
 
   public insertTrack(track: Track, index: number):void {
