@@ -1,8 +1,11 @@
 import { Component } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
 import { Jsonp } from '@angular/http'
-import { Subscription } from 'rxjs/Subscription'
+import { Observable } from 'rxjs/Observable'
+
 import 'rxjs/add/operator/map'
+import 'rxjs/add/operator/switchMap'
+import 'rxjs/add/operator/concat'
 // using `import {pick} from 'lodash'` isn't handled by the tree shaker :(
 const pick = require('lodash/pick')
 
@@ -18,7 +21,8 @@ import { OnDestroy } from '../on-destroy'
 })
 export class SearchResultsComponent extends OnDestroy {
   private terms: String
-  private searchResults: Track[]
+
+  private searchResults: Observable<Track[]>
 
   constructor(
     private searchTerms: SearchTerms,
@@ -26,34 +30,33 @@ export class SearchResultsComponent extends OnDestroy {
     private musicQueue: MusicQueue,
     private jsonp: Jsonp
   )
-  { super() }
+  {
+    super()
+  }
 
   ngOnInit() {
     const termsStream = this.route.params.map(params => params['terms'])
 
     this.searchTerms.addRouteStream(termsStream)
 
-    const onTerms = termsStream.subscribe(terms => { this.updateTerms(terms) })
-    this.onDestroy(() => {
-      onTerms.unsubscribe()
-      this.searchTerms.setTerms('')
+    this.searchResults = termsStream.switchMap(terms => {
+      return Observable.of([] as Track[]).concat(
+        this.jsonp.get(`http://api.deezer.com/search?q=${terms}&limit=100&output=jsonp&callback=JSONP_CALLBACK`)
+        .map(data => data.json().data)
+        .map(results => {
+          // console.debug(results)
+          return results.map(track => {
+            const {id, title, duration} = track
+            const album = pick(track.album, 'title')
+            const artist = pick(track.artist, 'name')
+            return {id, title, album, artist, duration: duration * 1000}
+          })
+        })
+      )
     })
-  }
 
-  private updateTerms(terms) {
-    this.terms = terms
-
-    // 100 is the maximum supported limit
-    this.jsonp.get(`http://api.deezer.com/search?q=${terms}&limit=100&output=jsonp&callback=JSONP_CALLBACK`)
-    .map(data => data.json().data)
-    .subscribe(results => {
-      // console.debug(results)
-      this.searchResults = results.map(track => {
-        const {id, title, duration} = track
-        const album = pick(track.album, 'title')
-        const artist = pick(track.artist, 'name')
-        return {id, title, album, artist, duration: duration * 1000}
-      })
+    this.onDestroy(() => {
+      this.searchTerms.setTerms('')
     })
   }
 
