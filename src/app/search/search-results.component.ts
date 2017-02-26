@@ -58,6 +58,6 @@ export class SearchResultsComponent extends OnDestroy {
   }
 
   private selectTrack(track) {
-    this.musicQueue.insertTrack(track, this.musicQueue.tracks.length)
+    this.musicQueue.insertTrack(track, this.musicQueue.tracks.getValue().length)
   }
 }

@@ -1,5 +1,5 @@
 <ul class="track-list">
-  <li *ngFor="let track of musicQueue.tracks; let index = index"
+  <li *ngFor="let track of (musicQueue.tracks | async); let index = index"
       [class.active]="(currentTrack.index | async) === index"
       [class.selected]="selectedTracks.selected(index)">
 

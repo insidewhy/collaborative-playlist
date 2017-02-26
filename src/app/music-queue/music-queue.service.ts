@@ -12,8 +12,7 @@ type TracksById = Map<string, Track[]>
 
 @Injectable()
 export class MusicQueue extends OnDestroy {
-  public tracks: Track[]
-
+  public tracks = new BehaviorSubject<Track[]>([])
   public tracksById = new BehaviorSubject<TracksById>(new Map<string, Track[]>())
   public changeStream = new Subject<any>()
 
@@ -30,7 +29,7 @@ export class MusicQueue extends OnDestroy {
       console.debug('got message', message)
 
       if (message.type === 'musicQueue') {
-        this.tracks = message.payload
+        this.tracks.next(message.payload)
         this.emitTracksById()
         return
       }
@@ -41,7 +40,12 @@ export class MusicQueue extends OnDestroy {
         // send before modifications to queue/currentTrack below
         this.changeStream.next({ insertIdx, track })
 
-        this.tracks.splice(insertIdx, 0, track)
+        const currentTracks = this.tracks.getValue()
+        this.tracks.next([
+          ...currentTracks.slice(0, insertIdx),
+          track,
+          ...currentTracks.slice(insertIdx)
+        ])
         this.emitTracksById()
 
         const currentIndex = this.currentTrack.index.getValue()
@@ -56,7 +60,11 @@ export class MusicQueue extends OnDestroy {
         // send before modifications to queue/track below
         this.changeStream.next({ removeIdx })
 
-        this.tracks.splice(removeIdx, 1)
+        const currentTracks = this.tracks.getValue()
+        this.tracks.next([
+          ...currentTracks.slice(0, removeIdx),
+          ...currentTracks.slice(removeIdx + 1)
+        ])
         this.emitTracksById()
 
         const currentIndex = this.currentTrack.index.getValue()
@@ -73,7 +81,7 @@ export class MusicQueue extends OnDestroy {
   }
 
   private emitTracksById() {
-    this.tracksById.next(groupBy(this.tracks, track => track.id))
+    this.tracksById.next(groupBy(this.tracks.getValue(), track => track.id))
   }
 
   public insertTrack(track: Track, index: number):void {
@@ -90,7 +98,7 @@ export class MusicQueue extends OnDestroy {
 
   public skipTrack(offset: number):void {
     const nextIdx = this.currentTrack.index.getValue() + offset
-    const track = this.tracks[nextIdx]
+    const track = this.tracks.getValue()[nextIdx]
     if (track)
       this.playTrack(track.id, nextIdx)
   }

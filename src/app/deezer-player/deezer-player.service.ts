@@ -64,7 +64,7 @@ export class DeezerPlayer extends OnDestroy {
           return
         }
 
-        const track = this.musicQueue.tracks[trackIdx]
+        const track = this.musicQueue.tracks.getValue()[trackIdx]
         if (track) {
           if (paused) {
             DZ.player.pause()
@@ -79,7 +79,7 @@ export class DeezerPlayer extends OnDestroy {
       const changesSubscription = this.musicQueue.changeStream.subscribe(change => {
         const {removeIdx} = change
         if (removeIdx === this.currentTrack.index.getValue()) {
-          const track = this.musicQueue.tracks[removeIdx + 1]
+          const track = this.musicQueue.tracks.getValue()[removeIdx + 1]
           if (track)
             DZ.player.playTracks([ track.id ])
           else
@@ -117,11 +117,11 @@ export class DeezerPlayer extends OnDestroy {
 
   private onTrackEnd() {
     const nextIdx = this.currentTrack.index.getValue() + 1
-    if (nextIdx >= this.musicQueue.tracks.length) {
+    if (nextIdx >= this.musicQueue.tracks.getValue().length) {
       this.musicQueue.playTrack(null, -1)
     }
     else {
-      const track = this.musicQueue.tracks[nextIdx]
+      const track = this.musicQueue.tracks.getValue()[nextIdx]
       this.musicQueue.playTrack(track.id, nextIdx)
     }
   }
