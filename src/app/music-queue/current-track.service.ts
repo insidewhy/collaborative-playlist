@@ -7,11 +7,8 @@ import { ServerSocket } from '../server-socket.service'
 
 @Injectable()
 export class CurrentTrack extends OnDestroy {
-  // TODO: remove these
-  public index = -1
-
   // stream that relays the above two pieces of information along with the elapsed time
-  public indexStream = new BehaviorSubject<number>(-1)
+  public index = new BehaviorSubject<number>(-1)
   public elapsed = new BehaviorSubject<number>(0)
   public paused = new BehaviorSubject<boolean>(true)
 
@@ -29,10 +26,7 @@ export class CurrentTrack extends OnDestroy {
     const messagesSubscription = this.socket.messages.subscribe(message => {
       if (message.type === 'currentTrack') {
         const { index: trackIdx, elapsed, paused } = message.payload
-        // TODO: remove {
-        this.index = trackIdx
-        // TODO: }
-        this.indexStream.next(trackIdx)
+        this.index.next(trackIdx)
         this.paused.next(paused)
         this.elapsed.next(elapsed)
         return

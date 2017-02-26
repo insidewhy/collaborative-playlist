@@ -44,8 +44,9 @@ export class MusicQueue extends OnDestroy {
         else
           this.tracksById.set(track.id, [ track ])
 
-        if (insertIdx <= this.currentTrack.index)
-          ++this.currentTrack.index
+        const currentIndex = this.currentTrack.index.getValue()
+        if (insertIdx <= currentIndex)
+          this.currentTrack.index.next(currentIndex + 1)
 
         return
       }
@@ -57,8 +58,9 @@ export class MusicQueue extends OnDestroy {
 
         this.tracks.splice(removeIdx, 1)
 
-        if (removeIdx < this.currentTrack.index)
-          --this.currentTrack.index
+        const currentIndex = this.currentTrack.index.getValue()
+        if (removeIdx < currentIndex)
+          this.currentTrack.index.next(currentIndex - 1)
         return
       }
     })
@@ -82,7 +84,7 @@ export class MusicQueue extends OnDestroy {
   }
 
   public skipTrack(offset: number):void {
-    const nextIdx = this.currentTrack.index + offset
+    const nextIdx = this.currentTrack.index.getValue() + offset
     const track = this.tracks[nextIdx]
     if (track)
       this.playTrack(track.id, nextIdx)

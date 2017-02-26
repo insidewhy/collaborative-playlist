@@ -52,7 +52,7 @@ export class DeezerPlayer extends OnDestroy {
         return
 
       const trackStream = Observable.combineLatest(
-        this.currentTrack.indexStream,
+        this.currentTrack.index,
         this.currentTrack.elapsed,
         this.currentTrack.paused,
         (trackIdx, elapsed, paused) => ({ trackIdx, elapsed, paused })
@@ -78,7 +78,7 @@ export class DeezerPlayer extends OnDestroy {
 
       const changesSubscription = this.musicQueue.changeStream.subscribe(change => {
         const {removeIdx} = change
-        if (removeIdx === this.currentTrack.index) {
+        if (removeIdx === this.currentTrack.index.getValue()) {
           const track = this.musicQueue.tracks[removeIdx + 1]
           if (track)
             DZ.player.playTracks([ track.id ])
@@ -116,7 +116,7 @@ export class DeezerPlayer extends OnDestroy {
   }
 
   private onTrackEnd() {
-    const nextIdx = this.currentTrack.index + 1
+    const nextIdx = this.currentTrack.index.getValue() + 1
     if (nextIdx >= this.musicQueue.tracks.length) {
       this.musicQueue.playTrack(null, -1)
     }
