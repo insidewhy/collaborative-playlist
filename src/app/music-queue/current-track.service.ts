@@ -12,7 +12,7 @@ export class CurrentTrack extends OnDestroy {
 
   // stream that relays the above two pieces of information along with the elapsed time
   public indexStream = new BehaviorSubject<number>(-1)
-  public elapsedStream = new BehaviorSubject<number>(0)
+  public elapsed = new BehaviorSubject<number>(0)
   public paused = new BehaviorSubject<boolean>(true)
 
   // public track?: Track = null
@@ -34,7 +34,7 @@ export class CurrentTrack extends OnDestroy {
         // TODO: }
         this.indexStream.next(trackIdx)
         this.paused.next(paused)
-        this.elapsedStream.next(elapsed)
+        this.elapsed.next(elapsed)
         return
       }
     })
