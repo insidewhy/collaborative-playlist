@@ -1,11 +1,13 @@
-<button *ngIf="(this.currentTrack.index | async) === -1 || (this.currentTrack.paused | async)"
-        (click)="play()">
-  <md-icon>play_arrow</md-icon>
-</button>
-<button *ngIf="(this.currentTrack.index | async) !== -1 && ! (this.currentTrack.paused | async)"
-        (click)="pause()">
-  <md-icon>pause</md-icon>
-</button>
+<ng-container [ngSwitch]="(this.currentTrack.index | async) === -1 || (this.currentTrack.paused | async)">
+  <button *ngSwitchCase="true"
+          (click)="play()">
+    <md-icon>play_arrow</md-icon>
+  </button>
+  <button *ngSwitchCase="false"
+          (click)="pause()">
+    <md-icon>pause</md-icon>
+  </button>
+</ng-container>
 <button>
   <md-icon>skip_previous</md-icon>
 </button>

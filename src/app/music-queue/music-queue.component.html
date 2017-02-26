@@ -2,14 +2,17 @@
   <li *ngFor="let track of musicQueue.tracks; let index = index"
       [class.active]="(currentTrack.index | async) === index"
       [class.selected]="selectedTracks.selected(index)">
-    <a *ngIf="(currentTrack.index | async) !== index || (currentTrack.paused | async)"
-       (click)="musicQueue.playTrack(track.id, index)">
-      <md-icon >play_arrow</md-icon>
-    </a>
-    <a *ngIf="(currentTrack.index | async) === index && ! (currentTrack.paused | async)"
-       (click)="currentTrack.pause()">
-      <md-icon >pause</md-icon>
-    </a>
+
+    <ng-container [ngSwitch]="(currentTrack.index | async) !== index || (currentTrack.paused | async)">
+      <a *ngSwitchCase="true"
+         (click)="musicQueue.playTrack(track.id, index)">
+        <md-icon >play_arrow</md-icon>
+      </a>
+      <a *ngSwitchCase="false"
+         (click)="currentTrack.pause()">
+        <md-icon >pause</md-icon>
+      </a>
+    </ng-container>
     <div (click)="selectedTracks.toggle(index)">
       {{track.artist.name}} - {{track.album.title}} - {{track.title}}
     </div>

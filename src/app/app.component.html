@@ -1,4 +1,6 @@
 <search-input></search-input>
 <router-outlet></router-outlet>
-<player-controls *ngIf="selectedTracks.indexes.size === 0"></player-controls>
-<selected-tracks-controls *ngIf="selectedTracks.indexes.size > 0"></selected-tracks-controls>
+<ng-container [ngSwitch]="selectedTracks.indexes.size === 0">
+  <player-controls *ngSwitchCase="true"></player-controls>
+  <selected-tracks-controls *ngSwitchCase="false"></selected-tracks-controls>
+</ng-container>
