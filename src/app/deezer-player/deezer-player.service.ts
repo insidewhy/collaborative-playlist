@@ -14,6 +14,7 @@ export class DeezerPlayer extends OnDestroy {
   // whether the deezer api is being used
   public activated = false
   private seekOnNext = 0
+  private elapsed = Infinity
 
   constructor(private musicQueue: MusicQueue, private currentTrack: CurrentTrack) {
     super()
@@ -54,6 +55,13 @@ export class DeezerPlayer extends OnDestroy {
           DZ.player.pause()
           return
         }
+
+        // avoid replaying when incrementing time
+        // TODO: improve this by measuring initial lag etc.
+        const prevElapsed = this.elapsed
+        this.elapsed = elapsed
+        if (elapsed === prevElapsed + 1000)
+          return
 
         const track = this.musicQueue.tracks.getValue()[trackIdx]
         if (track) {

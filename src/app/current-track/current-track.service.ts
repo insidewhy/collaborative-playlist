@@ -21,6 +21,7 @@ export class CurrentTrack extends OnDestroy {
   public index = new BehaviorSubject<number>(-1)
   public elapsed = new BehaviorSubject<number>(0)
   public paused = new BehaviorSubject<boolean>(true)
+  private elapsedInterval: number
 
   // public track?: Track = null
 
@@ -36,9 +37,16 @@ export class CurrentTrack extends OnDestroy {
     const messagesSubscription = this.socket.messages.subscribe(message => {
       if (message.type === 'currentTrack') {
         const { index: trackIdx, elapsed, paused } = message.payload
+
         this.index.next(trackIdx)
         this.paused.next(paused)
         this.elapsed.next(elapsed)
+
+        if (trackIdx === -1)
+          this.clearElapsedInterval()
+        else
+          this.restartElapsedInterval()
+
         return
       }
     })
@@ -47,6 +55,19 @@ export class CurrentTrack extends OnDestroy {
       messagesSubscription.unsubscribe()
       connectionStatusSubscription.unsubscribe()
     })
+  }
+
+  private restartElapsedInterval() {
+    this.clearElapsedInterval()
+    this.elapsedInterval = window.setInterval(() => {
+      this.elapsed.next(this.elapsed.getValue() + 1000)
+    }, 1000)
+  }
+
+  private clearElapsedInterval() {
+    const {elapsedInterval} = this
+    if (elapsedInterval)
+      window.clearInterval(elapsedInterval)
   }
 
   // merge all the streams
