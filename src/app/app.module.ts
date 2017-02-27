@@ -7,6 +7,7 @@ import { MdIconModule, MdIconRegistry } from '@angular2-material/icon'
 import { AppComponent } from './app.component'
 import { ServerSocket } from './server-socket.service'
 import { SearchInputComponent } from './search/search-input.component'
+import { ControlsAndInfo } from './controls-and-info.component'
 import { PlayerControlsComponent } from './player-controls/player-controls.component'
 
 import { AppRoutingModule } from './app-routing.module'
@@ -32,6 +33,7 @@ import { DeezerPlayer } from './deezer-player/deezer-player.service'
   declarations: [
     AppComponent,
     SearchInputComponent,
+    ControlsAndInfo,
     PlayerControlsComponent,
     SearchResultsComponent,
     MusicQueueComponent,

@@ -1,5 +1,4 @@
 import { Component } from '@angular/core'
-import { SelectedTracks } from './music-queue/selected-tracks.service'
 
 @Component({
   selector: 'app-root',
@@ -7,5 +6,4 @@ import { SelectedTracks } from './music-queue/selected-tracks.service'
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  constructor(private selectedTracks: SelectedTracks) {}
 }

@@ -1,0 +1,31 @@
+@import './_config';
+
+:host {
+  padding: 3px $top-layer-horizontal-padding;
+  border-top: 2px solid #ccc;
+  border-bottom: 2px solid #ccc;
+
+  /deep/ button {
+    background-color: inherit;
+    border: none;
+
+    &:hover {
+      background-color: #eee;
+    }
+
+    md-icon {
+      $size: 35px;
+      font-size: $size;
+      height: $size;
+      width: $size;
+
+      & + md-icon {
+        margin-left: 0.5em;
+      }
+
+      &:hover {
+        cursor: pointer;
+      }
+    }
+  }
+}
