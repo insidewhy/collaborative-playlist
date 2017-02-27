@@ -1,4 +1,5 @@
 <ng-container [ngSwitch]="(selectedTracks.indexes | async)?.size === 0">
   <player-controls *ngSwitchCase="true"></player-controls>
   <selected-tracks-controls *ngSwitchCase="false"></selected-tracks-controls>
+  <current-track></current-track>
 </ng-container>

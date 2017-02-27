@@ -1,9 +1,19 @@
 import { Injectable } from '@angular/core'
 import { BehaviorSubject } from 'rxjs/BehaviorSubject'
+import { Observable } from 'rxjs/Observable'
+import 'rxjs/add/observable/combineLatest'
+import 'rxjs/add/observable/timer'
+import 'rxjs/add/operator/debounce'
 
 import { OnDestroy } from '../on-destroy'
 import { Track } from '../track'
 import { ServerSocket } from '../server-socket.service'
+
+export interface CurrentTrackStatus {
+  trackIdx: number
+  elapsed: number
+  paused: boolean
+}
 
 @Injectable()
 export class CurrentTrack extends OnDestroy {
@@ -37,6 +47,16 @@ export class CurrentTrack extends OnDestroy {
       messagesSubscription.unsubscribe()
       connectionStatusSubscription.unsubscribe()
     })
+  }
+
+  // merge all the streams
+  get status(): Observable<CurrentTrackStatus> {
+    return Observable.combineLatest(
+      this.index,
+      this.elapsed,
+      this.paused,
+      (trackIdx, elapsed, paused) => ({ trackIdx, elapsed, paused })
+    ).debounce(() => Observable.timer(10))
   }
 
   pause() {

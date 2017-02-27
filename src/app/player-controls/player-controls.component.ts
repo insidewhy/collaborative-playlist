@@ -1,7 +1,7 @@
 import { Component } from '@angular/core'
 
 import { DeezerPlayer } from '../deezer-player/deezer-player.service'
-import { CurrentTrack } from '../music-queue/current-track.service'
+import { CurrentTrack } from '../current-track/current-track.service'
 
 @Component({
   selector: 'player-controls',

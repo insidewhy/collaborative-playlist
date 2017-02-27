@@ -6,7 +6,7 @@ import groupBy from '../lib/group-by'
 import { Track } from '../track'
 import { OnDestroy } from '../on-destroy'
 import { ServerSocket } from '../server-socket.service'
-import { CurrentTrack } from './current-track.service'
+import { CurrentTrack } from '../current-track/current-track.service'
 
 type TracksById = Map<string, Track[]>
 

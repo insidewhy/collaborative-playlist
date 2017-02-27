@@ -2,7 +2,7 @@ import { Component } from '@angular/core'
 
 import { Track } from '../track'
 import { MusicQueue } from './music-queue.service'
-import { CurrentTrack } from './current-track.service'
+import { CurrentTrack } from '../current-track/current-track.service'
 import { SelectedTracks } from './selected-tracks.service'
 
 @Component({

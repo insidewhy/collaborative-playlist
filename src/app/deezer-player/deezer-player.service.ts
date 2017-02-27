@@ -1,13 +1,10 @@
 import { Injectable } from '@angular/core'
 import { Subscription } from 'rxjs/Subscription'
 import { Observable } from 'rxjs/Observable'
-import 'rxjs/add/observable/combineLatest'
-import 'rxjs/add/observable/timer'
-import 'rxjs/add/operator/debounce'
 
 import { OnDestroy } from '../on-destroy'
 import { MusicQueue } from '../music-queue/music-queue.service'
-import { CurrentTrack } from '../music-queue/current-track.service'
+import { CurrentTrack } from '../current-track/current-track.service'
 
 declare var DZ: any
 
@@ -51,13 +48,7 @@ export class DeezerPlayer extends OnDestroy {
       if (! this.activated)
         return
 
-      const trackStream = Observable.combineLatest(
-        this.currentTrack.index,
-        this.currentTrack.elapsed,
-        this.currentTrack.paused,
-        (trackIdx, elapsed, paused) => ({ trackIdx, elapsed, paused })
-      ).debounce(() => Observable.timer(10))
-
+      const trackStream = this.currentTrack.status
       const currentTrackSubscription = trackStream.subscribe(({trackIdx, elapsed, paused}) => {
         if (trackIdx == -1) {
           DZ.player.pause()
