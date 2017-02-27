@@ -1,1 +1,3 @@
-<div>{{ elapsed | trackDuration }} / {{ track?.duration | trackDuration }}</div>
+<div *ngIf="trackInfo | async; let info">
+  {{ info.elapsed | trackDuration }} / {{ info.track?.duration | trackDuration }}
+</div>
