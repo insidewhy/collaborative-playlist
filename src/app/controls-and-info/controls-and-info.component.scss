@@ -1,7 +1,13 @@
 @import '../_config';
 
 :host {
+  position: fixed;
+  bottom: 0;
+  background-color: white;
+  width: 100%;
+
   display: flex;
+  height: $footer-controls-height;
   flex-shrink: 0;
   align-items: center;
   padding: 3px $top-layer-horizontal-padding;

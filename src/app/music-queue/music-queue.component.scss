@@ -1,12 +1,11 @@
 @import '../_config';
 @import './_queued';
 
-:host {
-  overflow-y: scroll;
-  flex-grow: 1;
-}
-
 ul {
+  // prevent overlapping with fixed footer/header
+  margin-top: $search-input-height;
+  margin-bottom: $footer-controls-height;
+
   li {
     @extend %music-queue-colors;
     padding-right: $top-layer-horizontal-padding;

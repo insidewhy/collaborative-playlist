@@ -8,10 +8,6 @@ html, body {
   height: 100%;
 }
 
-body {
-  overflow: hidden;
-}
-
 html {
   box-sizing: border-box;
 }
@@ -32,6 +28,10 @@ button {
 *, *::before, *::after {
   -webkit-box-sizing: inherit;
   box-sizing: inherit;
+}
+
+#dz-root {
+  visibility: hidden;
 }
 
 ul.track-list {

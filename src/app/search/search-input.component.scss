@@ -1,12 +1,19 @@
 @import '../_config';
 
 :host {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  background-color: white;
   padding: 0 $top-layer-horizontal-padding;
   border-bottom: solid 1px #ccc;
+  height: $search-input-height;
+  display: flex;
 }
 
 form {
   display: flex;
+  flex-grow: 1;
 }
 
 input[type=text] {
