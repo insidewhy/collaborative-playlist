@@ -42,7 +42,7 @@ export class CurrentTrack extends OnDestroy {
         this.paused.next(paused)
         this.elapsed.next(elapsed)
 
-        if (trackIdx === -1)
+        if (paused || trackIdx === -1)
           this.clearElapsedInterval()
         else
           this.restartElapsedInterval()
