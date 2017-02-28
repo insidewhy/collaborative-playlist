@@ -10,6 +10,11 @@ import { CurrentTrack } from '../current-track/current-track.service'
 
 type TracksById = Map<string, Track[]>
 
+export interface TrackWithIndex {
+  track: Track
+  index: number
+}
+
 @Injectable()
 export class MusicQueue extends OnDestroy {
   public tracks = new BehaviorSubject<Track[]>([])
@@ -26,18 +31,14 @@ export class MusicQueue extends OnDestroy {
     })
 
     const messagesSubscription = this.socket.messages.subscribe(message => {
-      console.debug('got message', message)
+      console.debug('recv', message)
 
       if (message.type === 'musicQueue') {
         this.tracks.next(message.payload)
         this.emitTracksById()
-        return
       }
-
-      if (message.type === 'insert') {
+      else if (message.type === 'insert') {
         const {track, index: insertIdx} = message.payload
-
-        // send before modifications to queue/currentTrack below
         this.changeStream.next({ insertIdx, track })
 
         const currentTracks = this.tracks.getValue()
@@ -51,13 +52,9 @@ export class MusicQueue extends OnDestroy {
         const currentIndex = this.currentTrack.index.getValue()
         if (insertIdx <= currentIndex)
           this.currentTrack.index.next(currentIndex + 1)
-
-        return
       }
-
-      if (message.type === 'remove') {
+      else if (message.type === 'remove') {
         const removeIdx = message.payload
-        // send before modifications to queue/track below
         this.changeStream.next({ removeIdx })
 
         const currentTracks = this.tracks.getValue()
@@ -70,7 +67,15 @@ export class MusicQueue extends OnDestroy {
         const currentIndex = this.currentTrack.index.getValue()
         if (removeIdx < currentIndex)
           this.currentTrack.index.next(currentIndex - 1)
-        return
+      }
+      else if (message.type === 'move') {
+        const currentTracks = this.tracks.getValue()
+        const { index, offset } = message.payload
+        const newIndex = index + offset
+        if (newIndex >= 0 && newIndex < currentTracks.length) {
+          this.changeStream.next({ moveFrom: index, to: newIndex })
+          currentTracks.splice(newIndex, 0, ...currentTracks.splice(index, 1))
+        }
       }
     })
 
@@ -101,5 +106,27 @@ export class MusicQueue extends OnDestroy {
     const track = this.tracks.getValue()[nextIdx]
     if (track)
       this.playTrack(track.id, nextIdx)
+  }
+
+  public moveTracks(tracksWithIndexes: TrackWithIndex[], offset: number): void {
+    // the limit is used to prevent items being moved passed the top or a previous selection
+    let start, end, limit
+
+    // if moving up start at the top, else the bottom
+    if (offset < 0) {
+      limit = start = 0
+      end = tracksWithIndexes.length
+    }
+    else {
+      limit = this.tracks.getValue().length - 1
+      start = tracksWithIndexes.length - 1
+      end = -1
+    }
+
+    for (let i = start; i !== end; i -= offset, limit -= offset) {
+      const { index, track } = tracksWithIndexes[i]
+      if (index !== limit)
+        this.socket.send({ type: 'moveTrack', payload: { index, trackId: track.id, offset } })
+    }
   }
 }

@@ -1,7 +1,7 @@
 import { Component } from '@angular/core'
 
 import { SelectedTracks } from './selected-tracks.service'
-import { MusicQueue } from './music-queue.service'
+import { MusicQueue, TrackWithIndex } from './music-queue.service'
 
 const sortBy = require('lodash/sortBy')
 
@@ -13,7 +13,7 @@ const sortBy = require('lodash/sortBy')
 export class SelectedTracksControlsComponent {
   constructor(private selectedTracks: SelectedTracks, private musicQueue: MusicQueue) {}
 
-  private getSelectedTracks() {
+  private getSelectedTracks(): TrackWithIndex[] {
     const tracks = []
     this.selectedTracks.indexes.getValue().forEach(index => {
       tracks.push({ index, track: this.musicQueue.tracks.getValue()[index] })
@@ -21,11 +21,19 @@ export class SelectedTracksControlsComponent {
     return sortBy(tracks, 'index')
   }
 
-  delete() {
+  private delete() {
     const tracks = this.getSelectedTracks()
     tracks.reverse().forEach(({ index, track }) => {
       this.musicQueue.removeTrack(track, index)
     })
     this.selectedTracks.clear()
+  }
+
+  private clear() {
+    this.selectedTracks.clear()
+  }
+
+  private moveSelection(offset: number): void {
+    this.musicQueue.moveTracks(this.getSelectedTracks(), offset)
   }
 }

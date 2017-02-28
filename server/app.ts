@@ -28,10 +28,16 @@ function installSocketRoutes() {
 
   const broadcast = (type, payload) => {
     const dataStr = JSON.stringify({ type, payload })
+    console.log('bcst', dataStr)
     _.forEach(allSockets, (socket: any) => { socket.send(dataStr) })
   }
 
-  const send = (websocket, type, payload) => { websocket.send(JSON.stringify({ type, payload })) }
+  const send = (websocket, type, payload) => {
+    const dataStr = JSON.stringify({ type, payload })
+    if (dataStr.length < 100)
+      console.log('send', dataStr)
+    websocket.send(dataStr)
+  }
 
   const wsRouter = new Router()
   const {ws} = app as any
@@ -45,7 +51,7 @@ function installSocketRoutes() {
     const socketParam = { send: send.bind(null, websocket), broadcast }
 
     websocket.on('message', message => {
-      console.log('got message', message)
+      console.log('recv', message)
       const { type, payload } = JSON.parse(message)
 
       try {

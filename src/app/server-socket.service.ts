@@ -33,6 +33,7 @@ export class ServerSocket {
   }
 
   public send(message: any):void {
+    console.debug('send', message)
     this.input.next(message)
   }
 }

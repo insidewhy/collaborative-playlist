@@ -76,15 +76,16 @@ export function removeTrack(
 {
   // find the entry for trackId closest to `index`
   index = findTrack(index, trackId)
-  if (index !== -1) {
-    if (index === trackState.index)
-      trackState.play()
-    else if (index < trackState.index)
-      --trackState.index
+  if (index === -1)
+    return
 
-    musicQueue.splice(index, 1)
-    socket.broadcast('remove', index)
-  }
+  if (index === trackState.index)
+    trackState.play()
+  else if (index < trackState.index)
+    --trackState.index
+
+  musicQueue.splice(index, 1)
+  socket.broadcast('remove', index)
 }
 
 function sendCurrentTrackState(socket: SocketCommunicator) {
@@ -116,6 +117,23 @@ export function pauseTrack(socket: SocketCommunicator, unpause: boolean): void {
   else
     trackState.pause()
   sendCurrentTrackState(socket)
+}
+
+export function moveTrack(
+  socket: SocketCommunicator,
+  { index, trackId, offset } : { index: number, trackId: string, offset: number }
+): void
+{
+  index = findTrack(index, trackId)
+  if (index === -1)
+    return
+
+  const newIndex = index + offset
+  if (newIndex < 0 || newIndex >= musicQueue.length)
+    return
+
+  musicQueue.splice(newIndex, 0, ...musicQueue.splice(index, 1))
+  socket.broadcast('move', { index, offset })
 }
 
 export function getCurrentTrackStatus(socket: SocketCommunicator) {
