@@ -1,24 +1,25 @@
 @import '../_config';
 @import '../music-queue/_queued';
 
-:host {
-  overflow-y: scroll;
-  flex-grow: 1;
-}
+ul {
+  // prevent overlapping with fixed footer/header
+  margin-top: $search-input-height;
+  margin-bottom: $footer-controls-height;
 
-ul li {
-  padding: 0 $top-layer-horizontal-padding;
-  background-color: $color-yellow;
+  li {
+    padding: 0 $top-layer-horizontal-padding;
+    background-color: $color-yellow;
 
-  &:nth-child(even) {
-    background-color: lighten($color-yellow, 5%);
-  }
+    &:nth-child(even) {
+      background-color: lighten($color-yellow, 5%);
+    }
 
-  &.queued {
-    @extend %music-queue-colors;
-  }
+    &.queued {
+      @extend %music-queue-colors;
+    }
 
-  &:hover {
-    background-color: darken($color-yellow, 10%);
+    &:hover {
+      background-color: darken($color-yellow, 10%);
+    }
   }
 }
