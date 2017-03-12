@@ -19,19 +19,18 @@ export class TrackState {
       this.pausedAt = this.getElapsed()
   }
 
+  public unpause(): void {
+    const { pausedAt } = this
+    if (! pausedAt)
+      return
+
+    this.beginTime.setTime(Date.now() - pausedAt)
+    this.pausedAt = 0
+  }
+
   // play track at index from beginning, remove paused status if it is set
   public play(): void {
     this.beginTime = new Date()
-    if (this.index === -1) {
-      this.pausedAt = 0
-      return
-    }
-
-    const { pausedAt } = this
-    if (pausedAt) {
-      // when resuming from pause the begin time needs adjusting
-      this.beginTime.setTime(this.beginTime.getTime() - pausedAt)
-      this.pausedAt = 0
-    }
+    this.pausedAt = 0
   }
 }

@@ -113,7 +113,7 @@ export function playTrack(
 
 export function pauseTrack(socket: SocketCommunicator, unpause: boolean): void {
   if (unpause)
-    trackState.play()
+    trackState.unpause()
   else
     trackState.pause()
   sendCurrentTrackState(socket)
