@@ -1,5 +1,5 @@
-<player-controls *ngIf="(selectedTracks.indexes | async)?.size === 0; else noPlayer"></player-controls>
-<ng-template #noPlayer>
-  <selected-tracks-controls></selected-tracks-controls>
-</ng-template>
+<ng-container [ngSwitch]="(selectedTracks.indexes | async)?.size === 0">
+  <player-controls *ngSwitchCase="true"></player-controls>
+  <selected-tracks-controls *ngSwitchCase="false"></selected-tracks-controls>
+</ng-container>
 <current-track></current-track>
