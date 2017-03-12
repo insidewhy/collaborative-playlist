@@ -3,13 +3,18 @@
       [class.active]="(currentTrack.index | async) === index"
       [class.selected]="(selectedTracks.indexes | async).has(index)">
 
-    <ng-container [ngSwitch]="(currentTrack.index | async) !== index || (currentTrack.paused | async)">
+    <ng-container [ngSwitch]="(currentTrack.index | async) !== index">
       <a *ngSwitchCase="true" (click)="musicQueue.playTrack(track.id, index)">
         <md-icon>play_arrow</md-icon>
       </a>
-      <a *ngSwitchCase="false" (click)="currentTrack.pause()">
-        <md-icon>pause</md-icon>
-      </a>
+      <ng-container *ngSwitchCase="false" [ngSwitch]="(currentTrack.paused | async)">
+        <a *ngSwitchCase="true" (click)="currentTrack.unpause()">
+          <md-icon>play_arrow</md-icon>
+        </a>
+        <a *ngSwitchCase="false" (click)="currentTrack.pause()">
+          <md-icon>pause</md-icon>
+        </a>
+      </ng-container>
     </ng-container>
     <div (click)="selectedTracks.toggle(index)">
       {{track.artist.name}} - {{track.album.title}} - {{track.title}}
