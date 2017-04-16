@@ -1,12 +1,15 @@
 <ul class="track-list">
-  <li *ngFor="let track of (searchResults | async)"
-      [class.queued]="(this.musicQueue.tracksById | async)?.get(track.id)"
-      (click)="selectTrack(track)">
-    <div>
-      {{track.artist.name}} - {{track.album.title}} - {{track.title}}
+  <li *ngFor="let result of (searchResults | async)"
+      [class.queued]="(this.musicQueue.tracksById | async)?.get(result.id)"
+      (click)="selectResult(result)">
+    <ng-template [ngIf]="result.album">
+      <div>{{result.artist.name}} - {{result.album.title}} - {{result.title}}</div>
+      <time>
+        {{result.duration | trackDuration}}
+      </time>
+    </ng-template>
+    <div *ngIf="! result.album">
+      {{result.artist.name}} - {{result.title}}
     </div>
-    <time>
-      {{track.duration | trackDuration}}
-    </time>
   </li>
 </ul>

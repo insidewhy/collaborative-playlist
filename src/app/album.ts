@@ -1,3 +1,7 @@
+import { Artist } from './artist'
+
 export interface Album {
-  title: String,
+  id: string,
+  title: string,
+  artist: Artist,
 }
