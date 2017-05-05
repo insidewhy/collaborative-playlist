@@ -8,6 +8,8 @@ import { CurrentTrack } from '../current-track/current-track.service'
 
 declare var DZ: any
 
+const acceptableLag = 1000
+
 @Injectable()
 export class DeezerPlayer extends OnDestroy {
   private loadedPromise: Promise<null>
@@ -15,6 +17,7 @@ export class DeezerPlayer extends OnDestroy {
   public activated = false
   private seekOnNext = 0
   private elapsed = Infinity
+  private playingTrackId = ''
 
   constructor(private musicQueue: MusicQueue, private currentTrack: CurrentTrack) {
     super()
@@ -51,25 +54,31 @@ export class DeezerPlayer extends OnDestroy {
 
       const trackStream = this.currentTrack.status
       const currentTrackSubscription = trackStream.subscribe(({trackIdx, elapsed, paused}) => {
-        if (trackIdx == -1) {
+        if (trackIdx === -1) {
           DZ.player.pause()
           return
         }
 
-        // avoid replaying when incrementing time
-        // TODO: improve this by measuring initial lag etc.
         const prevElapsed = this.elapsed
         this.elapsed = elapsed
-        if (elapsed === prevElapsed + 1000)
-          return
 
         const track = this.musicQueue.tracks.getValue()[trackIdx]
         if (track) {
           if (paused) {
+            this.playingTrackId = ''
             DZ.player.pause()
           }
           else {
-            DZ.player.playTracks([ track.id ])
+            const { id: trackId } = track
+            if (trackId === this.playingTrackId) {
+              // TODO: improve this by measuring initial lag etc.
+              // avoid replaying when incrementing time etc.
+              if (elapsed >= prevElapsed && elapsed <= prevElapsed + acceptableLag)
+                return
+            }
+
+            this.playingTrackId = trackId
+            DZ.player.playTracks([ trackId ])
             this.seekOnNext = (elapsed / track.duration) * 100
           }
         }
