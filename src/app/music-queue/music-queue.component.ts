@@ -11,7 +11,7 @@ import { SelectedTracks } from './selected-tracks.service'
   styleUrls: ['./music-queue.component.scss']
 })
 export class MusicQueueComponent {
-  constructor(private musicQueue: MusicQueue,
+  constructor(public musicQueue: MusicQueue,
               private currentTrack: CurrentTrack,
               private selectedTracks: SelectedTracks)
   {}

@@ -24,7 +24,7 @@ import { OnDestroy } from '../on-destroy'
 export class SearchResultsComponent extends OnDestroy {
   private terms: string
 
-  private searchResults: Observable<Array<Track | Album>>
+  public searchResults: Observable<Array<Track | Album>>
 
   constructor(
     private searchTerms: SearchTerms,

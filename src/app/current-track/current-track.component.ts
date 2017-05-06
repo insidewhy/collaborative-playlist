@@ -12,7 +12,7 @@ import { Track } from '../track'
   styleUrls: ['./current-track.component.scss']
 })
 export class CurrentTrackComponent {
-  private trackInfo: Observable<any>
+  public trackInfo: Observable<any>
 
   constructor(currentTrack: CurrentTrack, private musicQueue: MusicQueue) {
     this.trackInfo = Observable.combineLatest(

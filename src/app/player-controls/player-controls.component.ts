@@ -9,14 +9,14 @@ import { CurrentTrack } from '../current-track/current-track.service'
   styleUrls: ['./player-controls.component.scss']
 })
 export class PlayerControlsComponent {
-  constructor(private deezerPlayer: DeezerPlayer, private currentTrack: CurrentTrack) {
+  constructor(public deezerPlayer: DeezerPlayer, public currentTrack: CurrentTrack) {
     // TODO: read mute status from local storage and apply to deezerPlayer
     const muted = window.localStorage.getItem('muted')
     if (! muted)
       deezerPlayer.activate()
   }
 
-  private toggleMute() {
+  public toggleMute() {
     const {deezerPlayer} = this
     if (deezerPlayer.activated) {
       deezerPlayer.deactivate()
@@ -28,12 +28,12 @@ export class PlayerControlsComponent {
     }
   }
 
-  private play() {
+  public play() {
     // TODO: if no track is playing then play the first track instead of resuming
     this.currentTrack.unpause()
   }
 
-  private pause() {
+  public pause() {
     this.currentTrack.pause()
   }
 }

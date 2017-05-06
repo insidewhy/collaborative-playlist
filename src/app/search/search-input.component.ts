@@ -12,7 +12,7 @@ import { SearchTerms } from './search-terms.service'
   styleUrls: ['./search-input.component.scss']
 })
 export class SearchInputComponent extends OnDestroy {
-  private terms: String
+  public terms: String
   private termsStream: Observable<String>
 
   constructor(private router: Router, searchTerms: SearchTerms) {

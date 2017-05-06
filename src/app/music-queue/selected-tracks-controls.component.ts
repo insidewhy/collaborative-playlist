@@ -21,7 +21,7 @@ export class SelectedTracksControlsComponent {
     return sortBy(tracks, 'index')
   }
 
-  private delete() {
+  public delete() {
     const tracks = this.getSelectedTracks()
     tracks.reverse().forEach(({ index, track }) => {
       this.musicQueue.removeTrack(track, index)
@@ -29,11 +29,11 @@ export class SelectedTracksControlsComponent {
     this.selectedTracks.clear()
   }
 
-  private clear() {
+  public clear() {
     this.selectedTracks.clear()
   }
 
-  private moveSelection(offset: number): void {
+  public moveSelection(offset: number): void {
     this.musicQueue.moveTracks(this.getSelectedTracks(), offset)
   }
 }

@@ -8,5 +8,5 @@ import { SelectedTracks } from '../music-queue/selected-tracks.service'
   styleUrls: ['./controls-and-info.component.scss']
 })
 export class ControlsAndInfo {
-  constructor(private selectedTracks: SelectedTracks) {}
+  constructor(public selectedTracks: SelectedTracks) {}
 }
