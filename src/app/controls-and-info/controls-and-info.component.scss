@@ -18,8 +18,8 @@
     background-color: inherit;
     border: none;
 
-    &:hover {
-      background-color: #eee;
+    &:hover, &:focus {
+      background-color: $button-hover-color;
     }
 
     md-icon {
