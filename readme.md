@@ -1,11 +1,9 @@
-# share-deezer
+# collaborative-playlist
 
-Share deezer is a web-app that lets you search for tracks on deezer and add them to a playlist shared between all the users of the app. Each browser can optionally play the music in the playlist and the current position is synced between all users.
-
-share-deezer was generated with [angular-cli](https://github.com/angular/angular-cli) version 1.0.0-beta.30.
+collaborative-playlist is a web-app that lets you search for tracks on deezer and add them to a playlist shared between all the users of the app. Each browser can optionally play the music in the playlist and the current position is synced between all users.
 
 ## Development server
-Run `npm run start` for a dev server. Navigate to `http://localhost:9000/`. The app will automatically reload if you change any of the source files.
+Run `npm start` for a dev server. Navigate to `http://localhost:9000/`. The app will automatically reload if you change any of the source files.
 
 ## Code scaffolding
 
