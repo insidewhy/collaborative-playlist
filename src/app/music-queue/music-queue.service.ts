@@ -65,8 +65,16 @@ export class MusicQueue extends OnDestroy {
         this.emitTracksById()
 
         const currentIndex = this.currentTrack.index.getValue()
-        if (removeIdx < currentIndex)
+        if (removeIdx < currentIndex) {
           this.currentTrack.index.next(currentIndex - 1)
+        }
+        else if (removeIdx === currentIndex) {
+          const nextTrack = this.tracks.getValue()[removeIdx + 1]
+          if (nextTrack) {
+            this.currentTrack.elapsed.next(0)
+            this.currentTrack.index.next(removeIdx)
+          }
+        }
       }
       else if (message.type === 'move') {
         const currentTracks = this.tracks.getValue()

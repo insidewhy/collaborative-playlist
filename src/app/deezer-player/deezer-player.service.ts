@@ -84,20 +84,8 @@ export class DeezerPlayer extends OnDestroy {
         }
       })
 
-      const changesSubscription = this.musicQueue.changeStream.subscribe(change => {
-        const {removeIdx} = change
-        if (removeIdx === this.currentTrack.index.getValue()) {
-          const track = this.musicQueue.tracks.getValue()[removeIdx + 1]
-          if (track)
-            DZ.player.playTracks([ track.id ])
-          else
-            this.stopPlayer()
-        }
-      })
-
       this.onDestroy(() => {
         currentTrackSubscription.unsubscribe()
-        changesSubscription.unsubscribe()
       })
     })
   }
