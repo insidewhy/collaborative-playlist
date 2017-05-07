@@ -16,7 +16,7 @@
         </a>
       </ng-container>
     </ng-container>
-    <div (click)="selectedTracks.toggle(index)">
+    <div (click)="toggle(index, $event)">
       {{track.artist.name}} - {{track.album.title}} - {{track.title}}
     </div>
     <time>

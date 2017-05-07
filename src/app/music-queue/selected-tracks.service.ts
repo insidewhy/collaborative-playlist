@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core'
 import { BehaviorSubject } from 'rxjs/BehaviorSubject'
+const range = require('lodash/range')
 
 import { OnDestroy } from '../on-destroy'
 import { MusicQueue } from './music-queue.service'
@@ -7,6 +8,7 @@ import { MusicQueue } from './music-queue.service'
 @Injectable()
 export class SelectedTracks extends OnDestroy {
   public indexes = new BehaviorSubject<Set<number>>(new Set<number>())
+  private previousSelectedIndex = -1
 
   constructor(musicQueue: MusicQueue) {
     super()
@@ -30,13 +32,28 @@ export class SelectedTracks extends OnDestroy {
     })
   }
 
-  toggle(index: number):void {
+  toggle(index: number, selectRange = false):void {
     const indexesVal = new Set(this.indexes.getValue())
+
+    if (selectRange) {
+      const { previousSelectedIndex } = this;
+      if (previousSelectedIndex !== -1) {
+        range(index, previousSelectedIndex).forEach(index => {
+          if (! indexesVal.has(index))
+            indexesVal.add(index)
+        })
+        this.indexes.next(indexesVal)
+        this.previousSelectedIndex = index
+        return
+      }
+    }
+
     if (indexesVal.has(index))
       indexesVal.delete(index)
     else
       indexesVal.add(index)
     this.indexes.next(indexesVal)
+    this.previousSelectedIndex = index
   }
 
   clear() {
