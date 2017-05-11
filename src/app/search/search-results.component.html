@@ -1,6 +1,6 @@
-<ul class="track-list">
+<ul class="track-list" *ngIf="numberOfTracksFromAlbumInQueue | async; let albumTrackCounts">
   <li *ngFor="let result of (searchResults | async)"
-      [class.queued]="(this.musicQueue.tracksById | async)?.get(result.id)"
+      [class.queued]="result.album ? (this.musicQueue.tracksById | async)?.get(result.id) : (albumTrackCounts[result.id] > 0)"
       (click)="selectResult(result)">
     <ng-template [ngIf]="result.album">
       <div>{{result.artist.name}} - {{result.album.title}} - {{result.title}}</div>
@@ -8,8 +8,11 @@
         {{result.duration | trackDuration}}
       </time>
     </ng-template>
-    <div *ngIf="! result.album">
-      {{result.artist.name}} - {{result.title}}
-    </div>
+    <ng-template [ngIf]="! result.album">
+      <div>
+        {{result.artist.name}} - {{result.title}}
+      </div>
+      <aside>{{albumTrackCounts[result.id] || 0}} / {{result.nTracks}}</aside>
+    </ng-template>
   </li>
 </ul>

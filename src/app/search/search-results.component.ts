@@ -9,6 +9,9 @@ import 'rxjs/add/operator/concat'
 import 'rxjs/add/observable/combineLatest'
 // using `import {pick} from 'lodash'` isn't handled by the tree shaker :(
 const pick = require('lodash/pick')
+const groupBy = require('lodash/groupBy')
+const uniqBy = require('lodash/uniqBy')
+const mapValues = require('lodash/mapValues')
 
 import { SearchTerms } from './search-terms.service'
 import { MusicQueue } from '../music-queue/music-queue.service'
@@ -49,7 +52,7 @@ export class SearchResultsComponent extends OnDestroy {
             // console.debug(results)
             return results.map(track => {
               const {id, title, duration} = track
-              const album = pick(track.album, 'title')
+              const album = pick(track.album, ['title', 'id'])
               const artist = pick(track.artist, 'name')
               return {id, title, album, artist, duration: duration * 1000}
             })
@@ -58,9 +61,9 @@ export class SearchResultsComponent extends OnDestroy {
           .map(data => data.json().data)
           .map(results => {
             return results.map(album => {
-              const {id, title} = album
+              const {id, title, nb_tracks: nTracks} = album
               const artist = pick(album.artist, 'name')
-              return {id, title, artist}
+              return {id, title, artist, nTracks}
             })
           }),
         (tracks, albums) => [ ...albums, ...tracks ]
@@ -72,12 +75,21 @@ export class SearchResultsComponent extends OnDestroy {
     })
   }
 
+  public get numberOfTracksFromAlbumInQueue() {
+    return this.musicQueue.tracks.map(tracks => {
+      return mapValues(
+        groupBy(tracks, track => track.album.id),
+        tracks => uniqBy(tracks, 'id').length
+      )
+    })
+  }
+
   private selectResult(result) {
     if (result.album) {
       this.musicQueue.insertTrack(result, this.musicQueue.tracks.getValue().length)
     }
     else {
-      const album = pick(result, 'title')
+      const album = pick(result, ['title', 'id'])
       this.jsonp.get(`http://api.deezer.com/album/${result.id}/tracks?output=jsonp&callback=JSONP_CALLBACK`)
       .map(data => data.json().data)
       .map(results => {
