@@ -19,7 +19,7 @@ export class AppComponent {
     .map((event: NavigationStart) => event.url)
     .pairwise()
     .subscribe(([prevUrl, url]) => {
-      if (prevUrl === '/' && url.match(searchUrlRegex)) {
+      if (url.match(searchUrlRegex) && url !== prevUrl) {
         scrollBackup = window.scrollY
         window.scrollTo(0, 0)
       }
