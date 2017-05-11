@@ -9,6 +9,7 @@ ul {
   li {
     @extend %music-queue-colors;
     padding-right: $top-layer-horizontal-padding;
+    user-select: none;
 
     a {
       display: flex;

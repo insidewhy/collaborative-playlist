@@ -19,8 +19,5 @@ export class MusicQueueComponent {
   toggle(index: number, event) {
     const selectRange = event.shiftKey
     this.selectedTracks.toggle(index, selectRange)
-    // TODO: something better than this to prevent shift key selecting text
-    if (selectRange)
-      document.getSelection().removeAllRanges()
   }
 }
