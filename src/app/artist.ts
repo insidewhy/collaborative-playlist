@@ -1,3 +1,3 @@
 export interface Artist {
-  name: String,
+  name: String
 }
