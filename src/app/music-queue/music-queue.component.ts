@@ -16,8 +16,7 @@ export class MusicQueueComponent {
               private selectedTracks: SelectedTracks)
   {}
 
-  toggle(index: number, event) {
-    const selectRange = event.shiftKey
+  toggle(index: number, selectRange: boolean) {
     this.selectedTracks.toggle(index, selectRange)
   }
 }

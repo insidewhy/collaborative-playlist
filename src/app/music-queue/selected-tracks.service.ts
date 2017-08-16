@@ -8,7 +8,7 @@ import { MusicQueue } from './music-queue.service'
 @Injectable()
 export class SelectedTracks extends OnDestroy {
   public indexes = new BehaviorSubject<Set<number>>(new Set<number>())
-  private previousSelectedIndex = -1
+  public previousSelectedIndex = new BehaviorSubject<number>(-1)
 
   constructor(musicQueue: MusicQueue) {
     super()
@@ -36,14 +36,14 @@ export class SelectedTracks extends OnDestroy {
     const indexesVal = new Set(this.indexes.getValue())
 
     if (selectRange) {
-      const { previousSelectedIndex } = this;
-      if (previousSelectedIndex !== -1) {
-        range(index, previousSelectedIndex).forEach(index => {
+      const { previousSelectedIndex: { value: prevIndex } } = this
+      if (prevIndex !== -1) {
+        range(index, prevIndex).forEach(index => {
           if (! indexesVal.has(index))
             indexesVal.add(index)
         })
         this.indexes.next(indexesVal)
-        this.previousSelectedIndex = index
+        this.previousSelectedIndex.next(index)
         return
       }
     }
@@ -53,7 +53,7 @@ export class SelectedTracks extends OnDestroy {
     else
       indexesVal.add(index)
     this.indexes.next(indexesVal)
-    this.previousSelectedIndex = index
+    this.previousSelectedIndex.next(index)
   }
 
   clear() {

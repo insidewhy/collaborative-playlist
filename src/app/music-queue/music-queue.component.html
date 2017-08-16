@@ -3,20 +3,31 @@
       [class.active]="(currentTrack.index | async) === index"
       [class.selected]="(selectedTracks.indexes | async).has(index)">
 
-    <ng-container [ngSwitch]="(currentTrack.index | async) !== index">
-      <a *ngSwitchCase="true" (click)="musicQueue.playTrack(track.id, index)">
-        <md-icon>play_arrow</md-icon>
-      </a>
-      <ng-container *ngSwitchCase="false" [ngSwitch]="(currentTrack.paused | async)">
-        <a *ngSwitchCase="true" (click)="currentTrack.unpause()">
+    <ng-container [ngSwitch]="(selectedTracks.indexes | async)?.size === 0">
+      <ng-container *ngSwitchCase="true" [ngSwitch]="(currentTrack.index | async) !== index">
+        <a *ngSwitchCase="true" (click)="musicQueue.playTrack(track.id, index)">
           <md-icon>play_arrow</md-icon>
         </a>
-        <a *ngSwitchCase="false" (click)="currentTrack.pause()">
-          <md-icon>pause</md-icon>
+        <ng-container *ngSwitchCase="false" [ngSwitch]="(currentTrack.paused | async)">
+          <a *ngSwitchCase="true" (click)="currentTrack.unpause()">
+            <md-icon>play_arrow</md-icon>
+          </a>
+          <a *ngSwitchCase="false" (click)="currentTrack.pause()">
+            <md-icon>pause</md-icon>
+          </a>
+        </ng-container>
+      </ng-container>
+      <ng-container *ngSwitchCase="false">
+        <a  (click)="toggle(index, true)" [ngSwitch]="(selectedTracks.previousSelectedIndex | async) == index">
+          <md-icon *ngSwitchCase="true">check</md-icon>
+          <ng-container *ngSwitchCase="false" [ngSwitch]="(selectedTracks.previousSelectedIndex | async) < index">
+            <md-icon *ngSwitchCase="true">keyboard_arrow_up</md-icon>
+            <md-icon *ngSwitchCase="false">keyboard_arrow_down</md-icon>
+          </ng-container>
         </a>
       </ng-container>
     </ng-container>
-    <div (click)="toggle(index, $event)">
+    <div (click)="toggle(index, $event.shiftKey)">
       {{track.artist.name}} - {{track.album.title}} - {{track.title}}
     </div>
     <time>
