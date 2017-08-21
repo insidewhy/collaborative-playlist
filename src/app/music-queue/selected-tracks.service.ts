@@ -9,6 +9,7 @@ import { MusicQueue } from './music-queue.service'
 export class SelectedTracks extends OnDestroy {
   public indexes = new BehaviorSubject<Set<number>>(new Set<number>())
   public previousSelectedIndex = new BehaviorSubject<number>(-1)
+  public rangeEndIdx = new BehaviorSubject<number>(-1)
 
   constructor(musicQueue: MusicQueue) {
     super()
@@ -38,12 +39,20 @@ export class SelectedTracks extends OnDestroy {
     if (selectRange) {
       const { previousSelectedIndex: { value: prevIndex } } = this
       if (prevIndex !== -1) {
+        const rangeEndIdx = this.rangeEndIdx.getValue()
+        if (rangeEndIdx !== -1) {
+          range(rangeEndIdx, prevIndex).forEach(index => {
+            if (indexesVal.has(index))
+              indexesVal.delete(index)
+          })
+        }
+
         range(index, prevIndex).forEach(index => {
           if (! indexesVal.has(index))
             indexesVal.add(index)
         })
         this.indexes.next(indexesVal)
-        this.previousSelectedIndex.next(index)
+        this.rangeEndIdx.next(index)
         return
       }
     }
@@ -54,6 +63,7 @@ export class SelectedTracks extends OnDestroy {
       indexesVal.add(index)
     this.indexes.next(indexesVal)
     this.previousSelectedIndex.next(index)
+    this.rangeEndIdx.next(-1)
   }
 
   clear() {
