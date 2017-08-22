@@ -18,7 +18,7 @@ ul {
       padding: 0 #{$top-layer-horizontal-padding - 2px};
 
       &:hover {
-        background-color: complement($color-music-queue);
+        background-color: $color-green;
       }
     }
 

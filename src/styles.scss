@@ -57,6 +57,10 @@ ul.track-list {
       &:hover {
         background-color: darken($color-blue, 10%) !important;
       }
+
+      a:hover {
+        background-color: complement($color-green) !important;
+      }
     }
   }
 }
