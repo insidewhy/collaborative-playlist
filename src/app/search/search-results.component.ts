@@ -84,9 +84,13 @@ export class SearchResultsComponent extends OnDestroy {
     })
   }
 
-  private selectResult(result) {
+  private selectResult(result, play = false) {
     if (result.album) {
-      this.musicQueue.insertTrack(result, this.musicQueue.tracks.getValue().length)
+      const { length } = this.musicQueue.tracks.getValue()
+      this.musicQueue.insertTrack(result, length)
+      if (play) {
+        this.musicQueue.playTrack(result.id, length)
+      }
     }
     else {
       const album = pick(result, ['title', 'id'])
@@ -100,9 +104,18 @@ export class SearchResultsComponent extends OnDestroy {
         })
       })
       .subscribe(tracks => {
-        let {length} = this.musicQueue.tracks.getValue()
-        tracks.forEach(track => { this.musicQueue.insertTrack(track, length++) })
+        const { length } = this.musicQueue.tracks.getValue()
+        let newLength = length
+        tracks.forEach(track => { this.musicQueue.insertTrack(track, newLength++) })
+        if (play) {
+          this.musicQueue.playTrack(tracks[0].id, length)
+        }
       })
     }
+  }
+
+  private playResult(event, result) {
+    event.stopPropagation()
+    this.selectResult(result, true)
   }
 }

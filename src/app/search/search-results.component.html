@@ -3,12 +3,18 @@
       [class.queued]="result.album ? (this.musicQueue.tracksById | async)?.get(result.id) : (albumTrackCounts[result.id] > 0)"
       (click)="selectResult(result)">
     <ng-template [ngIf]="result.album">
+      <a (click)="playResult($event, result)">
+        <md-icon>play_arrow</md-icon>
+      </a>
       <div>{{result.artist.name}} - {{result.album.title}} - {{result.title}}</div>
       <time>
         {{result.duration | trackDuration}}
       </time>
     </ng-template>
     <ng-template [ngIf]="! result.album">
+      <a (click)="playResult($event, result)">
+        <md-icon>play_arrow</md-icon>
+      </a>
       <div>
         {{result.artist.name}} - {{result.title}}
       </div>
