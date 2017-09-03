@@ -1,6 +1,7 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core'
 import { Router, NavigationStart } from '@angular/router'
 import 'rxjs/add/operator/pairwise'
+import 'rxjs/add/operator/filter'
 
 const searchUrlRegex = /^\/search\//
 
