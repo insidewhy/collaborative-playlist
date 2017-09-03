@@ -4,7 +4,7 @@ import { DeezerPlayer } from '../deezer-player/deezer-player.service'
 import { CurrentTrack } from '../current-track/current-track.service'
 
 @Component({
-  selector: 'player-controls',
+  selector: 'app-player-controls',
   templateUrl: './player-controls.component.html',
   styleUrls: ['./player-controls.component.scss']
 })
@@ -21,8 +21,7 @@ export class PlayerControlsComponent {
     if (deezerPlayer.activated) {
       deezerPlayer.deactivate()
       window.localStorage.setItem('muted', 'true')
-    }
-    else {
+    } else {
       deezerPlayer.activate()
       window.localStorage.removeItem('muted')
     }

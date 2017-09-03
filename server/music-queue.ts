@@ -59,8 +59,7 @@ function findTrack(index: number, trackId: string) {
     if (distance > bestDistance) {
       // we're getting further so give up
       return searchIndex
-    }
-    else {
+    } else {
       bestDistance = distance
       searchIndex = nextIdx
     }

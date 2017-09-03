@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core'
 import { Subscription } from 'rxjs/Subscription'
 import { Observable } from 'rxjs/Observable'
 
-import { OnDestroy } from '../on-destroy'
+import { DestructionCallbacks } from '../destruction-callbacks'
 import { MusicQueue } from '../music-queue/music-queue.service'
 import { CurrentTrack } from '../current-track/current-track.service'
 
@@ -11,7 +11,7 @@ declare var DZ: any
 const acceptableLag = 1000
 
 @Injectable()
-export class DeezerPlayer extends OnDestroy {
+export class DeezerPlayer extends DestructionCallbacks {
   private loadedPromise: Promise<null>
   // whether the deezer api is being used
   public activated = false
@@ -67,8 +67,7 @@ export class DeezerPlayer extends OnDestroy {
           if (paused) {
             this.playingTrackId = ''
             DZ.player.pause()
-          }
-          else {
+          } else {
             const { id: trackId } = track
             if (trackId === this.playingTrackId) {
               // TODO: improve this by measuring initial lag etc.
@@ -115,8 +114,7 @@ export class DeezerPlayer extends OnDestroy {
     const nextIdx = this.currentTrack.index.getValue() + 1
     if (nextIdx >= this.musicQueue.tracks.getValue().length) {
       this.musicQueue.playTrack(null, -1)
-    }
-    else {
+    } else {
       const track = this.musicQueue.tracks.getValue()[nextIdx]
       this.musicQueue.playTrack(track.id, nextIdx)
     }

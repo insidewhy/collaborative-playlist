@@ -1,4 +1,4 @@
-export default function groupBy<T, K>(vals: T[], mapper: (T)=>K): Map<K, T[]> {
+export default function groupBy<T, K>(vals: T[], mapper: (T) => K): Map<K, T[]> {
   const map = new Map<K, T[]>()
   vals.forEach(val => {
     const key = mapper(val)

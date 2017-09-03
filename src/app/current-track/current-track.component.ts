@@ -7,7 +7,7 @@ import { MusicQueue } from '../music-queue/music-queue.service'
 import { Track } from '../track'
 
 @Component({
-  selector: 'current-track',
+  selector: 'app-current-track',
   templateUrl: './current-track.component.html',
   styleUrls: ['./current-track.component.scss']
 })

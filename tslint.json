@@ -9,7 +9,7 @@
       true,
       "check-space"
     ],
-    "curly": true,
+    "curly": false,
     "eofline": true,
     "forin": true,
     "import-blacklist": [true, "rxjs"],
@@ -70,7 +70,8 @@
     ],
     "radix": true,
     "semicolon": [
-      "always"
+      true,
+      "never"
     ],
     "triple-equals": [
       true,

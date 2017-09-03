@@ -6,7 +6,7 @@ import { MusicQueue, TrackWithIndex } from './music-queue.service'
 const sortBy = require('lodash/sortBy')
 
 @Component({
-  selector: 'selected-tracks-controls',
+  selector: 'app-selected-tracks-controls',
   templateUrl: './selected-tracks-controls.component.html',
   styleUrls: ['./selected-tracks-controls.component.scss']
 })

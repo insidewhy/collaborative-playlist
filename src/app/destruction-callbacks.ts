@@ -1,12 +1,14 @@
+import { OnDestroy } from '@angular/core'
+
 type Constructor<T> = new(...args: any[]) => T
 
-function onDestroyHelper(obj, callback:Function) {
+function onDestroyHelper(obj, callback: Function) {
   if (! obj.__destroyCallbacks)
     obj.__destroyCallbacks = []
   obj.__destroyCallbacks.push(callback)
 }
 
-function ngOnDestroyHelper(obj):void {
+function ngOnDestroyHelper(obj): void {
   const {__destroyCallbacks} = obj
   if (! __destroyCallbacks)
     return
@@ -14,7 +16,7 @@ function ngOnDestroyHelper(obj):void {
   __destroyCallbacks.length = 0
 }
 
-export function OnDestroyMixin<T extends Constructor<{}>>(Base: T) {
+export function DestructionCallbacksMixin<T extends Constructor<{}>>(Base: T) {
   return class extends Base {
     private __destroyCallbacks: Function[]
 
@@ -26,12 +28,12 @@ export function OnDestroyMixin<T extends Constructor<{}>>(Base: T) {
       this.ngOnDestroy = ngOnDestroyHelper.bind(null, this)
     }
 
-    declare onDestroy(callback:Function):void
+    declare onDestroy(callback: Function): void
     declare ngOnDestroy()
   }
 }
 
-export class OnDestroy {
-  onDestroy(callback:Function):void { onDestroyHelper(this, callback) }
+export class DestructionCallbacks implements OnDestroy {
+  onDestroy(callback: Function): void { onDestroyHelper(this, callback) }
   ngOnDestroy() { ngOnDestroyHelper(this) }
 }

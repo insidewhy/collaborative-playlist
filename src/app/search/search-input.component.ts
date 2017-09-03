@@ -1,17 +1,17 @@
-import { Component } from '@angular/core'
+import { Component, OnInit } from '@angular/core'
 import { Router } from '@angular/router'
 import { Subscription } from 'rxjs/Subscription'
 import { Observable } from 'rxjs/Observable'
 
-import { OnDestroy } from '../on-destroy'
+import { DestructionCallbacks } from '../destruction-callbacks'
 import { SearchTerms } from './search-terms.service'
 
 @Component({
-  selector: 'search-input',
+  selector: 'app-search-input',
   templateUrl: './search-input.component.html',
   styleUrls: ['./search-input.component.scss']
 })
-export class SearchInputComponent extends OnDestroy {
+export class SearchInputComponent extends DestructionCallbacks implements OnInit {
   public terms: String
   private termsStream: Observable<String>
 

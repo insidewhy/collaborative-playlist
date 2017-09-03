@@ -7,7 +7,7 @@ import { MdIconModule, MdIconRegistry } from '@angular/material'
 import { AppComponent } from './app.component'
 import { ServerSocket } from './server-socket.service'
 import { SearchInputComponent } from './search/search-input.component'
-import { ControlsAndInfo } from './controls-and-info/controls-and-info.component'
+import { ControlsAndInfoComponent } from './controls-and-info/controls-and-info.component'
 import { PlayerControlsComponent } from './player-controls/player-controls.component'
 
 import { AppRoutingModule } from './app-routing.module'
@@ -34,7 +34,7 @@ import { CurrentTrackComponent } from './current-track/current-track.component'
   declarations: [
     AppComponent,
     SearchInputComponent,
-    ControlsAndInfo,
+    ControlsAndInfoComponent,
     PlayerControlsComponent,
     SearchResultsComponent,
     MusicQueueComponent,

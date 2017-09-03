@@ -4,7 +4,7 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject'
 
 import groupBy from '../lib/group-by'
 import { Track } from '../track'
-import { OnDestroy } from '../on-destroy'
+import { DestructionCallbacks } from '../destruction-callbacks'
 import { ServerSocket } from '../server-socket.service'
 import { CurrentTrack } from '../current-track/current-track.service'
 
@@ -16,7 +16,7 @@ export interface TrackWithIndex {
 }
 
 @Injectable()
-export class MusicQueue extends OnDestroy {
+export class MusicQueue extends DestructionCallbacks {
   public tracks = new BehaviorSubject<Track[]>([])
   public tracksById = new BehaviorSubject<TracksById>(new Map<string, Track[]>())
   public changeStream = new Subject<any>()
@@ -31,13 +31,12 @@ export class MusicQueue extends OnDestroy {
     })
 
     const messagesSubscription = this.socket.messages.subscribe(message => {
-      console.debug('recv', message)
+      // console.debug('recv', message)
 
       if (message.type === 'musicQueue') {
         this.tracks.next(message.payload)
         this.emitTracksById()
-      }
-      else if (message.type === 'insert') {
+      } else if (message.type === 'insert') {
         const {track, index: insertIdx} = message.payload
         this.changeStream.next({ insertIdx, track })
 
@@ -52,8 +51,7 @@ export class MusicQueue extends OnDestroy {
         const currentIndex = this.currentTrack.index.getValue()
         if (insertIdx <= currentIndex)
           this.currentTrack.index.next(currentIndex + 1)
-      }
-      else if (message.type === 'remove') {
+      } else if (message.type === 'remove') {
         const removeIdx = message.payload
         this.changeStream.next({ removeIdx })
 
@@ -67,16 +65,14 @@ export class MusicQueue extends OnDestroy {
         const currentIndex = this.currentTrack.index.getValue()
         if (removeIdx < currentIndex) {
           this.currentTrack.index.next(currentIndex - 1)
-        }
-        else if (removeIdx === currentIndex) {
+        } else if (removeIdx === currentIndex) {
           const nextTrack = this.tracks.getValue()[removeIdx + 1]
           if (nextTrack) {
             this.currentTrack.elapsed.next(0)
             this.currentTrack.index.next(removeIdx)
           }
         }
-      }
-      else if (message.type === 'move') {
+      } else if (message.type === 'move') {
         const currentTracks = this.tracks.getValue()
         const { index, offset } = message.payload
         const newIndex = index + offset
@@ -97,19 +93,19 @@ export class MusicQueue extends OnDestroy {
     this.tracksById.next(groupBy(this.tracks.getValue(), track => track.id))
   }
 
-  public insertTrack(track: Track, index: number):void {
+  public insertTrack(track: Track, index: number): void {
     this.socket.send({ type: 'insertTrack', payload: { track, index } })
   }
 
-  public removeTrack(track: Track, index: number):void {
+  public removeTrack(track: Track, index: number): void {
     this.socket.send({ type: 'removeTrack', payload: { trackId: track.id, index } })
   }
 
-  public playTrack(trackId: string, index: number):void {
+  public playTrack(trackId: string, index: number): void {
     this.socket.send({ type: 'playTrack', payload: { trackId, index } })
   }
 
-  public skipTrack(offset: number):void {
+  public skipTrack(offset: number): void {
     const nextIdx = this.currentTrack.index.getValue() + offset
     const track = this.tracks.getValue()[nextIdx]
     if (track)
@@ -124,8 +120,7 @@ export class MusicQueue extends OnDestroy {
     if (offset < 0) {
       limit = start = 0
       end = tracksWithIndexes.length
-    }
-    else {
+    } else {
       limit = this.tracks.getValue().length - 1
       start = tracksWithIndexes.length - 1
       end = -1

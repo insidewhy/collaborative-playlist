@@ -1,4 +1,4 @@
-import { Component } from '@angular/core'
+import { Component, OnInit } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
 import { Jsonp } from '@angular/http'
 import { Observable } from 'rxjs/Observable'
@@ -17,14 +17,14 @@ import { SearchTerms } from './search-terms.service'
 import { MusicQueue } from '../music-queue/music-queue.service'
 import { Album } from '../album'
 import { Track } from '../track'
-import { OnDestroy } from '../on-destroy'
+import { DestructionCallbacks } from '../destruction-callbacks'
 
 @Component({
-  selector: 'search-results',
+  selector: 'app-search-results',
   templateUrl: './search-results.component.html',
   styleUrls: ['./search-results.component.scss']
 })
-export class SearchResultsComponent extends OnDestroy {
+export class SearchResultsComponent extends DestructionCallbacks implements OnInit {
   private terms: string
 
   public searchResults: Observable<Array<Track | Album>>
@@ -34,8 +34,7 @@ export class SearchResultsComponent extends OnDestroy {
     private route: ActivatedRoute,
     private musicQueue: MusicQueue,
     private jsonp: Jsonp
-  )
-  {
+  ) {
     super()
   }
 
@@ -79,7 +78,7 @@ export class SearchResultsComponent extends OnDestroy {
     return this.musicQueue.tracks.map(tracks => {
       return mapValues(
         groupBy(tracks, track => track.album.id),
-        tracks => uniqBy(tracks, 'id').length
+        groupedTracks => uniqBy(groupedTracks, 'id').length
       )
     })
   }
@@ -91,8 +90,7 @@ export class SearchResultsComponent extends OnDestroy {
       if (play) {
         this.musicQueue.playTrack(result.id, length)
       }
-    }
-    else {
+    } else {
       const album = pick(result, ['title', 'id'])
       this.jsonp.get(`http://api.deezer.com/album/${result.id}/tracks?output=jsonp&callback=JSONP_CALLBACK`)
       .map(data => data.json().data)

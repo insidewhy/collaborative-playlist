@@ -3,10 +3,10 @@ import { Component } from '@angular/core'
 import { SelectedTracks } from '../music-queue/selected-tracks.service'
 
 @Component({
-  selector: 'controls-and-info',
+  selector: 'app-controls-and-info',
   templateUrl: './controls-and-info.component.html',
   styleUrls: ['./controls-and-info.component.scss']
 })
-export class ControlsAndInfo {
+export class ControlsAndInfoComponent {
   constructor(public selectedTracks: SelectedTracks) {}
 }

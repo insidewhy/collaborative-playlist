@@ -22,8 +22,7 @@ export class AppComponent {
         if (prevUrl === '/')
           scrollBackup = window.scrollY
         window.scrollTo(0, 0)
-      }
-      else if (url === '/' && prevUrl.match(searchUrlRegex)) {
+      } else if (url === '/' && prevUrl.match(searchUrlRegex)) {
         window.scrollTo(0, scrollBackup)
         setTimeout(() => { window.scrollTo(0, scrollBackup) }, 50)
       }

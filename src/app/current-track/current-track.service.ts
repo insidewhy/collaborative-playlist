@@ -5,7 +5,7 @@ import 'rxjs/add/observable/combineLatest'
 import 'rxjs/add/observable/timer'
 import 'rxjs/add/operator/debounce'
 
-import { OnDestroy } from '../on-destroy'
+import { DestructionCallbacks } from '../destruction-callbacks'
 import { Track } from '../track'
 import { ServerSocket } from '../server-socket.service'
 
@@ -16,7 +16,7 @@ export interface CurrentTrackStatus {
 }
 
 @Injectable()
-export class CurrentTrack extends OnDestroy {
+export class CurrentTrack extends DestructionCallbacks {
   // stream that relays the above two pieces of information along with the elapsed time
   public index = new BehaviorSubject<number>(-1)
   public elapsed = new BehaviorSubject<number>(0)
