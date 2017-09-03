@@ -34,33 +34,21 @@ button {
   visibility: hidden;
 }
 
-ul.track-list {
+ul.track-list, app-music-queue {
   list-style: none;
 
-  li {
+  >* {
     display: flex;
     align-items: center;
     font-family: sans-serif;
 
-    > div {
+    .track-description {
       padding: 4px 0;
       flex-grow: 1;
     }
 
     &:hover {
       cursor: pointer;
-    }
-
-    &.active {
-      background-color: $color-blue !important;
-
-      &:hover {
-        background-color: darken($color-blue, 10%) !important;
-      }
-
-      a:hover {
-        background-color: complement($color-green) !important;
-      }
     }
   }
 }

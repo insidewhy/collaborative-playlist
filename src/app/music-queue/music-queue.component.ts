@@ -1,9 +1,6 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core'
 
-import { Track } from '../track'
 import { MusicQueue } from './music-queue.service'
-import { CurrentTrack } from '../current-track/current-track.service'
-import { SelectedTracks } from './selected-tracks.service'
 
 @Component({
   selector: 'app-music-queue',
@@ -12,11 +9,5 @@ import { SelectedTracks } from './selected-tracks.service'
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MusicQueueComponent {
-  constructor(public musicQueue: MusicQueue,
-              private currentTrack: CurrentTrack,
-              private selectedTracks: SelectedTracks) {}
-
-  toggle(index: number, selectRange: boolean) {
-    this.selectedTracks.toggle(index, selectRange)
-  }
+  constructor(public musicQueue: MusicQueue) {}
 }

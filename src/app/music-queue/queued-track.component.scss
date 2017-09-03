@@ -1,0 +1,48 @@
+@import './_queued';
+
+:host {
+  @extend %music-queue-colors;
+
+  >div {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    width: 100%;
+    padding-right: $top-layer-horizontal-padding;
+    user-select: none;
+
+    a {
+      display: flex;
+      align-self: stretch;
+      align-items: center;
+      padding: 0 #{$top-layer-horizontal-padding - 2px};
+
+      &:hover {
+        background-color: $color-green;
+      }
+    }
+
+    &.selected {
+      background-color: $color-green;
+      &:hover {
+        background-color: darken($color-green, 10%);
+
+        a:hover {
+          background-color: complement($color-green);
+        }
+      }
+    }
+
+    &.active {
+      background-color: $color-blue;
+
+      &:hover {
+        background-color: darken($color-blue, 10%);
+      }
+
+      a:hover {
+        background-color: complement($color-green);
+      }
+    }
+  }
+}

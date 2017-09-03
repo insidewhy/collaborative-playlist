@@ -6,7 +6,7 @@
       <a (click)="playResult($event, result)">
         <md-icon>play_arrow</md-icon>
       </a>
-      <div>{{result.artist.name}} - {{result.album.title}} - {{result.title}}</div>
+      <div class="track-description">{{result.artist.name}} - {{result.album.title}} - {{result.title}}</div>
       <time>
         {{result.duration | trackDuration}}
       </time>
@@ -15,7 +15,7 @@
       <a (click)="playResult($event, result)">
         <md-icon>play_arrow</md-icon>
       </a>
-      <div>
+      <div class="track-description">
         {{result.artist.name}} - {{result.title}}
       </div>
       <aside>{{albumTrackCounts[result.id] || 0}} / {{result.nTracks}}</aside>
