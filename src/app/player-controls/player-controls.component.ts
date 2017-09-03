@@ -11,7 +11,6 @@ import { CurrentTrack } from '../current-track/current-track.service'
 })
 export class PlayerControlsComponent {
   constructor(public deezerPlayer: DeezerPlayer, public currentTrack: CurrentTrack) {
-    // TODO: read mute status from local storage and apply to deezerPlayer
     const muted = window.localStorage.getItem('muted')
     if (! muted)
       deezerPlayer.activate()

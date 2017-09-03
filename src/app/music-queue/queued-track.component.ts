@@ -33,6 +33,7 @@ export class QueuedTrack {
   }
 
   get hasSelection() {
+    // TODO: only calculate this when element is scrolled into view
     return this.selectedTracks.indexes.map(indexes => indexes.size > 0).distinctUntilChanged()
   }
 
