@@ -1,4 +1,5 @@
 import { Component, ChangeDetectionStrategy, Input } from '@angular/core'
+import 'rxjs/add/operator/distinctUntilChanged'
 
 import { CurrentTrack } from '../current-track/current-track.service'
 import { SelectedTracks } from './selected-tracks.service'
@@ -22,6 +23,22 @@ export class QueuedTrack {
     private selectedTracks: SelectedTracks,
     private musicQueue: MusicQueue
   ) {}
+
+  get isActive() {
+    return this.currentTrack.index.map(index => index === this.index).distinctUntilChanged()
+  }
+
+  get isSelected() {
+    return this.selectedTracks.indexes.map(indexes => indexes.has(this.index)).distinctUntilChanged()
+  }
+
+  get hasSelection() {
+    return this.selectedTracks.indexes.map(indexes => indexes.size > 0).distinctUntilChanged()
+  }
+
+  get isPlaying() {
+    return this.currentTrack.index.map(index => index === this.index).distinctUntilChanged()
+  }
 
   toggle(selectRange: boolean) {
     this.selectedTracks.toggle(this.index, selectRange)
