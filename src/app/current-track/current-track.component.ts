@@ -1,4 +1,4 @@
-import { Component } from '@angular/core'
+import { Component, ChangeDetectionStrategy } from '@angular/core'
 import { Observable } from 'rxjs/Observable'
 import 'rxjs/add/observable/combineLatest'
 
@@ -9,7 +9,8 @@ import { Track } from '../track'
 @Component({
   selector: 'app-current-track',
   templateUrl: './current-track.component.html',
-  styleUrls: ['./current-track.component.scss']
+  styleUrls: ['./current-track.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CurrentTrackComponent {
   public trackInfo: Observable<any>

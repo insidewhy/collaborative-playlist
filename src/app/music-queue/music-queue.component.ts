@@ -1,4 +1,4 @@
-import { Component } from '@angular/core'
+import { Component, ChangeDetectionStrategy } from '@angular/core'
 
 import { Track } from '../track'
 import { MusicQueue } from './music-queue.service'
@@ -8,7 +8,8 @@ import { SelectedTracks } from './selected-tracks.service'
 @Component({
   selector: 'app-music-queue',
   templateUrl: './music-queue.component.html',
-  styleUrls: ['./music-queue.component.scss']
+  styleUrls: ['./music-queue.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MusicQueueComponent {
   constructor(public musicQueue: MusicQueue,

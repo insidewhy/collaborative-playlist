@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core'
+import { Component, ChangeDetectionStrategy, OnInit } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
 import { Jsonp } from '@angular/http'
 import { Observable } from 'rxjs/Observable'
@@ -22,7 +22,8 @@ import { DestructionCallbacks } from '../destruction-callbacks'
 @Component({
   selector: 'app-search-results',
   templateUrl: './search-results.component.html',
-  styleUrls: ['./search-results.component.scss']
+  styleUrls: ['./search-results.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SearchResultsComponent extends DestructionCallbacks implements OnInit {
   private terms: string

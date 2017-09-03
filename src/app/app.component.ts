@@ -1,4 +1,4 @@
-import { Component } from '@angular/core'
+import { Component, ChangeDetectionStrategy } from '@angular/core'
 import { Router, NavigationStart } from '@angular/router'
 import 'rxjs/add/operator/pairwise'
 
@@ -7,7 +7,8 @@ const searchUrlRegex = /^\/search\//
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  styleUrls: ['./app.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent {
   constructor(router: Router) {

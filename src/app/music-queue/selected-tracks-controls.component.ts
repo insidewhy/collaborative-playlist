@@ -1,4 +1,4 @@
-import { Component } from '@angular/core'
+import { Component, ChangeDetectionStrategy } from '@angular/core'
 
 import { SelectedTracks } from './selected-tracks.service'
 import { MusicQueue, TrackWithIndex } from './music-queue.service'
@@ -8,7 +8,8 @@ const sortBy = require('lodash/sortBy')
 @Component({
   selector: 'app-selected-tracks-controls',
   templateUrl: './selected-tracks-controls.component.html',
-  styleUrls: ['./selected-tracks-controls.component.scss']
+  styleUrls: ['./selected-tracks-controls.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SelectedTracksControlsComponent {
   constructor(private selectedTracks: SelectedTracks, private musicQueue: MusicQueue) {}

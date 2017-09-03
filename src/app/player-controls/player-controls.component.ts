@@ -1,4 +1,4 @@
-import { Component } from '@angular/core'
+import { Component, ChangeDetectionStrategy } from '@angular/core'
 
 import { DeezerPlayer } from '../deezer-player/deezer-player.service'
 import { CurrentTrack } from '../current-track/current-track.service'
@@ -6,7 +6,8 @@ import { CurrentTrack } from '../current-track/current-track.service'
 @Component({
   selector: 'app-player-controls',
   templateUrl: './player-controls.component.html',
-  styleUrls: ['./player-controls.component.scss']
+  styleUrls: ['./player-controls.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PlayerControlsComponent {
   constructor(public deezerPlayer: DeezerPlayer, public currentTrack: CurrentTrack) {
