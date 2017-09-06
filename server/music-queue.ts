@@ -84,6 +84,7 @@ export function removeTrack(
     --trackState.index
 
   musicQueue.splice(index, 1)
+  saveQueue()
   socket.broadcast('remove', index)
 }
 
