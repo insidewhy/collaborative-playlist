@@ -1,6 +1,6 @@
 import { ShareDeezerPage } from './app.po'
 
-describe('share-deezer App', function() {
+describe('collaborative-playlist App', function() {
   let page: ShareDeezerPage
 
   beforeEach(() => {

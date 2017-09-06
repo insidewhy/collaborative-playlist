@@ -15,7 +15,7 @@ const musicQueue: Track[] = []
 
 const trackState = new TrackState()
 
-const getConfigPath = () => `${process.env.HOME}/.local/share/share-deezer`
+const getConfigPath = () => `${process.env.HOME}/.local/share/collaborative-playlist`
 
 const saveQueue = _.debounce(async () => {
   console.log('saving queue')
