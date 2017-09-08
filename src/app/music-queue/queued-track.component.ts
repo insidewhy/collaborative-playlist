@@ -12,34 +12,21 @@ import { Track } from '../track'
   styleUrls: ['./queued-track.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class QueuedTrack {
+export class QueuedTrackComponent {
   @Input()
   private index: number
   @Input()
   private track: Track
+
+  public isSelected = this.selectedTracks.indexes.map(indexes => indexes.has(this.index)).distinctUntilChanged()
+  public hasSelection = this.selectedTracks.indexes.map(indexes => indexes.size > 0).distinctUntilChanged()
+  public isPlaying = this.currentTrack.index.map(index => index === this.index).distinctUntilChanged()
 
   constructor(
     private currentTrack: CurrentTrack,
     private selectedTracks: SelectedTracks,
     private musicQueue: MusicQueue
   ) {}
-
-  get isActive() {
-    return this.currentTrack.index.map(index => index === this.index).distinctUntilChanged()
-  }
-
-  get isSelected() {
-    return this.selectedTracks.indexes.map(indexes => indexes.has(this.index)).distinctUntilChanged()
-  }
-
-  get hasSelection() {
-    // TODO: only calculate this when element is scrolled into view
-    return this.selectedTracks.indexes.map(indexes => indexes.size > 0).distinctUntilChanged()
-  }
-
-  get isPlaying() {
-    return this.currentTrack.index.map(index => index === this.index).distinctUntilChanged()
-  }
 
   toggle(selectRange: boolean) {
     this.selectedTracks.toggle(this.index, selectRange)

@@ -1,4 +1,4 @@
-<div [class.active]="isActive | async"
+<div [class.active]="isPlaying | async"
      [class.selected]="isSelected | async">
   <ng-container [ngSwitch]="hasSelection | async">
     <ng-container *ngSwitchCase="false" [ngSwitch]="isPlaying | async">

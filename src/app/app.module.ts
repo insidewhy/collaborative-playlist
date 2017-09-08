@@ -13,7 +13,7 @@ import { PlayerControlsComponent } from './player-controls/player-controls.compo
 import { AppRoutingModule } from './app-routing.module'
 import { SearchResultsComponent } from './search/search-results.component'
 import { MusicQueueComponent } from './music-queue/music-queue.component'
-import { QueuedTrack } from './music-queue/queued-track.component'
+import { QueuedTrackComponent } from './music-queue/queued-track.component'
 import { SelectedTracksControlsComponent } from './music-queue/selected-tracks-controls.component'
 import { TrackDurationPipe } from './track-duration.pipe'
 
@@ -39,7 +39,7 @@ import { CurrentTrackComponent } from './current-track/current-track.component'
     PlayerControlsComponent,
     SearchResultsComponent,
     MusicQueueComponent,
-    QueuedTrack,
+    QueuedTrackComponent,
     SelectedTracksControlsComponent,
     TrackDurationPipe,
     CurrentTrackComponent,
