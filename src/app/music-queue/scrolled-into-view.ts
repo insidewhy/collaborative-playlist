@@ -10,6 +10,7 @@ export default function(
   element: Element,
   parentElement: Element = null,
   scrollTarget: Element | Window = null,
+  buffer: number = 0,
 ): ScrollObservable {
   if (! parentElement) {
     const { parentNode } = element
@@ -35,6 +36,6 @@ export default function(
     const scrollTop = 0
     const scrollBottom = scrollTop + parentElement.clientHeight
     const { top, bottom } = element.getBoundingClientRect()
-    return top < scrollBottom && bottom > scrollTop
+    return top < (scrollBottom + buffer) && bottom > (scrollTop - buffer)
   })
 }

@@ -43,7 +43,7 @@ export class QueuedTrackComponent implements AfterViewInit {
 
   ngAfterViewInit() {
     const element = this.elementRef.nativeElement as Element
-    this.scrollObservables.next(scrolledIntoView(element, document.body, window))
+    this.scrollObservables.next(scrolledIntoView(element, document.body, window, 100))
   }
 
   toggle(selectRange: boolean) {
