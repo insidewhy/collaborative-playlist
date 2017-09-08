@@ -1,5 +1,4 @@
 import { Observable } from 'rxjs/Observable'
-import 'rxjs/add/observable/fromEvent'
 import 'rxjs/add/operator/shareReplay'
 import 'rxjs/add/operator/throttleTime'
 
@@ -25,9 +24,19 @@ export default function(
 
   let parentScrolls = scrollEventObservables.get(scrollTarget)
   if (! parentScrolls) {
-    parentScrolls = Observable.fromEvent(scrollTarget, 'scroll')
-      .throttleTime(1000 / 60)
-      .shareReplay(1)
+    parentScrolls = new Observable<any>(observer => {
+      let latestEvent = null
+
+      scrollTarget.addEventListener('scroll', event => {
+        if (! latestEvent) {
+          requestAnimationFrame(() => {
+            observer.next(latestEvent)
+            latestEvent = null
+          })
+        }
+        latestEvent = event
+      })
+    }).shareReplay(1)
     scrollEventObservables.set(parentElement, parentScrolls)
   }
 
