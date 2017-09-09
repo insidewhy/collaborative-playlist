@@ -2,6 +2,7 @@ import { Component, ChangeDetectionStrategy, Input } from '@angular/core'
 import { BehaviorSubject } from 'rxjs/BehaviorSubject'
 import 'rxjs/add/operator/distinctUntilChanged'
 
+import { ObservableInput } from '../lib/observable-input'
 import { CurrentTrack } from '../current-track/current-track.service'
 import { SelectedTracks } from './selected-tracks.service'
 import { MusicQueue } from './music-queue.service'
@@ -15,19 +16,18 @@ import { Track } from '../track'
 })
 export class QueuedTrackComponent {
   // https://github.com/angular/angular/issues/5689
-  public indexStream = new BehaviorSubject<number>(-1)
-  @Input()
-  private set index(value: number) { this.indexStream.next(value) }
+  @ObservableInput()
+  public index = new BehaviorSubject<number>(-1)
 
   @Input()
   private track: Track
 
-  public isSelected = this.indexStream.switchMap(
+  public isSelected = this.index.switchMap(
     index => this.selectedTracks.indexes.map(indexes => indexes.has(index)).distinctUntilChanged()
   )
 
   public hasSelection = this.selectedTracks.indexes.map(indexes => indexes.size > 0).distinctUntilChanged()
-  public isPlaying = this.indexStream.switchMap(
+  public isPlaying = this.index.switchMap(
     index => this.currentTrack.index.map(playingIndex => index === playingIndex).distinctUntilChanged()
   )
 
@@ -38,6 +38,6 @@ export class QueuedTrackComponent {
   ) {}
 
   toggle(selectRange: boolean) {
-    this.selectedTracks.toggle(this.indexStream.value, selectRange)
+    this.selectedTracks.toggle(this.index.value, selectRange)
   }
 }
