@@ -1,6 +1,6 @@
 <div [class.active]="isPlaying | async"
      [class.selected]="isSelected | async"
-     *ngIf="indexStream | async; let index">
+     *ngIf="index | async; let index">
   <ng-container [ngSwitch]="hasSelection | async">
     <ng-container *ngSwitchCase="false" [ngSwitch]="isPlaying | async">
       <a *ngSwitchCase="false" (click)="musicQueue.playTrack(track.id, index)">
@@ -16,7 +16,7 @@
       </ng-container>
     </ng-container>
     <ng-container *ngSwitchCase="true">
-      <a (click)="toggle(true)" [ngSwitch]="(selectedTracks.previousSelectedIndex | async) == index">
+      <a (click)="toggle(index, true)" [ngSwitch]="(selectedTracks.previousSelectedIndex | async) == index">
         <md-icon *ngSwitchCase="true">check</md-icon>
         <ng-container *ngSwitchCase="false" [ngSwitch]="(selectedTracks.previousSelectedIndex | async) < index">
           <md-icon *ngSwitchCase="true">keyboard_arrow_up</md-icon>
@@ -25,7 +25,7 @@
       </a>
     </ng-container>
   </ng-container>
-  <div class="track-description" (click)="toggle($event.shiftKey)">
+  <div class="track-description" (click)="toggle(index, $event.shiftKey)">
     {{track.artist.name}} - {{track.album.title}} - {{track.title}}
   </div>
   <time>
