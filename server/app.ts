@@ -18,8 +18,7 @@ function main() {
   app.listen(process.env.PORT || 4201)
 }
 
-const messageHandlers = {}
-Object.assign(messageHandlers, musicQueueHandlers) // cannot spread objects in ts yet :(
+const messageHandlers = { ...musicQueueHandlers }
 
 function installSocketRoutes() {
   let socketCount = 0
