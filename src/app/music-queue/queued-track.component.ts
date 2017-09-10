@@ -1,8 +1,8 @@
 import { Component, ChangeDetectionStrategy, Input } from '@angular/core'
+import { ObservableInput } from 'observable-input'
 import { Observable } from 'rxjs/Observable'
 import 'rxjs/add/operator/distinctUntilChanged'
 
-import { ObservableInput } from '../lib/observable-input'
 import { CurrentTrack } from '../current-track/current-track.service'
 import { SelectedTracks } from './selected-tracks.service'
 import { MusicQueue } from './music-queue.service'
