@@ -1,11 +1,19 @@
 import { Injectable } from '@angular/core'
 import { QueueingSubject } from 'queueing-subject'
 import { Observable } from 'rxjs/Observable'
+import 'rxjs/add/operator/map'
 import websocketConnect from 'rxjs-websockets'
 
 import 'rxjs/add/operator/share'
 import 'rxjs/add/operator/retryWhen'
 import 'rxjs/add/operator/delay'
+
+function jsonWebsocketConnect(url: string, input: Observable<object>) {
+  const jsonInput = input.map(message => JSON.stringify(message))
+  const { connectionStatus, messages } = websocketConnect(url, jsonInput)
+  const jsonMessages = messages.map(message => JSON.parse(message))
+  return { connectionStatus, messages: jsonMessages }
+}
 
 @Injectable()
 export class ServerSocket {
@@ -23,7 +31,7 @@ export class ServerSocket {
 
     const wsPort = port === '9000' ? '4201' : port
 
-    const {messages, connectionStatus} = websocketConnect(
+    const {messages, connectionStatus} = jsonWebsocketConnect(
       `ws://${window.location.hostname}:${wsPort}/ws`,
       this.input = new QueueingSubject<any>()
     )
