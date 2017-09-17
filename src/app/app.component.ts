@@ -13,21 +13,23 @@ const searchUrlRegex = /^\/search\//
 })
 export class AppComponent {
   constructor(router: Router) {
-    let scrollBackup = 0
+    if (window.scrollTo) {
+      let scrollBackup = 0
 
-    router.events
-    .filter(event => event instanceof NavigationStart)
-    .map((event: NavigationStart) => event.url)
-    .pairwise()
-    .subscribe(([prevUrl, url]) => {
-      if (url.match(searchUrlRegex) && url !== prevUrl) {
-        if (prevUrl === '/')
-          scrollBackup = window.scrollY
-        window.scrollTo(0, 0)
-      } else if (url === '/' && prevUrl.match(searchUrlRegex)) {
-        window.scrollTo(0, scrollBackup)
-        setTimeout(() => { window.scrollTo(0, scrollBackup) }, 50)
-      }
-    })
+      router.events
+      .filter(event => event instanceof NavigationStart)
+      .map((event: NavigationStart) => event.url)
+      .pairwise()
+      .subscribe(([prevUrl, url]) => {
+        if (url.match(searchUrlRegex) && url !== prevUrl) {
+          if (prevUrl === '/')
+            scrollBackup = window.scrollY
+          window.scrollTo(0, 0)
+        } else if (url === '/' && prevUrl.match(searchUrlRegex)) {
+          window.scrollTo(0, scrollBackup)
+          setTimeout(() => { window.scrollTo(0, scrollBackup) }, 50)
+        }
+      })
+    }
   }
 }

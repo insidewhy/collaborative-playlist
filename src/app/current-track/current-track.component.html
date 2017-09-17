@@ -1,3 +1,8 @@
-<div *ngIf="trackInfo | async; let info">
-  {{ (info.track ? info.elapsed : 0) | trackDuration }} / {{ info.track?.duration | trackDuration }}
-</div>
+<ng-container *ngIf="trackInfo | async; let info">
+  <button *ngIf="info.track" (click)="scrollToTrack(info.trackIdx)" class="track">
+    {{info.track.artist.name}} - {{info.track.album.title}} - {{info.track.title}}
+  </button>
+  <div class="position">
+    {{ (info.track ? info.elapsed : 0) | trackDuration }} / {{ info.track?.duration | trackDuration }}
+  </div>
+</ng-container>

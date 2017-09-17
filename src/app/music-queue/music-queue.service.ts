@@ -20,6 +20,8 @@ export class MusicQueue extends DestructionCallbacks {
   public tracks = new BehaviorSubject<Track[]>([])
   public tracksById = new BehaviorSubject<TracksById>(new Map<string, Track[]>())
   public changeStream = new Subject<any>()
+  private scrollsSubject = new Subject<number>()
+  public scrolls = this.scrollsSubject.asObservable()
 
   constructor(private socket: ServerSocket, private currentTrack: CurrentTrack) {
     super()
@@ -103,6 +105,10 @@ export class MusicQueue extends DestructionCallbacks {
 
   public playTrack(trackId: string, index: number): void {
     this.socket.send({ type: 'playTrack', payload: { trackId, index } })
+  }
+
+  public scrollToTrack(trackIdx: number): void {
+    this.scrollsSubject.next(trackIdx)
   }
 
   public skipTrack(offset: number): void {

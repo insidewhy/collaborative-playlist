@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, Input } from '@angular/core'
+import { Component, ChangeDetectionStrategy, Input, ElementRef } from '@angular/core'
 import { ObservableInput } from 'observable-input'
 import { Observable } from 'rxjs/Observable'
 import 'rxjs/add/operator/distinctUntilChanged'
@@ -33,10 +33,22 @@ export class QueuedTrackComponent {
   constructor(
     private currentTrack: CurrentTrack,
     private selectedTracks: SelectedTracks,
-    private musicQueue: MusicQueue
+    private musicQueue: MusicQueue,
+    private elementRef: ElementRef,
   ) {}
 
   toggle(index: number, selectRange: boolean) {
     this.selectedTracks.toggle(index, selectRange)
+  }
+
+  scrollTo() {
+    if (! window.scrollTo)
+      return
+    const {nativeElement} = this.elementRef
+    if (! nativeElement)
+      return
+    // -40 is the margin on the music queue to allow for the search bar, not
+    // sure why it is needed here
+    window.scrollTo(0, nativeElement.offsetTop - 40)
   }
 }

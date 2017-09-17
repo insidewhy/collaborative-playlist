@@ -22,8 +22,13 @@ export class CurrentTrackComponent {
       (trackStatus: CurrentTrackStatus, tracks) => ({trackStatus, tracks})
     )
     .map(({ trackStatus, tracks }) => ({
+      trackIdx: trackStatus.trackIdx,
       track: tracks[trackStatus.trackIdx],
       elapsed: Math.round(trackStatus.elapsed / 1000) * 1000,
     }))
+  }
+
+  scrollToTrack(trackIdx: number) {
+    this.musicQueue.scrollToTrack(trackIdx)
   }
 }

@@ -1,4 +1,5 @@
 <app-queued-track
+  #tracks
   [index]="index"
   [track]="track"
   *ngFor="let track of (musicQueue.tracks | async); let index = index">
