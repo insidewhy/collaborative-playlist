@@ -25,6 +25,11 @@ button {
   padding: 0;
 }
 
+// stop chrome from adding autocomplete style... *sigh*
+input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 300px white inset;
+}
+
 *, *::before, *::after {
   -webkit-box-sizing: inherit;
   box-sizing: inherit;
