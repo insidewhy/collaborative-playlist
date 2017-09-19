@@ -2,6 +2,7 @@ import { Component, ChangeDetectionStrategy } from '@angular/core'
 
 import { DeezerPlayer } from '../deezer-player/deezer-player.service'
 import { CurrentTrack } from '../current-track/current-track.service'
+import { MusicQueue } from '../music-queue/music-queue.service'
 
 @Component({
   selector: 'app-player-controls',
@@ -10,7 +11,11 @@ import { CurrentTrack } from '../current-track/current-track.service'
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PlayerControlsComponent {
-  constructor(public deezerPlayer: DeezerPlayer, public currentTrack: CurrentTrack) {
+  constructor(
+    public deezerPlayer: DeezerPlayer,
+    public currentTrack: CurrentTrack,
+    private musicQueue: MusicQueue,
+  ) {
     const muted = window.localStorage.getItem('muted')
     if (! muted)
       deezerPlayer.activate()
@@ -34,5 +39,9 @@ export class PlayerControlsComponent {
 
   public pause() {
     this.currentTrack.pause()
+  }
+
+  public skip(offset: number) {
+    this.musicQueue.skipTrack(offset)
   }
 }

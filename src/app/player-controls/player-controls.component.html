@@ -6,10 +6,10 @@
     <md-icon>pause</md-icon>
   </button>
 </ng-container>
-<button>
+<button (click)="skip(-1)">
   <md-icon>skip_previous</md-icon>
 </button>
-<button>
+<button (click)="skip(1)">
   <md-icon>skip_next</md-icon>
 </button>
 <button (click)="toggleMute()">
