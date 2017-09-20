@@ -5,6 +5,11 @@
     </button>
   </div>
   <div class="position">
-    {{ (info.track ? info.elapsed : 0) | trackDuration }} / {{ info.track?.duration | trackDuration }}
+    <div class="elapsed">
+      {{ (info.track ? info.elapsed : 0) | trackDuration }}
+    </div>
+    <div class="total">
+      {{ info.track?.duration | trackDuration }}
+    </div>
   </div>
 </ng-container>

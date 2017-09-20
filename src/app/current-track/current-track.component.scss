@@ -20,4 +20,15 @@
       }
     }
   }
+
+  .position {
+    font-family: sans-serif;
+    font-size: 0.85rem;
+    display: flex;
+    flex-direction: column;
+
+    .elapsed {
+      color: #666;
+    }
+  }
 }
