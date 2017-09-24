@@ -5,6 +5,7 @@ import 'rxjs/add/observable/combineLatest'
 import 'rxjs/add/operator/delay'
 import 'rxjs/add/operator/distinctUntilChanged'
 import 'rxjs/add/operator/take'
+import 'rxjs/add/operator/skipWhile'
 
 import { CurrentTrack, CurrentTrackStatus } from './current-track.service'
 import { MusicQueue } from '../music-queue/music-queue.service'
@@ -17,9 +18,12 @@ import { Track } from '../track'
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CurrentTrackComponent implements OnDestroy {
+  private running = true
+
   trackSubscription = this.currentTrack.index
   .distinctUntilChanged()
   .delay(300)
+  .skipWhile(idx => idx !== -1)
   .take(1)
   .subscribe(idx => this.marqueeTrack(this.elementRef.nativeElement))
 
@@ -42,6 +46,7 @@ export class CurrentTrackComponent implements OnDestroy {
 
   ngOnDestroy() {
     this.trackSubscription.unsubscribe()
+    this.running = false
   }
 
   scrollToTrack(trackIdx: number) {
@@ -52,6 +57,8 @@ export class CurrentTrackComponent implements OnDestroy {
     const trackButton = node.querySelector('button')
     let rateIdx = 0, direction = 1
     const nextFrame = () => {
+      if (! this.running)
+        return
       if (++rateIdx % 10 === 0) {
         const { scrollHeight, clientHeight } = trackButton
         const scrollTop = Math.round(trackButton.scrollTop)
