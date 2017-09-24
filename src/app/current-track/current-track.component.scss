@@ -14,6 +14,7 @@
     button {
       height: 100%;
       margin: 0 0.8rem;
+      overflow: hidden;
 
       &:hover {
         background-color: inherit;
