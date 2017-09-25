@@ -1,15 +1,14 @@
-import { Component, ChangeDetectionStrategy, ElementRef, OnDestroy } from '@angular/core'
+import { Component, ChangeDetectionStrategy, ElementRef, OnDestroy, OnInit } from '@angular/core'
 import { Observable } from 'rxjs/Observable'
 import { Subscription } from 'rxjs/Subscription'
 import 'rxjs/add/observable/combineLatest'
-import 'rxjs/add/operator/delay'
 import 'rxjs/add/operator/distinctUntilChanged'
-import 'rxjs/add/operator/take'
 import 'rxjs/add/operator/skipWhile'
 
 import { CurrentTrack, CurrentTrackStatus } from './current-track.service'
 import { MusicQueue } from '../music-queue/music-queue.service'
 import { Track } from '../track'
+import Animation from '../animation'
 
 @Component({
   selector: 'app-current-track',
@@ -17,15 +16,18 @@ import { Track } from '../track'
   styleUrls: ['./current-track.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CurrentTrackComponent implements OnDestroy {
-  private running = true
+export class CurrentTrackComponent implements OnDestroy, OnInit {
+  private marqueeAnimation: Animation | null
 
+  // reset marquee scroll position when track changes
   trackSubscription = this.currentTrack.index
   .distinctUntilChanged()
-  .delay(300)
   .skipWhile(idx => idx !== -1)
-  .take(1)
-  .subscribe(idx => this.marqueeTrack(this.elementRef.nativeElement))
+  .subscribe(idx => {
+    const marquee = this.getMarqueeElement()
+    if (marquee)
+      marquee.scrollTop = 0
+  })
 
   trackInfo: Observable<any> = Observable.combineLatest(
     this.currentTrack.status,
@@ -44,34 +46,41 @@ export class CurrentTrackComponent implements OnDestroy {
     private elementRef: ElementRef,
   ) {}
 
+  ngOnInit() {
+    this.startMarqueeAnimation()
+  }
+
   ngOnDestroy() {
     this.trackSubscription.unsubscribe()
-    this.running = false
+    if (this.marqueeAnimation)
+      this.marqueeAnimation.stop()
   }
 
   scrollToTrack(trackIdx: number) {
     this.musicQueue.scrollToTrack(trackIdx)
   }
 
-  private marqueeTrack(node: Element) {
-    const trackButton = node.querySelector('button')
-    let rateIdx = 0, direction = 1
-    const nextFrame = () => {
-      if (! this.running)
-        return
-      if (++rateIdx % 10 === 0) {
-        const { scrollHeight, clientHeight } = trackButton
-        const scrollTop = Math.round(trackButton.scrollTop)
-        if (scrollTop === 0) {
-          direction = 1
-        }
-        else if (scrollTop >= scrollHeight - clientHeight) {
-          direction = -1
-        }
-        trackButton.scrollTop = scrollTop + direction
+  private getMarqueeElement(): Element | null {
+    return this.elementRef.nativeElement.querySelector('button')
+  }
+
+  private startMarqueeAnimation() {
+    let marquee: Element | null
+    let direction = 1
+    this.marqueeAnimation = new Animation(() => {
+      if (! marquee) {
+        marquee = this.getMarqueeElement()
+        if (! marquee)
+          return
       }
-      window.requestAnimationFrame(nextFrame)
-    }
-    nextFrame()
+      const { scrollHeight, clientHeight } = marquee
+      const scrollTop = Math.round(marquee.scrollTop)
+      if (scrollTop === 0) {
+        direction = 1
+      } else if (scrollTop >= scrollHeight - clientHeight) {
+        direction = -1
+      }
+      marquee.scrollTop = scrollTop + direction
+    }, 10)
   }
 }
