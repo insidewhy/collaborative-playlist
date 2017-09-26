@@ -7,6 +7,7 @@ import { CurrentTrack } from '../current-track/current-track.service'
 import { SelectedTracks } from './selected-tracks.service'
 import { MusicQueue } from './music-queue.service'
 import { Track } from '../track'
+import { ChangeObserver } from '../change-observer'
 
 @Component({
   selector: 'app-queued-track',
@@ -14,19 +15,20 @@ import { Track } from '../track'
   styleUrls: ['./queued-track.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class QueuedTrackComponent {
-  @Input() @ObservableInput()
-  public index: Observable<number>
+export class QueuedTrackComponent extends ChangeObserver {
+  @Input()
+  public index: number
+  private index$ = this.changes('index')
 
   @Input()
-  private track: Track
+  public track: Track
 
-  public isSelected = this.index.switchMap(
+  public isSelected = this.index$.switchMap(
     index => this.selectedTracks.indexes.map(indexes => indexes.has(index)).distinctUntilChanged()
   )
 
   public hasSelection = this.selectedTracks.indexes.map(indexes => indexes.size > 0).distinctUntilChanged()
-  public isPlaying = this.index.switchMap(
+  public isPlaying = this.index$.switchMap(
     index => this.currentTrack.index.map(playingIndex => index === playingIndex).distinctUntilChanged()
   )
 
@@ -35,7 +37,9 @@ export class QueuedTrackComponent {
     private selectedTracks: SelectedTracks,
     private musicQueue: MusicQueue,
     private elementRef: ElementRef,
-  ) {}
+  ) {
+    super()
+  }
 
   toggle(index: number, selectRange: boolean) {
     this.selectedTracks.toggle(index, selectRange)

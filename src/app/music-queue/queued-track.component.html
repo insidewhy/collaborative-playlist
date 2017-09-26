@@ -1,6 +1,5 @@
 <div [class.active]="isPlaying | async"
-     [class.selected]="isSelected | async"
-     *ngIf="index | async; let index">
+     [class.selected]="isSelected | async">
   <ng-container [ngSwitch]="hasSelection | async">
     <ng-container *ngSwitchCase="false" [ngSwitch]="isPlaying | async">
       <a *ngSwitchCase="false" (click)="musicQueue.playTrack(track.id, index)">
