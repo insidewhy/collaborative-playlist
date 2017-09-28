@@ -21,7 +21,8 @@
       font-size: inherit;
       font: inherit;
       height: 100%;
-      margin: 0 0.8rem;
+      // less padding on the left to account for the right-padding on the icon to the left
+      margin: 0 0.8rem 0 0.19rem;
       overflow: hidden;
 
       &:hover {
