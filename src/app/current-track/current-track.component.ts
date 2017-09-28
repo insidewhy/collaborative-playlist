@@ -26,7 +26,7 @@ export class CurrentTrackComponent implements OnDestroy, OnInit {
   .subscribe(idx => {
     const marquee = this.getMarqueeElement()
     if (marquee)
-      marquee.scrollTop = 0
+      marquee.scrollLeft = 0
   })
 
   trackInfo: Observable<any> = Observable.combineLatest(
@@ -73,14 +73,14 @@ export class CurrentTrackComponent implements OnDestroy, OnInit {
         if (! marquee)
           return
       }
-      const { scrollHeight, clientHeight } = marquee
-      const scrollTop = Math.round(marquee.scrollTop)
-      if (scrollTop === 0) {
+      const { scrollWidth, clientWidth } = marquee
+      const scrollLeft = Math.round(marquee.scrollLeft)
+      if (scrollLeft === 0) {
         direction = 1
-      } else if (scrollTop >= scrollHeight - clientHeight) {
+      } else if (scrollLeft >= scrollWidth - clientWidth) {
         direction = -1
       }
-      marquee.scrollTop = scrollTop + direction
-    }, 10)
+      marquee.scrollLeft = scrollLeft + direction
+    }, 3)
   }
 }
