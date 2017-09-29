@@ -68,19 +68,20 @@ export class CurrentTrackComponent implements OnDestroy, OnInit {
     let marquee: Element | null
     let direction = 1
     this.marqueeAnimation = new Animation(() => {
+      // this shit has to be replaced with a css animation... it is jerky and error prone
       if (! marquee) {
         marquee = this.getMarqueeElement()
         if (! marquee)
           return
       }
       const { scrollWidth, clientWidth } = marquee
-      const scrollLeft = Math.round(marquee.scrollLeft)
+      const scrollLeft = Math.ceil(marquee.scrollLeft)
       if (scrollLeft === 0) {
         direction = 1
       } else if (scrollLeft >= scrollWidth - clientWidth) {
         direction = -1
       }
-      marquee.scrollLeft = scrollLeft + direction
+      marquee.scrollLeft = Math.ceil(scrollLeft + direction)
     }, 3)
   }
 }
