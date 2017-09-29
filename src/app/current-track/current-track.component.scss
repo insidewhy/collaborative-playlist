@@ -10,20 +10,20 @@
 
   .track {
     height: 100%;
+    // less padding on the left to account for the right-padding on the icon to the left
+    margin: 0 0.8rem 0 0.19rem;
     display: flex;
     min-width: 0;
     flex-grow: 1;
     flex-shrink: 1;
     justify-content: center;
+    overflow: hidden;
 
     button {
       white-space: nowrap;
       font-size: inherit;
       font: inherit;
       height: 100%;
-      // less padding on the left to account for the right-padding on the icon to the left
-      margin: 0 0.8rem 0 0.19rem;
-      overflow: hidden;
 
       &:hover {
         background-color: inherit;

@@ -23,6 +23,7 @@ import { SelectedTracks } from './music-queue/selected-tracks.service'
 import { CurrentTrack } from './current-track/current-track.service'
 import { DeezerPlayer } from './deezer-player/deezer-player.service'
 import { CurrentTrackComponent } from './current-track/current-track.component'
+import { MarqueeComponent } from './current-track/marquee.component'
 
 @NgModule({
   imports: [
@@ -43,6 +44,7 @@ import { CurrentTrackComponent } from './current-track/current-track.component'
     SelectedTracksControlsComponent,
     TrackDurationPipe,
     CurrentTrackComponent,
+    MarqueeComponent,
   ],
   providers: [
     MdIconRegistry,

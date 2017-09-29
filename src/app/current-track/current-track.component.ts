@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, ElementRef, OnDestroy, OnInit } from '@angular/core'
+import { Component, ChangeDetectionStrategy, OnDestroy } from '@angular/core'
 import { Observable } from 'rxjs/Observable'
 import { Subscription } from 'rxjs/Subscription'
 import 'rxjs/add/observable/combineLatest'
@@ -8,7 +8,6 @@ import 'rxjs/add/operator/skipWhile'
 import { CurrentTrack, CurrentTrackStatus } from './current-track.service'
 import { MusicQueue } from '../music-queue/music-queue.service'
 import { Track } from '../track'
-import Animation from '../animation'
 
 @Component({
   selector: 'app-current-track',
@@ -16,18 +15,11 @@ import Animation from '../animation'
   styleUrls: ['./current-track.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CurrentTrackComponent implements OnDestroy, OnInit {
-  private marqueeAnimation: Animation | null
-
+export class CurrentTrackComponent {
   // reset marquee scroll position when track changes
-  trackSubscription = this.currentTrack.index
+  resetMarquee = this.currentTrack.index
   .distinctUntilChanged()
   .skipWhile(idx => idx !== -1)
-  .subscribe(idx => {
-    const marquee = this.getMarqueeElement()
-    if (marquee)
-      marquee.scrollLeft = 0
-  })
 
   trackInfo: Observable<any> = Observable.combineLatest(
     this.currentTrack.status,
@@ -43,45 +35,9 @@ export class CurrentTrackComponent implements OnDestroy, OnInit {
   constructor(
     private currentTrack: CurrentTrack,
     private musicQueue: MusicQueue,
-    private elementRef: ElementRef,
   ) {}
-
-  ngOnInit() {
-    this.startMarqueeAnimation()
-  }
-
-  ngOnDestroy() {
-    this.trackSubscription.unsubscribe()
-    if (this.marqueeAnimation)
-      this.marqueeAnimation.stop()
-  }
 
   scrollToTrack(trackIdx: number) {
     this.musicQueue.scrollToTrack(trackIdx)
-  }
-
-  private getMarqueeElement(): Element | null {
-    return this.elementRef.nativeElement.querySelector('button')
-  }
-
-  private startMarqueeAnimation() {
-    let marquee: Element | null
-    let direction = 1
-    this.marqueeAnimation = new Animation(() => {
-      // this shit has to be replaced with a css animation... it is jerky and error prone
-      if (! marquee) {
-        marquee = this.getMarqueeElement()
-        if (! marquee)
-          return
-      }
-      const { scrollWidth, clientWidth } = marquee
-      const scrollLeft = Math.ceil(marquee.scrollLeft)
-      if (scrollLeft === 0) {
-        direction = 1
-      } else if (scrollLeft >= scrollWidth - clientWidth) {
-        direction = -1
-      }
-      marquee.scrollLeft = scrollLeft + direction
-    }, 3)
   }
 }
