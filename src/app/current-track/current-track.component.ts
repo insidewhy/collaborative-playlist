@@ -81,7 +81,7 @@ export class CurrentTrackComponent implements OnDestroy, OnInit {
       } else if (scrollLeft >= scrollWidth - clientWidth) {
         direction = -1
       }
-      marquee.scrollLeft = Math.ceil(scrollLeft + direction)
+      marquee.scrollLeft = scrollLeft + direction
     }, 3)
   }
 }
