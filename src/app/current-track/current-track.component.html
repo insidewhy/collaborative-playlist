@@ -1,9 +1,7 @@
 <ng-container *ngIf="trackInfo | async; let info">
   <div class="track">
-    <app-marquee [reset]="resetMarquee">
-      <button *ngIf="info.track" (click)="scrollToTrack(info.trackIdx)">
-        {{info.track.artist.name}} - {{info.track.album.title}} - {{info.track.title}}
-      </button>
+    <app-marquee (click)="scrollToTrack(info.trackIdx)" [reset]="resetMarquee">
+      {{trackDisplay | async}}
     </app-marquee>
   </div>
   <div class="position">

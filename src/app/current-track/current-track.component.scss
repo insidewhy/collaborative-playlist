@@ -16,14 +16,16 @@
     min-width: 0;
     flex-grow: 1;
     flex-shrink: 1;
-    justify-content: center;
     overflow: hidden;
 
-    button {
+    app-marquee {
+      display: flex;
+      align-items: center;
       white-space: nowrap;
       font-size: inherit;
       font: inherit;
       height: 100%;
+      cursor: pointer;
 
       &:hover {
         background-color: inherit;

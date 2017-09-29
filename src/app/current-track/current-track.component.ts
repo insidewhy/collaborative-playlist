@@ -32,6 +32,10 @@ export class CurrentTrackComponent {
     elapsed: Math.round(trackStatus.elapsed / 1000) * 1000,
   }))
 
+  trackDisplay = this.trackInfo.map(
+    ({track}) => `${track.artist.name} - ${track.album.title} - ${track.title}`
+  )
+
   constructor(
     private currentTrack: CurrentTrack,
     private musicQueue: MusicQueue,
