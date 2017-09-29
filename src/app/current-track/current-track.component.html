@@ -1,7 +1,6 @@
 <ng-container *ngIf="trackInfo | async; let info">
   <div class="track">
-    <app-marquee (click)="scrollToTrack(info.trackIdx)" [reset]="resetMarquee">
-      {{trackDisplay | async}}
+    <app-marquee (click)="scrollToTrack(info.trackIdx)" [display]="trackDisplay">
     </app-marquee>
   </div>
   <div class="position">

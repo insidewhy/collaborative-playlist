@@ -6,17 +6,17 @@ import Animation from '../animation'
 
 @Component({
   selector: 'app-marquee',
-  template: '<ng-content></ng-content>',
+  template: '{{display | async}}',
   styles: [ ':host { overflow: hidden }' ],
 })
 export class MarqueeComponent implements OnDestroy, OnInit {
-  @Input() private reset: Observable<any> | null
-  private resetSubscription: Subscription | null
+  @Input() private display: Observable<string>
+  private displaySubscription: Subscription | null
   private marqueeAnimation: Animation | null
 
   constructor(private elementRef: ElementRef) {}
 
-  private getMarqueeElement(): Element | null {
+  private getScrollable(): Element | null {
     return this.elementRef.nativeElement
   }
 
@@ -26,7 +26,7 @@ export class MarqueeComponent implements OnDestroy, OnInit {
     this.marqueeAnimation = new Animation(() => {
       // this shit has to be replaced with a css animation... it is jerky and error prone
       if (! marquee) {
-        marquee = this.getMarqueeElement()
+        marquee = this.getScrollable()
         if (! marquee)
           return
       }
@@ -40,18 +40,16 @@ export class MarqueeComponent implements OnDestroy, OnInit {
       marquee.scrollLeft = scrollLeft + direction
     }, 3)
 
-    if (this.reset) {
-      this.resetSubscription = this.reset.subscribe(idx => {
-        marquee = this.getMarqueeElement()
-        if (marquee)
-          marquee.scrollLeft = 0
-      })
-    }
+    this.displaySubscription = this.display.subscribe(() => {
+      marquee = this.getScrollable()
+      if (marquee)
+        marquee.scrollLeft = 0
+    })
   }
 
   ngOnDestroy() {
-    if (this.resetSubscription) {
-      this.resetSubscription.unsubscribe()
+    if (this.displaySubscription) {
+      this.displaySubscription.unsubscribe()
     }
     if (this.marqueeAnimation)
       this.marqueeAnimation.stop()

@@ -16,11 +16,6 @@ import { Track } from '../track'
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CurrentTrackComponent {
-  // reset marquee scroll position when track changes
-  resetMarquee = this.currentTrack.index
-  .distinctUntilChanged()
-  .skipWhile(idx => idx !== -1)
-
   trackInfo: Observable<any> = Observable.combineLatest(
     this.currentTrack.status,
     this.musicQueue.tracks,
@@ -32,9 +27,11 @@ export class CurrentTrackComponent {
     elapsed: Math.round(trackStatus.elapsed / 1000) * 1000,
   }))
 
-  trackDisplay = this.trackInfo.map(
+  trackDisplay = this.trackInfo
+  .skipWhile(({track}) => ! track)
+  .map(
     ({track}) => `${track.artist.name} - ${track.album.title} - ${track.title}`
-  )
+  ).distinctUntilChanged()
 
   constructor(
     private currentTrack: CurrentTrack,
