@@ -4,12 +4,12 @@ import { Subscription } from 'rxjs/Subscription'
 import 'rxjs/add/observable/from'
 import 'rxjs/add/observable/fromEvent'
 import 'rxjs/add/observable/merge'
-import 'rxjs/add/operator/delay'
+import 'rxjs/add/observable/interval'
 import 'rxjs/add/operator/map'
+import 'rxjs/add/operator/skipWhile'
+import 'rxjs/add/operator/take'
 
 import Animation from '../animation'
-
-const valueAfter = ms => Observable.from([ null ]).delay(ms)
 
 @Component({
   selector: 'app-marquee',
@@ -46,7 +46,7 @@ const valueAfter = ms => Observable.from([ null ]).delay(ms)
   `],
 })
 export class MarqueeComponent implements OnInit {
-  @Input() public margin: string = '2rem'
+  @Input() public margin = '2rem'
   @Input() public display: Observable<string>
 
   private overflows: Observable<boolean>
@@ -59,20 +59,21 @@ export class MarqueeComponent implements OnInit {
         Observable.fromEvent(window, 'resize'),
         this.display,
       )
-      .switchMap(val => {
-        // first indicate the content does not overflow to reset the display
-        // and then perform the test
+      .switchMap(() => {
+        // disables overflow and waits until the content is not duplicated
+        // before testing for overflow again
         return Observable.from([false]).concat(
-          valueAfter(300).map(() => {
+          Observable.interval(200)
+          .map(() => {
             const container: HTMLElement = this.elementRef.nativeElement
-            if (! container)
-              return
-            // TODO: schedule another
-            if (container.querySelector('span'))
-              return
+            return container && ! container.querySelector('span') && container
+          })
+          .skipWhile(container => !container)
+          .map(container => {
             const { scrollWidth } = container
             return scrollWidth > container.offsetWidth
           })
+          .take(1)
         )
       })
     )
