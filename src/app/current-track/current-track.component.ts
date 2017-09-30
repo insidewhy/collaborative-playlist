@@ -3,7 +3,6 @@ import { Observable } from 'rxjs/Observable'
 import { Subscription } from 'rxjs/Subscription'
 import 'rxjs/add/observable/combineLatest'
 import 'rxjs/add/operator/distinctUntilChanged'
-import 'rxjs/add/operator/skipWhile'
 
 import { CurrentTrack, CurrentTrackStatus } from './current-track.service'
 import { MusicQueue } from '../music-queue/music-queue.service'
@@ -27,10 +26,8 @@ export class CurrentTrackComponent {
     elapsed: Math.round(trackStatus.elapsed / 1000) * 1000,
   }))
 
-  trackDisplay = this.trackInfo
-  .skipWhile(({track}) => ! track)
-  .map(
-    ({track}) => `${track.artist.name} - ${track.album.title} - ${track.title}`
+  trackDisplay = this.trackInfo.map(
+    ({track}) => track && `${track.artist.name} - ${track.album.title} - ${track.title}`
   ).distinctUntilChanged()
 
   constructor(

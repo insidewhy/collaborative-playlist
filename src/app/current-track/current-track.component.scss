@@ -20,7 +20,10 @@
 
     app-marquee {
       display: flex;
+      flex-grow: 1;
+      min-width: 0;
       align-items: center;
+      justify-content: center;
       white-space: nowrap;
       font-size: inherit;
       font: inherit;
