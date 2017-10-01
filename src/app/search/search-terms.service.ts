@@ -7,19 +7,14 @@ import 'rxjs/add/observable/from'
 
 @Injectable()
 export class SearchTerms {
-  private subject: ReplaySubject<Observable<String>>
-  public stream: Observable<String>
+  private subject = new ReplaySubject<Observable<string>>()
+  public stream = this.subject.mergeMap(val => val)
 
-  constructor() {
-    this.subject = new ReplaySubject(1)
-    this.stream = this.subject.mergeMap(val => val)
-  }
-
-  addRouteStream(stream: Observable<String>) {
+  addRouteStream(stream: Observable<string>) {
     this.subject.next(stream)
   }
 
-  setTerms(terms: String) {
+  setTerms(terms: string) {
     this.subject.next(Observable.from([ terms ]))
   }
 }
