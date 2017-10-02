@@ -6,11 +6,10 @@ import 'rxjs/add/observable/timer'
 import 'rxjs/add/observable/interval'
 import 'rxjs/add/observable/of'
 import 'rxjs/add/operator/debounce'
-import 'rxjs/add/operator/shareReplay'
 import 'rxjs/add/operator/startWith'
 import 'rxjs/add/operator/withLatestFrom'
 
-import { DestructionCallbacks } from '../destruction-callbacks'
+import { Source } from '../source'
 import { Track } from '../track'
 import { ServerSocket } from '../server-socket.service'
 
@@ -27,16 +26,18 @@ const countSecondsFrom = startTime =>
     .startWith(startTime)
 
 @Injectable()
-export class CurrentTrack extends DestructionCallbacks {
+export class CurrentTrack extends Source {
   // TODO: implement reactively
   public index = new BehaviorSubject<number>(-1)
 
-  public paused = this.socket.messages
+  public paused: Observable<boolean> = this.hot(
+    this.socket.messages
     .filter(message => message.type === 'currentTrack')
     .map(({ payload: { paused } }) => paused)
-    .shareReplay(1)
+  )
 
-  public elapsed: Observable<number> = this.socket.messages
+  public elapsed: Observable<number> = this.hot(
+    this.socket.messages
     .withLatestFrom(this.index)
     .filter(([ message, index ]) =>
       message.type === 'currentTrack' ||
@@ -51,7 +52,7 @@ export class CurrentTrack extends DestructionCallbacks {
       return paused || trackIdx === -1 ? Observable.of(elapsed) : countSecondsFrom(elapsed)
     })
     .startWith(0)
-    .shareReplay(1)
+  )
 
   // merge all the streams
   public status: Observable<CurrentTrackStatus> = Observable.combineLatest(
