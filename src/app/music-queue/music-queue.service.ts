@@ -25,7 +25,6 @@ export class MusicQueue extends DestructionCallbacks {
 
   constructor(private socket: ServerSocket, private currentTrack: CurrentTrack) {
     super()
-    this.socket.connect()
 
     const connectionStatusSubscription = this.socket.connectionStatus.subscribe(nConnected => {
       if (nConnected)

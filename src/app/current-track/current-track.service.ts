@@ -23,11 +23,18 @@ export class CurrentTrack extends DestructionCallbacks {
   public paused = new BehaviorSubject<boolean>(true)
   private elapsedInterval: number
 
+  // merge all the streams
+  public status: Observable<CurrentTrackStatus> = Observable.combineLatest(
+    this.index,
+    this.elapsed,
+    this.paused,
+    (trackIdx, elapsed, paused) => ({ trackIdx, elapsed, paused })
+  ).debounce(() => Observable.timer(10))
+
   // public track?: Track = null
 
   constructor(private socket: ServerSocket) {
     super()
-    this.socket.connect()
 
     const connectionStatusSubscription = this.socket.connectionStatus.subscribe(nConnected => {
       if (nConnected)
@@ -68,16 +75,6 @@ export class CurrentTrack extends DestructionCallbacks {
     const {elapsedInterval} = this
     if (elapsedInterval)
       window.clearInterval(elapsedInterval)
-  }
-
-  // merge all the streams
-  get status(): Observable<CurrentTrackStatus> {
-    return Observable.combineLatest(
-      this.index,
-      this.elapsed,
-      this.paused,
-      (trackIdx, elapsed, paused) => ({ trackIdx, elapsed, paused })
-    ).debounce(() => Observable.timer(10))
   }
 
   pause() {
