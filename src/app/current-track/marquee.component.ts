@@ -49,7 +49,7 @@ export class MarqueeComponent implements OnInit {
   @Input() public margin = '2rem'
   @Input() public display: Observable<string>
 
-  private overflows: Observable<boolean>
+  public overflows: Observable<boolean>
 
   constructor(private elementRef: ElementRef) {}
 
