@@ -1,9 +1,6 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core'
 
 import { SelectedTracks } from './selected-tracks.service'
-import { MusicQueue, TrackWithIndex } from './music-queue.service'
-
-const sortBy = require('lodash/sortBy')
 
 @Component({
   selector: 'app-selected-tracks-controls',
@@ -12,22 +9,10 @@ const sortBy = require('lodash/sortBy')
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SelectedTracksControlsComponent {
-  constructor(private selectedTracks: SelectedTracks, private musicQueue: MusicQueue) {}
-
-  private getSelectedTracks(): TrackWithIndex[] {
-    const tracks = []
-    this.selectedTracks.indexes.getValue().forEach(index => {
-      tracks.push({ index, track: this.musicQueue.tracks.getValue()[index] })
-    })
-    return sortBy(tracks, 'index')
-  }
+  constructor(private selectedTracks: SelectedTracks) {}
 
   public delete() {
-    const tracks = this.getSelectedTracks()
-    tracks.reverse().forEach(({ index, track }) => {
-      this.musicQueue.removeTrack(track, index)
-    })
-    this.selectedTracks.clear()
+    this.selectedTracks.delete()
   }
 
   public clear() {
@@ -35,6 +20,6 @@ export class SelectedTracksControlsComponent {
   }
 
   public moveSelection(offset: number): void {
-    this.musicQueue.moveTracks(this.getSelectedTracks(), offset)
+    this.selectedTracks.move(offset)
   }
 }

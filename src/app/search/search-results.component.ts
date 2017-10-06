@@ -15,6 +15,7 @@ const mapValues = require('lodash/mapValues')
 
 import { SearchTerms } from './search-terms.service'
 import { MusicQueue } from '../music-queue/music-queue.service'
+import { CurrentTrack } from '../current-track/current-track.service'
 import { Album } from '../album'
 import { Track } from '../track'
 import { DestructionCallbacks } from '../destruction-callbacks'
@@ -30,10 +31,18 @@ export class SearchResultsComponent extends DestructionCallbacks implements OnIn
 
   public searchResults: Observable<Array<Track | Album>>
 
+  public numberOfTracksFromAlbumInQueue = this.musicQueue.tracks.map(tracks => {
+    return mapValues(
+      groupBy(tracks, track => track.album.id),
+      groupedTracks => uniqBy(groupedTracks, 'id').length
+    )
+  })
+
   constructor(
     private searchTerms: SearchTerms,
     private route: ActivatedRoute,
     private musicQueue: MusicQueue,
+    private currentTrack: CurrentTrack,
     private jsonp: Jsonp
   ) {
     super()
@@ -75,23 +84,13 @@ export class SearchResultsComponent extends DestructionCallbacks implements OnIn
     })
   }
 
-  public get numberOfTracksFromAlbumInQueue() {
-    return this.musicQueue.tracks.map(tracks => {
-      return mapValues(
-        groupBy(tracks, track => track.album.id),
-        groupedTracks => uniqBy(groupedTracks, 'id').length
-      )
-    })
-  }
-
   private selectResult(result, play = false) {
     if (result.album) {
-      const { length } = this.musicQueue.tracks.getValue()
-      this.musicQueue.insertTrack(result, length)
-      if (play) {
-        this.musicQueue.playTrack(result.id, length)
-      }
+      this.musicQueue.appendTrack(result)
+      if (play)
+        this.currentTrack.play(result.id, length)
     } else {
+      // TODO: move to deezer player search service
       const album = pick(result, ['title', 'id'])
       this.jsonp.get(`http://api.deezer.com/album/${result.id}/tracks?output=jsonp&callback=JSONP_CALLBACK`)
       .map(data => data.json().data)
@@ -102,12 +101,13 @@ export class SearchResultsComponent extends DestructionCallbacks implements OnIn
           return {id, title, album, artist, duration: duration * 1000}
         })
       })
-      .subscribe(tracks => {
-        const { length } = this.musicQueue.tracks.getValue()
+      .withLatestFrom(this.musicQueue.tracks)
+      .subscribe(([resultTracks, tracks]) => {
+        const { length } = tracks
         let newLength = length
-        tracks.forEach(track => { this.musicQueue.insertTrack(track, newLength++) })
+        resultTracks.forEach(track => { this.musicQueue.insertTrack(track, newLength++) })
         if (play) {
-          this.musicQueue.playTrack(tracks[0].id, length)
+          this.currentTrack.play(resultTracks[0].id, length)
         }
       })
     }

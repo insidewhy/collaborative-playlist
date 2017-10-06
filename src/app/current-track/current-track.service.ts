@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core'
-import { BehaviorSubject } from 'rxjs/BehaviorSubject'
+import { ReplaySubject } from 'rxjs/ReplaySubject'
 import { Observable } from 'rxjs/Observable'
 import 'rxjs/add/observable/combineLatest'
 import 'rxjs/add/observable/timer'
@@ -8,10 +8,12 @@ import 'rxjs/add/observable/of'
 import 'rxjs/add/operator/debounce'
 import 'rxjs/add/operator/startWith'
 import 'rxjs/add/operator/withLatestFrom'
+import 'rxjs/add/operator/scan'
 
 import { Source } from '../source'
 import { Track } from '../track'
 import { ServerSocket } from '../server-socket.service'
+import { MusicQueue } from '../music-queue/music-queue.service'
 
 export interface CurrentTrackStatus {
   trackIdx: number
@@ -27,8 +29,22 @@ const countSecondsFrom = startTime =>
 
 @Injectable()
 export class CurrentTrack extends Source {
-  // TODO: implement reactively
-  public index = new BehaviorSubject<number>(-1)
+  private skips = new ReplaySubject<number>(1)
+
+  public index: Observable<number> = this.hot(
+    this.socket.messages
+      .filter(({ type }) => type === 'currentTrack' || type === 'remove' || type === 'insert')
+      .scan((index, message) => {
+        switch (message.type) {
+          case 'currentTrack':
+            return message.payload.index
+          case 'insert':
+            return message.payload.index <= index ? index + 1 : index
+          case 'remove':
+            return message.payload < index ? index - 1 : index
+        }
+      }, -1)
+  )
 
   public paused: Observable<boolean> = this.hot(
     this.socket.messages
@@ -62,24 +78,27 @@ export class CurrentTrack extends Source {
     (trackIdx, elapsed, paused) => ({ trackIdx, elapsed, paused })
   ).debounce(() => Observable.timer(10))
 
-  // public track?: Track = null
+  public track: Observable<Track | null> = Observable.combineLatest(
+    this.index,
+    this.musicQueue.tracks,
+  )
+  .map(([index, tracks]) => tracks[index])
+  .distinctUntilChanged()
+  .share()
 
-  constructor(private socket: ServerSocket) {
+  constructor(private socket: ServerSocket, private musicQueue: MusicQueue) {
     super()
 
-    const connectionStatusSubscription = this.socket.connectionStatus.subscribe(nConnected => {
+    this.reactTo(this.socket.connectionStatus, nConnected => {
       if (nConnected)
         this.socket.send({ type: 'getCurrentTrackStatus' })
     })
 
-    const messagesSubscription = this.socket.messages.subscribe(message => {
-      if (message.type === 'currentTrack')
-        this.index.next(message.payload.index)
-    })
-
-    this.onDestroy(() => {
-      messagesSubscription.unsubscribe()
-      connectionStatusSubscription.unsubscribe()
+    this.reactTo(this.skips.withLatestFrom(this.index, musicQueue.tracks), ([offset, index, tracks]) => {
+      const nextIdx = index + offset
+      const track = tracks[nextIdx]
+      if (track)
+        this.play(track.id, nextIdx)
     })
   }
 
@@ -89,5 +108,13 @@ export class CurrentTrack extends Source {
 
   unpause() {
     this.socket.send({ type: 'pauseTrack', payload: true })
+  }
+
+  skip(offset: number): void {
+    this.skips.next(offset)
+  }
+
+  play(trackId: string, index: number): void {
+    this.socket.send({ type: 'playTrack', payload: { trackId, index } })
   }
 }

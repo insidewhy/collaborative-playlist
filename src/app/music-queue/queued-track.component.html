@@ -3,7 +3,7 @@
      *ngIf="index | async; let index">
   <ng-container [ngSwitch]="hasSelection | async">
     <ng-container *ngSwitchCase="false" [ngSwitch]="isPlaying | async">
-      <a *ngSwitchCase="false" (click)="musicQueue.playTrack(track.id, index)">
+      <a *ngSwitchCase="false" (click)="currentTrack.play(track.id, index)">
         <md-icon>play_arrow</md-icon>
       </a>
       <ng-container *ngSwitchCase="true" [ngSwitch]="(currentTrack.paused | async)">
