@@ -1,17 +1,38 @@
 import { Injectable } from '@angular/core'
+import { Observable } from 'rxjs/Observable'
 import { BehaviorSubject } from 'rxjs/BehaviorSubject'
+import { ReplaySubject } from 'rxjs/ReplaySubject'
 const range = require('lodash/range')
+const sortBy = require('lodash/sortBy')
 
-import { DestructionCallbacks } from '../destruction-callbacks'
-import { MusicQueue } from './music-queue.service'
+import { Source } from '../source'
+import { MusicQueue, TrackWithIndex } from './music-queue.service'
+
+const mapSet = (set, callback) => {
+  const ret = []
+  set.forEach(val => {
+    ret.push(callback(val))
+  })
+  return ret
+}
 
 @Injectable()
-export class SelectedTracks extends DestructionCallbacks {
+export class SelectedTracks extends Source {
   public indexes = new BehaviorSubject<Set<number>>(new Set<number>())
   public previousSelectedIndex = new BehaviorSubject<number>(-1)
   private selectedByCurrentRange = new Set<number>()
+  private delete$ = new ReplaySubject<null>(1)
+  private move$ = new ReplaySubject<number>(1)
 
-  constructor(musicQueue: MusicQueue) {
+  private selectedTracks: Observable<TrackWithIndex[]> = this.indexes
+    .withLatestFrom(this.musicQueue.tracks)
+    .map(([ indexes, tracks ]) => sortBy(mapSet(
+      indexes,
+      index => ({ index, track: tracks[index] })
+    ), 'index'))
+    .share()
+
+  constructor(private musicQueue: MusicQueue) {
     super()
 
     const changeSubscription = musicQueue.changeStream.subscribe(change => {
@@ -27,6 +48,23 @@ export class SelectedTracks extends DestructionCallbacks {
         }
       }
     })
+
+    this.reactTo(
+      this.delete$.withLatestFrom(this.selectedTracks),
+      ([, selectedTracks]) => {
+        selectedTracks.reverse().forEach(({ index, track }) => {
+          this.musicQueue.removeTrack(track, index)
+        })
+        this.clear()
+      }
+    )
+
+    this.reactTo(
+      this.move$.withLatestFrom(this.selectedTracks),
+      ([ offset, tracks ]) => {
+        this.musicQueue.moveTracks(tracks, offset)
+      }
+    )
 
     this.onDestroy(() => {
       changeSubscription.unsubscribe()
@@ -66,5 +104,13 @@ export class SelectedTracks extends DestructionCallbacks {
 
   clear() {
     this.indexes.next(new Set<number>())
+  }
+
+  delete() {
+    this.delete$.next(undefined)
+  }
+
+  move(offset: number): void {
+    this.move$.next(offset)
   }
 }

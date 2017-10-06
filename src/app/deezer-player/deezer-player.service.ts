@@ -1,8 +1,17 @@
 import { Injectable } from '@angular/core'
 import { Subscription } from 'rxjs/Subscription'
 import { Observable } from 'rxjs/Observable'
+import { ReplaySubject } from 'rxjs/ReplaySubject'
+import 'rxjs/add/observable/empty'
+import 'rxjs/add/observable/combineLatest'
+import 'rxjs/add/operator/distinctUntilChanged'
+import 'rxjs/add/operator/take'
+import 'rxjs/add/operator/shareReplay'
+import 'rxjs/add/operator/share'
+import 'rxjs/add/operator/startWith'
+import 'rxjs/add/operator/withLatestFrom'
 
-import { DestructionCallbacks } from '../destruction-callbacks'
+import { Source } from '../source'
 import { MusicQueue } from '../music-queue/music-queue.service'
 import { CurrentTrack } from '../current-track/current-track.service'
 
@@ -10,113 +19,116 @@ declare var DZ: any
 
 const acceptableLag = 1000
 
+interface Events {
+  play: Observable<any>
+  trackEnd: Observable<any>
+}
+
+const fromDZEvent = (eventName: string) => new Observable<any>(observer => {
+  DZ.Event.subscribe(eventName, event => { observer.next(event) })
+})
+
 @Injectable()
-export class DeezerPlayer extends DestructionCallbacks {
-  private loadedPromise: Promise<null>
-  // whether the deezer api is being used
-  public activated = false
-  private seekOnNext = 0
-  private elapsed = Infinity
-  private playingTrackId = ''
+export class DeezerPlayer extends Source {
+  private activated$ = new ReplaySubject<boolean>(1)
+  public activated = this.activated$.startWith(true).distinctUntilChanged()
+
+  private load = new Observable<Events>(observer => {
+    // DZ.Event.subscribe('player_play', this.onPlay.bind(this))
+
+    DZ.init({
+      appId: '225524',
+      channelUrl: window.location + '/assets/channel.html',
+
+      player: {
+        onload(dzState) {
+          observer.next({
+            play: fromDZEvent('player_play'),
+            trackEnd: fromDZEvent('track_end'),
+          })
+        }
+      },
+    })
+  }).take(1).shareReplay(1)
 
   constructor(private musicQueue: MusicQueue, private currentTrack: CurrentTrack) {
     super()
-  }
 
-  private load(): Promise<null> {
-    if (this.loadedPromise)
-      return this.loadedPromise
-
-    return this.loadedPromise = new Promise(resolve => {
-      const onload = dzState => {
-        DZ.Event.subscribe('player_play', this.onPlay.bind(this))
-        DZ.Event.subscribe('track_end', this.onTrackEnd.bind(this))
-        resolve()
-      }
-
-      DZ.init({
-        appId: '225524',
-        channelUrl: window.location + '/assets/channel.html',
-
-        player: { onload },
-      })
+    this.reactTo(this.activated$, activated => {
+      if (! activated)
+        DZ.player.pause()
     })
-  }
 
-  activate() {
-    if (this.activated)
-      return
-    this.activated = true
+    const events$ = this.activated.switchMap(
+      activated => activated ? this.load : Observable.empty<Events>()
+    ).share()
 
-    this.load().then(() => {
-      if (! this.activated)
-        return
+    this.reactTo(
+      events$
+        .switchMap(events => events.trackEnd)
+        .withLatestFrom(this.currentTrack.index, this.musicQueue.tracks),
 
-      const trackStream = this.currentTrack.status
-      const currentTrackSubscription = trackStream.subscribe(({trackIdx, elapsed, paused}) => {
-        if (trackIdx === -1) {
+      ([end, index, tracks]) => {
+        // console.log('track end', end, index, tracks)
+        const nextIdx = index + 1
+        const track = tracks[nextIdx]
+        if (track)
+          this.currentTrack.play(track.id, nextIdx)
+        else
+          this.currentTrack.play(null, -1)
+      }
+    )
+
+    this.reactTo(
+      events$.switchMap(events => events.play)
+        .withLatestFrom(this.currentTrack.elapsed, this.currentTrack.track)
+        .distinctUntilChanged(([, aElapsed ], [, bElapsed ]) => aElapsed === bElapsed),
+
+      ([, elapsed, track]) => {
+        // console.log('seek', elapsed, track.duration, (elapsed / track.duration) * 100)
+        if (elapsed > 0)
+          DZ.player.seek((elapsed / track.duration) * 100)
+      }
+    )
+
+    this.reactTo(
+      Observable.combineLatest(
+        this.currentTrack.status,
+        this.currentTrack.track,
+        // here just to ensure deezer has loaded
+        events$.take(1),
+        (status, track) => ({ ...status, track })
+      ).scan(
+        (acc, status) => {
+          const { elapsed: prevElapsed, trackIdx: playingTrackIdx, paused: prevPaused } = acc
+          return { ...status, prevElapsed, playingTrackIdx, prevPaused }
+        },
+        { elapsed: -1, trackIdx: -1, paused: true }
+      ),
+
+      ({ trackIdx, prevElapsed, playingTrackIdx, elapsed, paused, prevPaused, track }) => {
+        if (! track || paused) {
           DZ.player.pause()
           return
         }
 
-        const prevElapsed = this.elapsed
-        this.elapsed = elapsed
-
-        const track = this.musicQueue.tracks.getValue()[trackIdx]
         if (track) {
-          if (paused) {
-            this.playingTrackId = ''
-            DZ.player.pause()
-          } else {
-            const { id: trackId } = track
-            if (trackId === this.playingTrackId) {
-              // TODO: improve this by measuring initial lag etc.
-              // avoid replaying when incrementing time etc.
-              if (elapsed >= prevElapsed && elapsed <= prevElapsed + acceptableLag)
-                return
-            }
+          const { id: trackId } = track
 
-            this.playingTrackId = trackId
-            DZ.player.playTracks([ trackId ])
-            this.seekOnNext = (elapsed / track.duration) * 100
+          if (! prevPaused && trackIdx === playingTrackIdx) {
+            // TODO: improve this by measuring initial lag etc.
+            // avoid replaying when incrementing time etc.
+            if (elapsed >= prevElapsed && elapsed <= prevElapsed + acceptableLag)
+              return
           }
+
+          DZ.player.playTracks([ trackId ])
+          // this.seekOnNext = (elapsed / track.duration) * 100
         }
-      })
-
-      this.onDestroy(() => {
-        currentTrackSubscription.unsubscribe()
-      })
-    })
+      }
+    )
   }
 
-  deactivate() {
-    if (! this.activated)
-      return
-
-    this.stopPlayer()
-    this.activated = false
-    this.ngOnDestroy()
-  }
-
-  private stopPlayer() {
-    // sending an empty array to playTracks does nothing!
-    DZ.player.pause()
-  }
-
-  private onPlay() {
-    if (this.seekOnNext) {
-      DZ.player.seek(this.seekOnNext)
-      this.seekOnNext = 0
-    }
-  }
-
-  private onTrackEnd() {
-    const nextIdx = this.currentTrack.index.getValue() + 1
-    if (nextIdx >= this.musicQueue.tracks.getValue().length) {
-      this.musicQueue.playTrack(null, -1)
-    } else {
-      const track = this.musicQueue.tracks.getValue()[nextIdx]
-      this.musicQueue.playTrack(track.id, nextIdx)
-    }
-  }
+  activate() { this.activated$.next(true) }
+  deactivate() { this.activated$.next(false) }
 }

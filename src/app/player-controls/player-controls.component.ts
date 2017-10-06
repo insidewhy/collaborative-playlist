@@ -2,7 +2,6 @@ import { Component, ChangeDetectionStrategy } from '@angular/core'
 
 import { DeezerPlayer } from '../deezer-player/deezer-player.service'
 import { CurrentTrack } from '../current-track/current-track.service'
-import { MusicQueue } from '../music-queue/music-queue.service'
 
 @Component({
   selector: 'app-player-controls',
@@ -14,7 +13,6 @@ export class PlayerControlsComponent {
   constructor(
     public deezerPlayer: DeezerPlayer,
     public currentTrack: CurrentTrack,
-    private musicQueue: MusicQueue,
   ) {
     const muted = window.localStorage.getItem('muted')
     if (! muted)
@@ -22,14 +20,15 @@ export class PlayerControlsComponent {
   }
 
   public toggleMute() {
-    const {deezerPlayer} = this
-    if (deezerPlayer.activated) {
-      deezerPlayer.deactivate()
-      window.localStorage.setItem('muted', 'true')
-    } else {
-      deezerPlayer.activate()
-      window.localStorage.removeItem('muted')
-    }
+    // mega TODO: update code from when activated was a boolean
+    // const {deezerPlayer} = this
+    // if (deezerPlayer.activated) {
+    //   deezerPlayer.deactivate()
+    //   window.localStorage.setItem('muted', 'true')
+    // } else {
+    //   deezerPlayer.activate()
+    //   window.localStorage.removeItem('muted')
+    // }
   }
 
   public play() {
@@ -42,6 +41,6 @@ export class PlayerControlsComponent {
   }
 
   public skip(offset: number) {
-    this.musicQueue.skipTrack(offset)
+    this.currentTrack.skip(offset)
   }
 }

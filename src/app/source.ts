@@ -20,4 +20,9 @@ export class Source implements OnDestroy {
     this.onDestroy(() => { connected.unsubscribe() })
     return connectable
   }
+
+  reactTo<T>(observable: Observable<T>, callback: (T) => any): void {
+    const subscription = observable.subscribe(callback)
+    this.onDestroy(() => subscription.unsubscribe())
+  }
 }
