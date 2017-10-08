@@ -13,5 +13,5 @@
   <md-icon>skip_next</md-icon>
 </button>
 <button (click)="toggleMute()">
-  <md-icon>{{(deezerPlayer.activated | async) ? 'volume_mute' : 'volume_off'}}</md-icon>
+  <md-icon>{{(playerControls.muted | async) ? 'volume_off' : 'volume_mute'}}</md-icon>
 </button>

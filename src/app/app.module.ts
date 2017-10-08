@@ -9,6 +9,7 @@ import { ServerSocket } from './server-socket.service'
 import { SearchInputComponent } from './search/search-input.component'
 import { ControlsAndInfoComponent } from './controls-and-info/controls-and-info.component'
 import { PlayerControlsComponent } from './player-controls/player-controls.component'
+import { PlayerControls } from './player-controls/player-controls.service'
 
 import { AppRoutingModule } from './app-routing.module'
 import { SearchResultsComponent } from './search/search-results.component'
@@ -54,6 +55,7 @@ import { MarqueeComponent } from './current-track/marquee.component'
     SelectedTracks,
     CurrentTrack,
     DeezerPlayer,
+    PlayerControls,
   ],
   bootstrap: [AppComponent]
 })

@@ -14,6 +14,7 @@ import 'rxjs/add/operator/withLatestFrom'
 import { Source } from '../source'
 import { MusicQueue } from '../music-queue/music-queue.service'
 import { CurrentTrack } from '../current-track/current-track.service'
+import { PlayerControls } from '../player-controls/player-controls.service'
 
 declare var DZ: any
 
@@ -30,7 +31,7 @@ const fromDZEvent = (eventName: string) => new Observable<any>(observer => {
 
 @Injectable()
 export class DeezerPlayer extends Source {
-  private activated$ = new ReplaySubject<boolean>(1)
+  private activated$ = this.playerControls.muted.map(val => ! val)
   public activated = this.activated$.startWith(true).distinctUntilChanged()
 
   private load = new Observable<Events>(observer => {
@@ -51,7 +52,11 @@ export class DeezerPlayer extends Source {
     })
   }).take(1).shareReplay(1)
 
-  constructor(private musicQueue: MusicQueue, private currentTrack: CurrentTrack) {
+  constructor(
+    private musicQueue: MusicQueue,
+    private currentTrack: CurrentTrack,
+    private playerControls: PlayerControls,
+  ) {
     super()
 
     this.reactTo(this.activated$, activated => {
@@ -128,7 +133,4 @@ export class DeezerPlayer extends Source {
       }
     )
   }
-
-  activate() { this.activated$.next(true) }
-  deactivate() { this.activated$.next(false) }
 }

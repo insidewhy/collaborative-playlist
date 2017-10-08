@@ -2,6 +2,7 @@ import { Component, ChangeDetectionStrategy } from '@angular/core'
 
 import { DeezerPlayer } from '../deezer-player/deezer-player.service'
 import { CurrentTrack } from '../current-track/current-track.service'
+import { PlayerControls } from './player-controls.service'
 
 @Component({
   selector: 'app-player-controls',
@@ -11,24 +12,13 @@ import { CurrentTrack } from '../current-track/current-track.service'
 })
 export class PlayerControlsComponent {
   constructor(
-    public deezerPlayer: DeezerPlayer,
     public currentTrack: CurrentTrack,
+    public playerControls: PlayerControls,
   ) {
-    const muted = window.localStorage.getItem('muted')
-    if (! muted)
-      deezerPlayer.activate()
   }
 
   public toggleMute() {
-    // mega TODO: update code from when activated was a boolean
-    // const {deezerPlayer} = this
-    // if (deezerPlayer.activated) {
-    //   deezerPlayer.deactivate()
-    //   window.localStorage.setItem('muted', 'true')
-    // } else {
-    //   deezerPlayer.activate()
-    //   window.localStorage.removeItem('muted')
-    // }
+    this.playerControls.toggleMute()
   }
 
   public play() {

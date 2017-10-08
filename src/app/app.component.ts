@@ -3,6 +3,8 @@ import { Router, NavigationStart } from '@angular/router'
 import 'rxjs/add/operator/pairwise'
 import 'rxjs/add/operator/filter'
 
+import { DeezerPlayer } from './deezer-player/deezer-player.service'
+
 const searchUrlRegex = /^\/search\//
 
 @Component({
@@ -12,7 +14,11 @@ const searchUrlRegex = /^\/search\//
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent {
-  constructor(router: Router) {
+  constructor(
+    router: Router,
+    // inject just to instantiate:
+    deezerPlayer: DeezerPlayer,
+  ) {
     if (window.scrollTo) {
       let scrollBackup = 0
 
