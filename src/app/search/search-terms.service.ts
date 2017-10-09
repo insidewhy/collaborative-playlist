@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core'
 import { ReplaySubject } from 'rxjs/ReplaySubject'
 import { Observable } from 'rxjs/Observable'
-
 import 'rxjs/add/operator/mergeMap'
 import 'rxjs/add/observable/of'
 
