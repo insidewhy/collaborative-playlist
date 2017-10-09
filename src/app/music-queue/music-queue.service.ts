@@ -26,7 +26,8 @@ export interface Change {
 
 @Injectable()
 export class MusicQueue extends Source {
-  public tracksWithChanges: Observable<{ tracks: Track[], change: Change }> = this.socket.messages
+  public tracksWithChanges: Observable<{ tracks: Track[], change: Change }> = this.hot(
+    this.socket.messages
     .scan(
       ({ tracks }: { tracks: Track[] }, message) => {
         switch (message.type) {
@@ -92,13 +93,14 @@ export class MusicQueue extends Source {
     )
     .startWith({ tracks: [], change: null })
     .shareReplay(1)
+  )
 
   public tracks: Observable<Track[]> = this.tracksWithChanges
     .map(({ tracks }: { tracks: Track[] }) => tracks)
     .distinctUntilChanged()
     .shareReplay(1)
 
-  public changeStream: Observable<Change> = this
+  public changes: Observable<Change> = this
     .tracksWithChanges.map(({ change }) => change)
     .filter(val => !!val)
     .shareReplay(1)

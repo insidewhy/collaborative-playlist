@@ -36,7 +36,7 @@ export class SelectedTracks extends Source {
     super()
 
     this.reactTo(
-      musicQueue.changeStream,
+      musicQueue.changes,
       change => {
         const { moveFrom } = change
         if (moveFrom !== undefined) {
