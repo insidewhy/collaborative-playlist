@@ -16,12 +16,73 @@ export interface TrackWithIndex {
 
 @Injectable()
 export class MusicQueue extends Source {
-  public tracks = new ReplaySubject<Track[]>(1)
+  public tracks = this.socket.messages
+  .scan(
+    (tracks, message) => {
+      switch (message.type) {
+        case 'musicQueue':
+          return message.payload
+        case 'insert': {
+          const {track, index: insertIdx} = message.payload
+          this.changeStream.next({ insertIdx, track })
+          return [
+            ...tracks.slice(0, insertIdx),
+            track,
+            ...tracks.slice(insertIdx),
+          ]
+        }
+        case 'remove': {
+          const removeIdx = message.payload
+          this.changeStream.next({ removeIdx })
+          return [
+            ...tracks.slice(0, removeIdx),
+            ...tracks.slice(removeIdx + 1),
+          ]
+        }
+        case 'move': {
+          const { index, offset } = message.payload
+          const newIndex = index + offset
+          if (newIndex >= 0 && newIndex < tracks.length) {
+            setTimeout(() => {
+              this.changeStream.next({ moveFrom: index, to: newIndex })
+            })
+
+            if (offset > 0) {
+              return [
+                ...tracks.slice(0, index),
+                ...tracks.slice(index + 1, newIndex + 1),
+                tracks[index],
+                ...tracks.slice(newIndex + 1)
+              ]
+            } else {
+              return [
+                ...tracks.slice(0, newIndex),
+                tracks[index],
+                ...tracks.slice(newIndex, index),
+                ...tracks.slice(index + 1),
+              ]
+            }
+          }
+        }
+        default:
+          return tracks
+      }
+    },
+    []
+  )
+  .startWith([])
+  .distinctUntilChanged()
+  .shareReplay(1)
+
+  // TODO: make reactive
   public changeStream = new Subject<any>()
-  private scrollsSubject = new Subject<number>()
-  public scrolls = this.scrollsSubject.asObservable()
-  private appendTrackSubject = new Subject<Track>()
-  private moveTracksSubject = new Subject<{
+
+  private scrolls$ = new Subject<number>()
+  public scrolls = this.scrolls$.asObservable()
+
+  private appendTrack$ = new Subject<Track>()
+
+  private moveTracks$ = new Subject<{
     tracksWithIndexes: TrackWithIndex[],
     offset: number,
   }>()
@@ -42,48 +103,12 @@ export class MusicQueue extends Source {
     )
 
     this.reactTo(
-      this.socket.messages.withLatestFrom(this.tracks.startWith([])),
-      (([ message, tracks ]) => {
-        // console.debug('recv', message)
-
-        if (message.type === 'musicQueue') {
-          this.tracks.next(message.payload)
-        } else if (message.type === 'insert') {
-          const {track, index: insertIdx} = message.payload
-          this.changeStream.next({ insertIdx, track })
-
-          this.tracks.next([
-            ...tracks.slice(0, insertIdx),
-            track,
-            ...tracks.slice(insertIdx)
-          ])
-        } else if (message.type === 'remove') {
-          const removeIdx = message.payload
-          this.changeStream.next({ removeIdx })
-
-          this.tracks.next([
-            ...tracks.slice(0, removeIdx),
-            ...tracks.slice(removeIdx + 1)
-          ])
-        } else if (message.type === 'move') {
-          const { index, offset } = message.payload
-          const newIndex = index + offset
-          if (newIndex >= 0 && newIndex < tracks.length) {
-            tracks.splice(newIndex, 0, ...tracks.splice(index, 1))
-            this.tracks.next(tracks)
-            this.changeStream.next({ moveFrom: index, to: newIndex })
-          }
-        }
-      })
-    )
-
-    this.reactTo(
-      this.appendTrackSubject.withLatestFrom(this.tracks.map(tracks => tracks.length)),
+      this.appendTrack$.withLatestFrom(this.tracks.map(tracks => tracks.length)),
       ([track, length]) => { this.insertTrack(track, length) }
     )
 
     this.reactTo(
-      this.moveTracksSubject.withLatestFrom(this.tracks),
+      this.moveTracks$.withLatestFrom(this.tracks),
       ([ { tracksWithIndexes, offset }, tracks ]) => {
         let start, end, limit
 
@@ -111,7 +136,7 @@ export class MusicQueue extends Source {
   }
 
   public appendTrack(track: Track): void {
-    this.appendTrackSubject.next(track)
+    this.appendTrack$.next(track)
   }
 
   public removeTrack(track: Track, index: number): void {
@@ -119,10 +144,10 @@ export class MusicQueue extends Source {
   }
 
   public scrollToTrack(trackIdx: number): void {
-    this.scrollsSubject.next(trackIdx)
+    this.scrolls$.next(trackIdx)
   }
 
   public moveTracks(tracksWithIndexes: TrackWithIndex[], offset: number): void {
-    this.moveTracksSubject.next({ tracksWithIndexes, offset })
+    this.moveTracks$.next({ tracksWithIndexes, offset })
   }
 }
