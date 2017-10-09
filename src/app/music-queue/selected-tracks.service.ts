@@ -35,19 +35,22 @@ export class SelectedTracks extends Source {
   constructor(private musicQueue: MusicQueue) {
     super()
 
-    const changeSubscription = musicQueue.changeStream.subscribe(change => {
-      const { moveFrom } = change
-      if (moveFrom !== undefined) {
-        const { to } = change
-        const indexesVal = this.indexes.getValue()
-        if (indexesVal.has(moveFrom)) {
-          const newIndexes = new Set(indexesVal)
-          newIndexes.delete(moveFrom)
-          newIndexes.add(to)
-          this.indexes.next(newIndexes)
+    this.reactTo(
+      musicQueue.changeStream,
+      change => {
+        const { moveFrom } = change
+        if (moveFrom !== undefined) {
+          const { to } = change
+          const indexesVal = this.indexes.getValue()
+          if (indexesVal.has(moveFrom)) {
+            const newIndexes = new Set(indexesVal)
+            newIndexes.delete(moveFrom)
+            newIndexes.add(to)
+            this.indexes.next(newIndexes)
+          }
         }
-      }
-    })
+      },
+    )
 
     this.reactTo(
       this.delete$.withLatestFrom(this.selectedTracks),
@@ -65,10 +68,6 @@ export class SelectedTracks extends Source {
         this.musicQueue.moveTracks(tracks, offset)
       }
     )
-
-    this.onDestroy(() => {
-      changeSubscription.unsubscribe()
-    })
   }
 
   toggle(index: number, selectRange = false): void {
