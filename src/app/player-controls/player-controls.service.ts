@@ -6,7 +6,10 @@ import { Source } from '../source'
 @Injectable()
 export class PlayerControls extends Source {
   private toggleMute$ = new ReplaySubject<void>(1)
-  muted = this.toggleMute$.startWith(undefined).scan(acc => ! acc, ! window.localStorage.getItem('muted'))
+  muted = this.toggleMute$
+    .startWith(undefined)
+    .scan(acc => ! acc, ! window.localStorage.getItem('muted'))
+    .shareReplay(1)
 
   constructor() {
     super()
