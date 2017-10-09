@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core'
 import { Subject } from 'rxjs/Subject'
-import { BehaviorSubject } from 'rxjs/BehaviorSubject'
 import { ReplaySubject } from 'rxjs/ReplaySubject'
 
 import groupBy from '../lib/group-by'
