@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core'
 import { Subject } from 'rxjs/Subject'
+import { Observable } from 'rxjs/Observable'
 import { ReplaySubject } from 'rxjs/ReplaySubject'
+import 'rxjs/add/operator/map'
 
 import groupBy from '../lib/group-by'
 import { Track } from '../track'
@@ -14,67 +16,92 @@ export interface TrackWithIndex {
   index: number
 }
 
+export interface Change {
+  insertIdx?: number,
+  track?: Track,
+  removeIdx?: number,
+  moveFrom?: number,
+  to?: number,
+}
+
 @Injectable()
 export class MusicQueue extends Source {
-  public tracks = this.socket.messages
-  .scan(
-    (tracks, message) => {
-      switch (message.type) {
-        case 'musicQueue':
-          return message.payload
-        case 'insert': {
-          const {track, index: insertIdx} = message.payload
-          this.changeStream.next({ insertIdx, track })
-          return [
-            ...tracks.slice(0, insertIdx),
-            track,
-            ...tracks.slice(insertIdx),
-          ]
-        }
-        case 'remove': {
-          const removeIdx = message.payload
-          this.changeStream.next({ removeIdx })
-          return [
-            ...tracks.slice(0, removeIdx),
-            ...tracks.slice(removeIdx + 1),
-          ]
-        }
-        case 'move': {
-          const { index, offset } = message.payload
-          const newIndex = index + offset
-          if (newIndex >= 0 && newIndex < tracks.length) {
-            setTimeout(() => {
-              this.changeStream.next({ moveFrom: index, to: newIndex })
-            })
+  public tracksWithChanges: Observable<{ tracks: Track[], change: Change }> = this.socket.messages
+    .scan(
+      ({ tracks }: { tracks: Track[] }, message) => {
+        switch (message.type) {
+          case 'musicQueue':
+            return {
+              tracks: message.payload,
+              change: null,
+            }
+          case 'insert': {
+            const {track, index: insertIdx} = message.payload
+            return {
+              change: { insertIdx, track },
+              tracks: [
+                ...tracks.slice(0, insertIdx),
+                track,
+                ...tracks.slice(insertIdx),
+              ],
+            }
+          }
+          case 'remove': {
+            const removeIdx = message.payload
+            return {
+              change: { removeIdx },
+              tracks: [
+                ...tracks.slice(0, removeIdx),
+                ...tracks.slice(removeIdx + 1),
+              ],
+            }
+          }
+          case 'move': {
+            const { index, offset } = message.payload
+            const newIndex = index + offset
+            if (newIndex >= 0 && newIndex < tracks.length) {
+              const change = { moveFrom: index, to: newIndex }
 
-            if (offset > 0) {
-              return [
-                ...tracks.slice(0, index),
-                ...tracks.slice(index + 1, newIndex + 1),
-                tracks[index],
-                ...tracks.slice(newIndex + 1)
-              ]
-            } else {
-              return [
-                ...tracks.slice(0, newIndex),
-                tracks[index],
-                ...tracks.slice(newIndex, index),
-                ...tracks.slice(index + 1),
-              ]
+              if (offset > 0) {
+                return {
+                  change,
+                  tracks: [
+                    ...tracks.slice(0, index),
+                    ...tracks.slice(index + 1, newIndex + 1),
+                    tracks[index],
+                    ...tracks.slice(newIndex + 1)
+                  ]
+                }
+              } else {
+                return {
+                  change,
+                  tracks: [
+                    ...tracks.slice(0, newIndex),
+                    tracks[index],
+                    ...tracks.slice(newIndex, index),
+                    ...tracks.slice(index + 1),
+                  ]
+                }
+              }
             }
           }
         }
-      }
-      return tracks
-    },
-    []
-  )
-  .startWith([])
-  .distinctUntilChanged()
-  .shareReplay(1)
+        return { tracks, change: null }
+      },
+      { tracks: [] },
+    )
+    .startWith({ tracks: [], change: null })
+    .shareReplay(1)
 
-  // TODO: make reactive
-  public changeStream = new Subject<any>()
+  public tracks: Observable<Track[]> = this.tracksWithChanges
+    .map(({ tracks }: { tracks: Track[] }) => tracks)
+    .distinctUntilChanged()
+    .shareReplay(1)
+
+  public changeStream: Observable<Change> = this
+    .tracksWithChanges.map(({ change }) => change)
+    .filter(val => !!val)
+    .shareReplay(1)
 
   private scrolls$ = new Subject<number>()
   public scrolls = this.scrolls$.asObservable()
