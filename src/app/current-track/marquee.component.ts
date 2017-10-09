@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, ElementRef, OnInit, Input } from '@angular/core'
 import { Observable } from 'rxjs/Observable'
 import { Subscription } from 'rxjs/Subscription'
-import 'rxjs/add/observable/from'
+import 'rxjs/add/observable/of'
 import 'rxjs/add/observable/fromEvent'
 import 'rxjs/add/observable/merge'
 import 'rxjs/add/observable/interval'
@@ -54,28 +54,26 @@ export class MarqueeComponent implements OnInit {
   constructor(private elementRef: ElementRef) {}
 
   ngOnInit() {
-    this.overflows = Observable.from([false]).concat(
-      Observable.merge(
-        Observable.fromEvent(window, 'resize'),
-        this.display,
-      )
-      .switchMap(() => {
-        // disables overflow and waits until the content is not duplicated
-        // before testing for overflow again
-        return Observable.from([false]).concat(
-          Observable.interval(200)
-          .map(() => {
-            const container: HTMLElement = this.elementRef.nativeElement
-            return container && ! container.querySelector('span') && container
-          })
-          .skipWhile(container => !container)
-          .map(container => {
-            const { scrollWidth } = container
-            return scrollWidth > container.offsetWidth
-          })
-          .take(1)
-        )
-      })
+    this.overflows = Observable.merge(
+      Observable.fromEvent(window, 'resize'),
+      this.display,
     )
+    .switchMap(() => {
+      // disables overflow and waits until the content is not duplicated
+      // before testing for overflow again
+      return Observable.interval(200)
+      .map(() => {
+        const container: HTMLElement = this.elementRef.nativeElement
+        return container && ! container.querySelector('span') && container
+      })
+      .skipWhile(container => !container)
+      .map(container => {
+        const { scrollWidth } = container
+        return scrollWidth > container.offsetWidth
+      })
+      .take(1)
+      .startWith(false)
+    })
+    .startWith(false)
   }
 }

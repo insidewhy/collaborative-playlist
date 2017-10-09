@@ -5,7 +5,6 @@ import { Observable } from 'rxjs/Observable'
 
 import 'rxjs/add/operator/map'
 import 'rxjs/add/operator/switchMap'
-import 'rxjs/add/operator/concat'
 import 'rxjs/add/observable/combineLatest'
 // using `import {pick} from 'lodash'` isn't handled by the tree shaker :(
 const pick = require('lodash/pick')
