@@ -24,98 +24,38 @@ export interface Change {
   to?: number,
 }
 
+export interface TracksWithChange {
+  tracks: Track[],
+  change: Change,
+}
+
+export interface Move {
+  tracksWithIndexes: TrackWithIndex[],
+  offset: number,
+}
+
 @Injectable()
 export class MusicQueue extends Source {
-  public tracksWithChanges: Observable<{ tracks: Track[], change: Change }> = this.hot(
-    this.socket.messages
-    .scan(
-      ({ tracks }: { tracks: Track[] }, message) => {
-        switch (message.type) {
-          case 'musicQueue':
-            return {
-              tracks: message.payload,
-              change: null,
-            }
-          case 'insert': {
-            const {track, index: insertIdx} = message.payload
-            return {
-              change: { insertIdx, track },
-              tracks: [
-                ...tracks.slice(0, insertIdx),
-                track,
-                ...tracks.slice(insertIdx),
-              ],
-            }
-          }
-          case 'remove': {
-            const removeIdx = message.payload
-            return {
-              change: { removeIdx },
-              tracks: [
-                ...tracks.slice(0, removeIdx),
-                ...tracks.slice(removeIdx + 1),
-              ],
-            }
-          }
-          case 'move': {
-            const { index, offset } = message.payload
-            const newIndex = index + offset
-            if (newIndex >= 0 && newIndex < tracks.length) {
-              const change = { moveFrom: index, to: newIndex }
+  tracksWithChanges: Observable<TracksWithChange> = this.getTracksWithChanges()
 
-              if (offset > 0) {
-                return {
-                  change,
-                  tracks: [
-                    ...tracks.slice(0, index),
-                    ...tracks.slice(index + 1, newIndex + 1),
-                    tracks[index],
-                    ...tracks.slice(newIndex + 1)
-                  ]
-                }
-              } else {
-                return {
-                  change,
-                  tracks: [
-                    ...tracks.slice(0, newIndex),
-                    tracks[index],
-                    ...tracks.slice(newIndex, index),
-                    ...tracks.slice(index + 1),
-                  ]
-                }
-              }
-            }
-          }
-        }
-        return { tracks, change: null }
-      },
-      { tracks: [] },
-    )
-    .startWith({ tracks: [], change: null })
-    .shareReplay(1)
-  )
-
-  public tracks: Observable<Track[]> = this.tracksWithChanges
+  tracks: Observable<Track[]> = this.tracksWithChanges
     .map(({ tracks }: { tracks: Track[] }) => tracks)
     .distinctUntilChanged()
     .shareReplay(1)
 
-  public changes: Observable<Change> = this
+  changes: Observable<Change> = this
     .tracksWithChanges.map(({ change }) => change)
     .filter(val => !!val)
     .shareReplay(1)
 
   private scrolls$ = new Subject<number>()
-  public scrolls = this.scrolls$.asObservable()
+  scrolls = this.scrolls$.asObservable()
 
   private appendTrack$ = new Subject<Track>()
 
-  private moveTracks$ = new Subject<{
-    tracksWithIndexes: TrackWithIndex[],
-    offset: number,
-  }>()
+  private moveTracks$ = new Subject<Move>()
 
-  public tracksById = this.tracks.map(
+  tracksById = this.tracks.map(
     tracks => groupBy(tracks, track => track.id)
   ).shareReplay(1)
 
@@ -159,23 +99,94 @@ export class MusicQueue extends Source {
     )
   }
 
-  public insertTrack(track: Track, index: number): void {
+  insertTrack(track: Track, index: number): void {
     this.socket.send({ type: 'insertTrack', payload: { track, index } })
   }
 
-  public appendTrack(track: Track): void {
+  appendTrack(track: Track): void {
     this.appendTrack$.next(track)
   }
 
-  public removeTrack(track: Track, index: number): void {
+  removeTrack(track: Track, index: number): void {
     this.socket.send({ type: 'removeTrack', payload: { trackId: track.id, index } })
   }
 
-  public scrollToTrack(trackIdx: number): void {
+  scrollToTrack(trackIdx: number): void {
     this.scrolls$.next(trackIdx)
   }
 
-  public moveTracks(tracksWithIndexes: TrackWithIndex[], offset: number): void {
+  moveTracks(tracksWithIndexes: TrackWithIndex[], offset: number): void {
     this.moveTracks$.next({ tracksWithIndexes, offset })
+  }
+
+  private getTracksWithChanges(): Observable<TracksWithChange> {
+    return this.hot(
+      this.socket.messages
+      .scan(
+        ({ tracks }: { tracks: Track[] }, message) => {
+          switch (message.type) {
+            case 'musicQueue':
+              return {
+                tracks: message.payload,
+                change: null,
+              }
+            case 'insert': {
+              const {track, index: insertIdx} = message.payload
+              return {
+                change: { insertIdx, track },
+                tracks: [
+                  ...tracks.slice(0, insertIdx),
+                  track,
+                  ...tracks.slice(insertIdx),
+                ],
+              }
+            }
+            case 'remove': {
+              const removeIdx = message.payload
+              return {
+                change: { removeIdx },
+                tracks: [
+                  ...tracks.slice(0, removeIdx),
+                  ...tracks.slice(removeIdx + 1),
+                ],
+              }
+            }
+            case 'move': {
+              const { index, offset } = message.payload
+              const newIndex = index + offset
+              if (newIndex >= 0 && newIndex < tracks.length) {
+                const change = { moveFrom: index, to: newIndex }
+
+                if (offset > 0) {
+                  return {
+                    change,
+                    tracks: [
+                      ...tracks.slice(0, index),
+                      ...tracks.slice(index + 1, newIndex + 1),
+                      tracks[index],
+                      ...tracks.slice(newIndex + 1)
+                    ]
+                  }
+                } else {
+                  return {
+                    change,
+                    tracks: [
+                      ...tracks.slice(0, newIndex),
+                      tracks[index],
+                      ...tracks.slice(newIndex, index),
+                      ...tracks.slice(index + 1),
+                    ]
+                  }
+                }
+              }
+            }
+          }
+          return { tracks, change: null }
+        },
+        { tracks: [] },
+      )
+      .startWith({ tracks: [], change: null })
+      .shareReplay(1)
+    )
   }
 }
