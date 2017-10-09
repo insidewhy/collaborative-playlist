@@ -64,9 +64,8 @@ export class MusicQueue extends Source {
             }
           }
         }
-        default:
-          return tracks
       }
+      return tracks
     },
     []
   )
