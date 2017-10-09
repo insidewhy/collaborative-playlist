@@ -18,8 +18,8 @@ function jsonWebsocketConnect(url: string, input: Observable<object>) {
 @Injectable()
 export class ServerSocket {
   private input: QueueingSubject<any>
-  public messages = this.connect()
-  public connectionStatus: Observable<any>
+  messages = this.connect()
+  connectionStatus: Observable<any>
 
   private connect() {
     if (this.messages)
@@ -40,7 +40,7 @@ export class ServerSocket {
     return messages.share().retryWhen(errors => errors.delay(1000))
   }
 
-  public send(message: any): void {
+  send(message: any): void {
     // console.debug('send', message)
     this.input.next(message)
   }

@@ -6,14 +6,14 @@ import 'rxjs/add/observable/of'
 
 @Injectable()
 export class SearchTerms {
-  private subject = new ReplaySubject<Observable<string>>()
-  public stream = this.subject.mergeMap(val => val)
+  private termsObservables = new ReplaySubject<Observable<string>>()
+  terms = this.termsObservables.mergeMap(val => val)
 
-  addRouteStream(stream: Observable<string>) {
-    this.subject.next(stream)
+  addRouteStream(terms: Observable<string>) {
+    this.termsObservables.next(terms)
   }
 
   setTerms(terms: string) {
-    this.subject.next(Observable.of(terms))
+    this.termsObservables.next(Observable.of(terms))
   }
 }

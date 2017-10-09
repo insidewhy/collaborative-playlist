@@ -32,7 +32,7 @@ const fromDZEvent = (eventName: string) => new Observable<any>(observer => {
 @Injectable()
 export class DeezerPlayer extends Source {
   private activated$ = this.playerControls.muted.map(val => ! val)
-  public activated = this.activated$.startWith(true).distinctUntilChanged()
+  activated = this.activated$.startWith(true).distinctUntilChanged()
 
   private load = new Observable<Events>(observer => {
     // DZ.Event.subscribe('player_play', this.onPlay.bind(this))

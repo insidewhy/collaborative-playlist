@@ -18,9 +18,12 @@ const mapSet = (set, callback) => {
 
 @Injectable()
 export class SelectedTracks extends Source {
-  public indexes = new BehaviorSubject<Set<number>>(new Set<number>())
-  public previousSelectedIndex = new BehaviorSubject<number>(-1)
+  // TODO: these two should be reactive
+  indexes = new BehaviorSubject<Set<number>>(new Set<number>())
+  previousSelectedIndex = new BehaviorSubject<number>(-1)
+  // TODO: this should be an observable
   private selectedByCurrentRange = new Set<number>()
+
   private delete$ = new ReplaySubject<null>(1)
   private move$ = new ReplaySubject<number>(1)
 
