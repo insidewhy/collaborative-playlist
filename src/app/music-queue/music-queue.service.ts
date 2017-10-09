@@ -43,8 +43,8 @@ export class MusicQueue extends Source {
     .distinctUntilChanged()
     .shareReplay(1)
 
-  changes: Observable<Change> = this
-    .tracksWithChanges.map(({ change }) => change)
+  changes: Observable<Change> = this.tracksWithChanges
+    .map(({ change }) => change)
     .filter(val => !!val)
     .shareReplay(1)
 
