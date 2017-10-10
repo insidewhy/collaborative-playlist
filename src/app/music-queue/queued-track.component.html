@@ -16,9 +16,9 @@
       </ng-container>
     </ng-container>
     <ng-container *ngSwitchCase="true">
-      <a (click)="toggle(index, true)" [ngSwitch]="(selectedTracks.previousSelectedIndex | async) == index">
+      <a (click)="toggle(index, true)" [ngSwitch]="(selectedTracks.rangeStartIdx | async) == index">
         <md-icon *ngSwitchCase="true">check</md-icon>
-        <ng-container *ngSwitchCase="false" [ngSwitch]="(selectedTracks.previousSelectedIndex | async) < index">
+        <ng-container *ngSwitchCase="false" [ngSwitch]="(selectedTracks.rangeStartIdx | async) < index">
           <md-icon *ngSwitchCase="true">keyboard_arrow_up</md-icon>
           <md-icon *ngSwitchCase="false">keyboard_arrow_down</md-icon>
         </ng-container>

@@ -6,7 +6,7 @@ const range = require('lodash/range')
 const sortBy = require('lodash/sortBy')
 
 import { Source } from '../source'
-import { MusicQueue, TrackWithIndex } from './music-queue.service'
+import { MusicQueue, TrackWithIndex, Change } from './music-queue.service'
 
 const mapSet = (set, callback) => {
   const ret = []
@@ -16,16 +16,28 @@ const mapSet = (set, callback) => {
   return ret
 }
 
+interface Toggle {
+  index: number
+  selectRange: boolean
+}
+
+function isToggle(operator: Toggle | Change): operator is Toggle {
+  return operator.hasOwnProperty('index')
+}
+
 @Injectable()
 export class SelectedTracks extends Source {
-  // TODO: these two should be reactive
-  indexes = new BehaviorSubject<Set<number>>(new Set<number>())
-  previousSelectedIndex = new BehaviorSubject<number>(-1)
-  // TODO: this should be an observable
-  private selectedByCurrentRange = new Set<number>()
-
+  private toggle$ = new ReplaySubject<Toggle>(1)
+  private clear$ = new ReplaySubject<null>(1)
   private delete$ = new ReplaySubject<null>(1)
   private move$ = new ReplaySubject<number>(1)
+
+  rangeStartIdx = this.toggle$
+    .filter(({ selectRange }) => ! selectRange)
+    .map(({ index }) => index)
+    .shareReplay(1)
+
+  indexes: Observable<Set<number>> = this.getIndexes()
 
   private selectedTracks: Observable<TrackWithIndex[]> = this.indexes
     .withLatestFrom(this.musicQueue.tracks)
@@ -37,23 +49,6 @@ export class SelectedTracks extends Source {
 
   constructor(private musicQueue: MusicQueue) {
     super()
-
-    this.reactTo(
-      musicQueue.changes,
-      change => {
-        const { moveFrom } = change
-        if (moveFrom !== undefined) {
-          const { to } = change
-          const indexesVal = this.indexes.getValue()
-          if (indexesVal.has(moveFrom)) {
-            const newIndexes = new Set(indexesVal)
-            newIndexes.delete(moveFrom)
-            newIndexes.add(to)
-            this.indexes.next(newIndexes)
-          }
-        }
-      },
-    )
 
     this.reactTo(
       this.delete$.withLatestFrom(this.selectedTracks),
@@ -73,39 +68,56 @@ export class SelectedTracks extends Source {
     )
   }
 
-  toggle(index: number, selectRange = false): void {
-    const indexesVal = new Set(this.indexes.getValue())
+  private getIndexes() {
+    return Observable.merge(this.toggle$, this.clear$, this.musicQueue.changes)
+    .withLatestFrom(this.rangeStartIdx)
+    .scan(
+      ({ indexes, prevIndexes }, [ operation, rangeStartIdx ]) => {
+        // clear
+        if (! operation)
+          return { indexes: new Set<number>(), prevIndexes: indexes }
 
-    if (selectRange) {
-      const { previousSelectedIndex: { value: prevIndex } } = this
-      if (prevIndex !== -1) {
-        const { selectedByCurrentRange } = this
-        selectedByCurrentRange.forEach(selectedIndex => { indexesVal.delete(selectedIndex) })
-        selectedByCurrentRange.clear()
-
-        range(index, prevIndex).forEach(indexToSelect => {
-          if (! indexesVal.has(indexToSelect)) {
-            selectedByCurrentRange.add(indexToSelect)
-            indexesVal.add(indexToSelect)
+        if (isToggle(operation)) {
+          const { index, selectRange } = operation
+          if (selectRange && rangeStartIdx !== -1) {
+            const newIndexes = new Set(prevIndexes)
+            range(rangeStartIdx, index + (index > rangeStartIdx ? 1 : -1)).forEach(indexToSelect => {
+              if (! newIndexes.has(indexToSelect)) {
+                newIndexes.add(indexToSelect)
+              }
+            })
+            return { indexes: newIndexes, prevIndexes: indexes }
+          } else {
+            const newIndexes = new Set(indexes)
+            if (newIndexes.has(index))
+              newIndexes.delete(index)
+            else
+              newIndexes.add(index)
+            return { indexes: newIndexes, prevIndexes: indexes }
           }
-        })
-        this.indexes.next(indexesVal)
-        // this.rangeEndIdx.next(index)
-        return
-      }
-    }
+        } else {
+          const { moveFrom, to } = operation
+          if (indexes.has(moveFrom)) {
+            const newIndexes = new Set<number>(indexes)
+            newIndexes.delete(moveFrom)
+            newIndexes.add(to)
+            return { indexes: newIndexes, prevIndexes: indexes }
+          }
+        }
+      },
+      { indexes: new Set<number>(), prevIndexes: new Set<number>() }
+    )
+    .map(({ indexes }) => indexes)
+    .startWith(new Set<number>())
+    .shareReplay(1)
+  }
 
-    if (indexesVal.has(index))
-      indexesVal.delete(index)
-    else
-      indexesVal.add(index)
-    this.indexes.next(indexesVal)
-    this.previousSelectedIndex.next(index)
-    this.selectedByCurrentRange.clear()
+  toggle(index: number, selectRange = false): void {
+    this.toggle$.next({ index, selectRange })
   }
 
   clear() {
-    this.indexes.next(new Set<number>())
+    this.clear$.next(undefined)
   }
 
   delete() {
