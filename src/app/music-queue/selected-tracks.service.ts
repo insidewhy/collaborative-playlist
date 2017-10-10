@@ -29,43 +29,39 @@ export class SelectedTracks extends Source {
   private move$ = new ReplaySubject<number>(1)
 
   // mega TODO: should be reactive
-  previousSelectedIndex = new BehaviorSubject<number>(-1)
+  rangeStartIdx = this.toggle$
+    .filter(({ selectRange }) => ! selectRange)
+    .map(({ index }) => index)
+    .shareReplay(1)
 
   indexes: Observable<Set<number>> = Observable.merge(this.toggle$, this.clear$)
+    .withLatestFrom(this.rangeStartIdx)
     .scan(
-      (prevIndexes, toggle) => {
+      (indexes, [ toggle, rangeStartIdx ]) => {
         // a null toggle means clear
         if (! toggle)
           return new Set<number>()
 
         const { index, selectRange } = toggle
 
-        // if (selectRange) {
-        //   const { previousSelectedIndex: { value: prevIndex } } = this
-        //   if (prevIndex !== -1) {
-        //     const { selectedByCurrentRange } = this
-        //     selectedByCurrentRange.forEach(selectedIndex => { prevIndexes.delete(selectedIndex) })
-        //     selectedByCurrentRange.clear()
+        if (selectRange && rangeStartIdx !== -1) {
+          // TODO: previousIndexes rather than indexes
+          const newIndexes = new Set(indexes)
 
-        //     range(index, prevIndex).forEach(indexToSelect => {
-        //       if (! prevIndexes.has(indexToSelect)) {
-        //         selectedByCurrentRange.add(indexToSelect)
-        //         prevIndexes.add(indexToSelect)
-        //       }
-        //     })
-        //     this.indexes.next(prevIndexes)
-        //     // this.rangeEndIdx.next(index)
-        //     return
-        //   }
-        // }
-
-        const indexes = new Set(prevIndexes)
-        if (indexes.has(index))
-          indexes.delete(index)
-        else
-          indexes.add(index)
-        this.previousSelectedIndex.next(index)
-        return indexes
+          range(rangeStartIdx, index).forEach(indexToSelect => {
+            if (! newIndexes.has(indexToSelect)) {
+              newIndexes.add(indexToSelect)
+            }
+          })
+          return newIndexes
+        } else {
+          const newIndexes = new Set(indexes)
+          if (newIndexes.has(index))
+            newIndexes.delete(index)
+          else
+            newIndexes.add(index)
+          return newIndexes
+        }
       },
       new Set<number>()
     )
