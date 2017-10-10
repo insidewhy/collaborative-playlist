@@ -23,16 +23,54 @@ interface Toggle {
 
 @Injectable()
 export class SelectedTracks extends Source {
-  // TODO: these two should be reactive
-  indexes = new BehaviorSubject<Set<number>>(new Set<number>())
-  previousSelectedIndex = new BehaviorSubject<number>(-1)
-  // TODO: delete
-  private selectedByCurrentRange = new Set<number>()
-
   private toggle$ = new ReplaySubject<Toggle>(1)
   private clear$ = new ReplaySubject<null>(1)
   private delete$ = new ReplaySubject<null>(1)
   private move$ = new ReplaySubject<number>(1)
+
+  // mega TODO: should be reactive
+  previousSelectedIndex = new BehaviorSubject<number>(-1)
+
+  indexes: Observable<Set<number>> = Observable.merge(this.toggle$, this.clear$)
+    .scan(
+      (prevIndexes, toggle) => {
+        // a null toggle means clear
+        if (! toggle)
+          return new Set<number>()
+
+        const { index, selectRange } = toggle
+
+        // if (selectRange) {
+        //   const { previousSelectedIndex: { value: prevIndex } } = this
+        //   if (prevIndex !== -1) {
+        //     const { selectedByCurrentRange } = this
+        //     selectedByCurrentRange.forEach(selectedIndex => { prevIndexes.delete(selectedIndex) })
+        //     selectedByCurrentRange.clear()
+
+        //     range(index, prevIndex).forEach(indexToSelect => {
+        //       if (! prevIndexes.has(indexToSelect)) {
+        //         selectedByCurrentRange.add(indexToSelect)
+        //         prevIndexes.add(indexToSelect)
+        //       }
+        //     })
+        //     this.indexes.next(prevIndexes)
+        //     // this.rangeEndIdx.next(index)
+        //     return
+        //   }
+        // }
+
+        const indexes = new Set(prevIndexes)
+        if (indexes.has(index))
+          indexes.delete(index)
+        else
+          indexes.add(index)
+        this.previousSelectedIndex.next(index)
+        return indexes
+      },
+      new Set<number>()
+    )
+    .startWith(new Set<number>())
+    .shareReplay(1)
 
   private selectedTracks: Observable<TrackWithIndex[]> = this.indexes
     .withLatestFrom(this.musicQueue.tracks)
@@ -55,7 +93,8 @@ export class SelectedTracks extends Source {
             const newIndexes = new Set<number>(indexes)
             newIndexes.delete(moveFrom)
             newIndexes.add(to)
-            this.indexes.next(newIndexes)
+            // mega TODO: move higher
+            // this.indexes.next(newIndexes)
           }
         }
       },
@@ -77,42 +116,6 @@ export class SelectedTracks extends Source {
         this.musicQueue.moveTracks(tracks, offset)
       }
     )
-
-    this.reactTo(
-      this.toggle$,
-      ({ index, selectRange }) => {
-        const indexesVal = new Set(this.indexes.getValue())
-
-        if (selectRange) {
-          const { previousSelectedIndex: { value: prevIndex } } = this
-          if (prevIndex !== -1) {
-            const { selectedByCurrentRange } = this
-            selectedByCurrentRange.forEach(selectedIndex => { indexesVal.delete(selectedIndex) })
-            selectedByCurrentRange.clear()
-
-            range(index, prevIndex).forEach(indexToSelect => {
-              if (! indexesVal.has(indexToSelect)) {
-                selectedByCurrentRange.add(indexToSelect)
-                indexesVal.add(indexToSelect)
-              }
-            })
-            this.indexes.next(indexesVal)
-            // this.rangeEndIdx.next(index)
-            return
-          }
-        }
-
-        if (indexesVal.has(index))
-          indexesVal.delete(index)
-        else
-          indexesVal.add(index)
-        this.indexes.next(indexesVal)
-        this.previousSelectedIndex.next(index)
-        this.selectedByCurrentRange.clear()
-      }
-    )
-
-    this.reactTo(this.clear$, () => { this.indexes.next(new Set<number>()) })
   }
 
   toggle(index: number, selectRange = false): void {
