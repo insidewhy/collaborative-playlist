@@ -16,14 +16,21 @@ const mapSet = (set, callback) => {
   return ret
 }
 
+interface Toggle {
+  index: number
+  selectRange: boolean
+}
+
 @Injectable()
 export class SelectedTracks extends Source {
   // TODO: these two should be reactive
   indexes = new BehaviorSubject<Set<number>>(new Set<number>())
   previousSelectedIndex = new BehaviorSubject<number>(-1)
-  // TODO: this should be an observable
+  // TODO: delete
   private selectedByCurrentRange = new Set<number>()
 
+  private toggle$ = new ReplaySubject<Toggle>(1)
+  private clear$ = new ReplaySubject<null>(1)
   private delete$ = new ReplaySubject<null>(1)
   private move$ = new ReplaySubject<number>(1)
 
@@ -39,14 +46,13 @@ export class SelectedTracks extends Source {
     super()
 
     this.reactTo(
-      musicQueue.changes,
-      change => {
+      musicQueue.changes.withLatestFrom(this.indexes),
+      ([ change, indexes ]) => {
         const { moveFrom } = change
         if (moveFrom !== undefined) {
           const { to } = change
-          const indexesVal = this.indexes.getValue()
-          if (indexesVal.has(moveFrom)) {
-            const newIndexes = new Set(indexesVal)
+          if (indexes.has(moveFrom)) {
+            const newIndexes = new Set<number>(indexes)
             newIndexes.delete(moveFrom)
             newIndexes.add(to)
             this.indexes.next(newIndexes)
@@ -71,41 +77,50 @@ export class SelectedTracks extends Source {
         this.musicQueue.moveTracks(tracks, offset)
       }
     )
+
+    this.reactTo(
+      this.toggle$,
+      ({ index, selectRange }) => {
+        const indexesVal = new Set(this.indexes.getValue())
+
+        if (selectRange) {
+          const { previousSelectedIndex: { value: prevIndex } } = this
+          if (prevIndex !== -1) {
+            const { selectedByCurrentRange } = this
+            selectedByCurrentRange.forEach(selectedIndex => { indexesVal.delete(selectedIndex) })
+            selectedByCurrentRange.clear()
+
+            range(index, prevIndex).forEach(indexToSelect => {
+              if (! indexesVal.has(indexToSelect)) {
+                selectedByCurrentRange.add(indexToSelect)
+                indexesVal.add(indexToSelect)
+              }
+            })
+            this.indexes.next(indexesVal)
+            // this.rangeEndIdx.next(index)
+            return
+          }
+        }
+
+        if (indexesVal.has(index))
+          indexesVal.delete(index)
+        else
+          indexesVal.add(index)
+        this.indexes.next(indexesVal)
+        this.previousSelectedIndex.next(index)
+        this.selectedByCurrentRange.clear()
+      }
+    )
+
+    this.reactTo(this.clear$, () => { this.indexes.next(new Set<number>()) })
   }
 
   toggle(index: number, selectRange = false): void {
-    const indexesVal = new Set(this.indexes.getValue())
-
-    if (selectRange) {
-      const { previousSelectedIndex: { value: prevIndex } } = this
-      if (prevIndex !== -1) {
-        const { selectedByCurrentRange } = this
-        selectedByCurrentRange.forEach(selectedIndex => { indexesVal.delete(selectedIndex) })
-        selectedByCurrentRange.clear()
-
-        range(index, prevIndex).forEach(indexToSelect => {
-          if (! indexesVal.has(indexToSelect)) {
-            selectedByCurrentRange.add(indexToSelect)
-            indexesVal.add(indexToSelect)
-          }
-        })
-        this.indexes.next(indexesVal)
-        // this.rangeEndIdx.next(index)
-        return
-      }
-    }
-
-    if (indexesVal.has(index))
-      indexesVal.delete(index)
-    else
-      indexesVal.add(index)
-    this.indexes.next(indexesVal)
-    this.previousSelectedIndex.next(index)
-    this.selectedByCurrentRange.clear()
+    this.toggle$.next({ index, selectRange })
   }
 
   clear() {
-    this.indexes.next(new Set<number>())
+    this.clear$.next(undefined)
   }
 
   delete() {
