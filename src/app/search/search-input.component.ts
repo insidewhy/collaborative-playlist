@@ -18,7 +18,7 @@ export class SearchInputComponent extends DestructionCallbacks implements OnInit
 
   constructor(private router: Router, searchTerms: SearchTerms) {
     super()
-    this.termsStream = searchTerms.stream
+    this.termsStream = searchTerms.terms
   }
 
   ngOnInit() {
