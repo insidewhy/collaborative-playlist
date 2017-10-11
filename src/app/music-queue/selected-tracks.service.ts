@@ -34,39 +34,7 @@ export class SelectedTracks extends Source {
     .map(({ index }) => index)
     .shareReplay(1)
 
-  indexes: Observable<Set<number>> = Observable.merge(this.toggle$, this.clear$)
-    .withLatestFrom(this.rangeStartIdx)
-    .scan(
-      (indexes, [ toggle, rangeStartIdx ]) => {
-        // a null toggle means clear
-        if (! toggle)
-          return new Set<number>()
-
-        const { index, selectRange } = toggle
-
-        if (selectRange && rangeStartIdx !== -1) {
-          // TODO: previousIndexes rather than indexes
-          const newIndexes = new Set(indexes)
-
-          range(rangeStartIdx, index).forEach(indexToSelect => {
-            if (! newIndexes.has(indexToSelect)) {
-              newIndexes.add(indexToSelect)
-            }
-          })
-          return newIndexes
-        } else {
-          const newIndexes = new Set(indexes)
-          if (newIndexes.has(index))
-            newIndexes.delete(index)
-          else
-            newIndexes.add(index)
-          return newIndexes
-        }
-      },
-      new Set<number>()
-    )
-    .startWith(new Set<number>())
-    .shareReplay(1)
+  indexes: Observable<Set<number>> = this.getIndexes()
 
   private selectedTracks: Observable<TrackWithIndex[]> = this.indexes
     .withLatestFrom(this.musicQueue.tracks)
@@ -79,6 +47,7 @@ export class SelectedTracks extends Source {
   constructor(private musicQueue: MusicQueue) {
     super()
 
+    // mega TODO: move into this.getIndexes()
     this.reactTo(
       musicQueue.changes.withLatestFrom(this.indexes),
       ([ change, indexes ]) => {
@@ -112,6 +81,41 @@ export class SelectedTracks extends Source {
         this.musicQueue.moveTracks(tracks, offset)
       }
     )
+  }
+
+  private getIndexes() {
+    return Observable.merge(this.toggle$, this.clear$)
+    .withLatestFrom(this.rangeStartIdx)
+    .scan(
+      ({ indexes, prevIndexes }, [ toggle, rangeStartIdx ]) => {
+        // a null toggle means clear
+        if (! toggle)
+          return { indexes: new Set<number>(), prevIndexes: indexes }
+
+        const { index, selectRange } = toggle
+
+        if (selectRange && rangeStartIdx !== -1) {
+          const newIndexes = new Set(prevIndexes)
+          range(rangeStartIdx, index + (index > rangeStartIdx ? 1 : -1)).forEach(indexToSelect => {
+            if (! newIndexes.has(indexToSelect)) {
+              newIndexes.add(indexToSelect)
+            }
+          })
+          return { indexes: newIndexes, prevIndexes: indexes }
+        } else {
+          const newIndexes = new Set(indexes)
+          if (newIndexes.has(index))
+            newIndexes.delete(index)
+          else
+            newIndexes.add(index)
+          return { indexes: newIndexes, prevIndexes: indexes }
+        }
+      },
+      { indexes: new Set<number>(), prevIndexes: new Set<number>() }
+    )
+    .map(({ indexes }) => indexes)
+    .startWith(new Set<number>())
+    .shareReplay(1)
   }
 
   toggle(index: number, selectRange = false): void {
