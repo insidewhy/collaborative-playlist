@@ -102,6 +102,8 @@ export class SelectedTracks extends Source {
             newIndexes.delete(moveFrom)
             newIndexes.add(to)
             return { indexes: newIndexes, prevIndexes: indexes }
+          } else {
+            return { indexes, prevIndexes: indexes }
           }
         }
       },
