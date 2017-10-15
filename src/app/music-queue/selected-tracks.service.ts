@@ -97,7 +97,7 @@ export class SelectedTracks extends Source {
           }
         } else {
           const { moveFrom, to } = operation
-          if (indexes.has(moveFrom)) {
+          if (moveFrom !== undefined && indexes.has(moveFrom)) {
             const newIndexes = new Set<number>(indexes)
             newIndexes.delete(moveFrom)
             newIndexes.add(to)
