@@ -4,7 +4,7 @@
       (click)="selectResult(result)">
     <ng-template [ngIf]="result.album">
       <a (click)="playResult($event, result)">
-        <md-icon>play_arrow</md-icon>
+        <mat-icon>play_arrow</mat-icon>
       </a>
       <div class="track-description">{{result.artist.name}} - {{result.album.title}} - {{result.title}}</div>
       <time>
@@ -13,7 +13,7 @@
     </ng-template>
     <ng-template [ngIf]="! result.album">
       <a (click)="playResult($event, result)">
-        <md-icon>play_arrow</md-icon>
+        <mat-icon>play_arrow</mat-icon>
       </a>
       <div class="track-description">
         {{result.artist.name}} - {{result.title}}

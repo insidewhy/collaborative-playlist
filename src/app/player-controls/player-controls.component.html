@@ -1,17 +1,17 @@
 <ng-container [ngSwitch]="(this.currentTrack.index | async) === -1 || (this.currentTrack.paused | async)">
   <button *ngSwitchCase="true" (click)="play()">
-    <md-icon>play_arrow</md-icon>
+    <mat-icon>play_arrow</mat-icon>
   </button>
   <button *ngSwitchCase="false" (click)="pause()">
-    <md-icon>pause</md-icon>
+    <mat-icon>pause</mat-icon>
   </button>
 </ng-container>
 <button (click)="skip(-1)">
-  <md-icon>skip_previous</md-icon>
+  <mat-icon>skip_previous</mat-icon>
 </button>
 <button (click)="skip(1)">
-  <md-icon>skip_next</md-icon>
+  <mat-icon>skip_next</mat-icon>
 </button>
 <button (click)="toggleMute()">
-  <md-icon>{{(playerControls.muted | async) ? 'volume_off' : 'volume_mute'}}</md-icon>
+  <mat-icon>{{(playerControls.muted | async) ? 'volume_off' : 'volume_mute'}}</mat-icon>
 </button>

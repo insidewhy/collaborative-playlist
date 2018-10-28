@@ -4,23 +4,23 @@
   <ng-container [ngSwitch]="hasSelection | async">
     <ng-container *ngSwitchCase="false" [ngSwitch]="isPlaying | async">
       <a *ngSwitchCase="false" (click)="currentTrack.play(track.id, index)">
-        <md-icon>play_arrow</md-icon>
+        <mat-icon>play_arrow</mat-icon>
       </a>
       <ng-container *ngSwitchCase="true" [ngSwitch]="(currentTrack.paused | async)">
         <a *ngSwitchCase="true" (click)="currentTrack.unpause()">
-          <md-icon>play_arrow</md-icon>
+          <mat-icon>play_arrow</mat-icon>
         </a>
         <a *ngSwitchCase="false" (click)="currentTrack.pause()">
-          <md-icon>pause</md-icon>
+          <mat-icon>pause</mat-icon>
         </a>
       </ng-container>
     </ng-container>
     <ng-container *ngSwitchCase="true">
       <a (click)="toggle(index, true)" [ngSwitch]="(selectedTracks.rangeStartIdx | async) == index">
-        <md-icon *ngSwitchCase="true">check</md-icon>
+        <mat-icon *ngSwitchCase="true">check</mat-icon>
         <ng-container *ngSwitchCase="false" [ngSwitch]="(selectedTracks.rangeStartIdx | async) < index">
-          <md-icon *ngSwitchCase="true">keyboard_arrow_up</md-icon>
-          <md-icon *ngSwitchCase="false">keyboard_arrow_down</md-icon>
+          <mat-icon *ngSwitchCase="true">keyboard_arrow_up</mat-icon>
+          <mat-icon *ngSwitchCase="false">keyboard_arrow_down</mat-icon>
         </ng-container>
       </a>
     </ng-container>

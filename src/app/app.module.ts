@@ -2,7 +2,7 @@ import { BrowserModule } from '@angular/platform-browser'
 import { NgModule } from '@angular/core'
 import { FormsModule } from '@angular/forms'
 import { JsonpModule } from '@angular/http'
-import { MdIconModule, MdIconRegistry } from '@angular/material'
+import { MatIconModule, MatIconRegistry } from '@angular/material'
 
 import { AppComponent } from './app.component'
 import { ServerSocket } from './server-socket.service'
@@ -31,7 +31,7 @@ import { MarqueeComponent } from './current-track/marquee.component'
     BrowserModule,
     FormsModule,
     JsonpModule,
-    MdIconModule,
+    MatIconModule,
     AppRoutingModule,
   ],
   declarations: [
@@ -48,7 +48,7 @@ import { MarqueeComponent } from './current-track/marquee.component'
     MarqueeComponent,
   ],
   providers: [
-    MdIconRegistry,
+    MatIconRegistry,
     ServerSocket,
     SearchTerms,
     MusicQueue,

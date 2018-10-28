@@ -22,13 +22,13 @@
       background-color: $button-hover-color;
     }
 
-    md-icon {
+    mat-icon {
       $size: 35px;
       font-size: $size;
       height: $size;
       width: $size;
 
-      & + md-icon {
+      & + mat-icon {
         margin-left: 0.5em;
       }
 
