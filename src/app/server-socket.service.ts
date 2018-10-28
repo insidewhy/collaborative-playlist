@@ -1,17 +1,19 @@
+
+import {delay, map, share, retryWhen} from 'rxjs/operators'
 import { Injectable } from '@angular/core'
 import { QueueingSubject } from 'queueing-subject'
-import { Observable } from 'rxjs/Observable'
-import 'rxjs/add/operator/map'
+import { Observable } from 'rxjs'
+
 import websocketConnect from 'rxjs-websockets'
 
-import 'rxjs/add/operator/share'
-import 'rxjs/add/operator/retryWhen'
-import 'rxjs/add/operator/delay'
+
+
+
 
 function jsonWebsocketConnect(url: string, input: Observable<object>) {
-  const jsonInput = input.map(message => JSON.stringify(message))
+  const jsonInput = input.pipe(map(message => JSON.stringify(message)))
   const { connectionStatus, messages } = websocketConnect(url, jsonInput)
-  const jsonMessages = messages.map(message => JSON.parse(message))
+  const jsonMessages = messages.pipe(map(message => JSON.parse(message)))
   return { connectionStatus, messages: jsonMessages }
 }
 
@@ -37,7 +39,7 @@ export class ServerSocket {
     )
 
     this.connectionStatus = connectionStatus
-    return messages.share().retryWhen(errors => errors.delay(1000))
+    return messages.pipe(share(), retryWhen(errors => errors.pipe(delay(1000))), )
   }
 
   send(message: any): void {

@@ -1,11 +1,14 @@
+
+import {combineLatest as observableCombineLatest,  Observable } from 'rxjs'
+
+import {withLatestFrom, map, switchMap} from 'rxjs/operators'
 import { Component, ChangeDetectionStrategy, OnInit } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
 import { Jsonp } from '@angular/http'
-import { Observable } from 'rxjs/Observable'
 
-import 'rxjs/add/operator/map'
-import 'rxjs/add/operator/switchMap'
-import 'rxjs/add/observable/combineLatest'
+
+
+
 // using `import {pick} from 'lodash'` isn't handled by the tree shaker :(
 const pick = require('lodash/pick')
 const groupBy = require('lodash/groupBy')
@@ -30,12 +33,12 @@ export class SearchResultsComponent extends DestructionCallbacks implements OnIn
 
   public searchResults: Observable<Array<Track | Album>>
 
-  public numberOfTracksFromAlbumInQueue = this.musicQueue.tracks.map(tracks => {
+  public numberOfTracksFromAlbumInQueue = this.musicQueue.tracks.pipe(map(tracks => {
     return mapValues(
       groupBy(tracks, track => track.album.id),
       groupedTracks => uniqBy(groupedTracks, 'id').length
     )
-  })
+  }))
 
   constructor(
     private searchTerms: SearchTerms,
@@ -48,15 +51,15 @@ export class SearchResultsComponent extends DestructionCallbacks implements OnIn
   }
 
   ngOnInit() {
-    const termsStream = this.route.params.map(params => params['terms'])
+    const termsStream = this.route.params.pipe(map(params => params['terms']))
 
     this.searchTerms.addRouteStream(termsStream)
 
-    this.searchResults = termsStream.switchMap(terms => {
-      return Observable.combineLatest(
-        this.jsonp.get(`http://api.deezer.com/search?q=${terms}&limit=100&output=jsonp&callback=JSONP_CALLBACK`)
-          .map(data => data.json().data)
-          .map(results => {
+    this.searchResults = termsStream.pipe(switchMap(terms => {
+      return observableCombineLatest(
+        this.jsonp.get(`http://api.deezer.com/search?q=${terms}&limit=100&output=jsonp&callback=JSONP_CALLBACK`).pipe(
+          map(data => data.json().data),
+          map(results => {
             // console.debug(results)
             return results.map(track => {
               const {id, title, duration} = track
@@ -64,19 +67,19 @@ export class SearchResultsComponent extends DestructionCallbacks implements OnIn
               const artist = pick(track.artist, 'name')
               return {id, title, album, artist, duration: duration * 1000}
             })
-          }),
-        this.jsonp.get(`http://api.deezer.com/search/album?q=${terms}&limit=100&output=jsonp&callback=JSONP_CALLBACK`)
-          .map(data => data.json().data)
-          .map(results => {
+          }), ),
+        this.jsonp.get(`http://api.deezer.com/search/album?q=${terms}&limit=100&output=jsonp&callback=JSONP_CALLBACK`).pipe(
+          map(data => data.json().data),
+          map(results => {
             return results.map(album => {
               const {id, title, nb_tracks: nTracks} = album
               const artist = pick(album.artist, 'name')
               return {id, title, artist, nTracks}
             })
-          }),
+          }), ),
         (tracks, albums) => [ ...albums, ...tracks ]
       )
-    })
+    }))
 
     this.onDestroy(() => {
       this.searchTerms.setTerms('')
@@ -91,16 +94,16 @@ export class SearchResultsComponent extends DestructionCallbacks implements OnIn
     } else {
       // TODO: move to deezer player search service
       const album = pick(result, ['title', 'id'])
-      this.jsonp.get(`http://api.deezer.com/album/${result.id}/tracks?output=jsonp&callback=JSONP_CALLBACK`)
-      .map(data => data.json().data)
-      .map(results => {
+      this.jsonp.get(`http://api.deezer.com/album/${result.id}/tracks?output=jsonp&callback=JSONP_CALLBACK`).pipe(
+      map(data => data.json().data),
+      map(results => {
         return results.map(track => {
           const {id, title, duration} = track
           const artist = pick(track.artist, 'name')
           return {id, title, album, artist, duration: duration * 1000}
         })
-      })
-      .withLatestFrom(this.musicQueue.tracks)
+      }),
+      withLatestFrom(this.musicQueue.tracks), )
       .subscribe(([resultTracks, tracks]) => {
         const { length } = tracks
         let newLength = length

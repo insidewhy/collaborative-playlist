@@ -1,7 +1,8 @@
+
+import {merge as observableMerge,  Observable ,  BehaviorSubject ,  ReplaySubject } from 'rxjs'
+
+import {startWith, scan, filter, map, shareReplay, withLatestFrom, share} from 'rxjs/operators'
 import { Injectable } from '@angular/core'
-import { Observable } from 'rxjs/Observable'
-import { BehaviorSubject } from 'rxjs/BehaviorSubject'
-import { ReplaySubject } from 'rxjs/ReplaySubject'
 const range = require('lodash/range')
 const sortBy = require('lodash/sortBy')
 
@@ -32,26 +33,26 @@ export class SelectedTracks extends Source {
   private delete$ = new ReplaySubject<null>(1)
   private move$ = new ReplaySubject<number>(1)
 
-  rangeStartIdx = this.toggle$
-    .filter(({ selectRange }) => ! selectRange)
-    .map(({ index }) => index)
-    .shareReplay(1)
+  rangeStartIdx = this.toggle$.pipe(
+    filter(({ selectRange }) => ! selectRange),
+    map(({ index }) => index),
+    shareReplay(1), )
 
   indexes: Observable<Set<number>> = this.getIndexes()
 
-  private selectedTracks: Observable<TrackWithIndex[]> = this.indexes
-    .withLatestFrom(this.musicQueue.tracks)
-    .map(([ indexes, tracks ]) => sortBy(mapSet(
+  private selectedTracks: Observable<TrackWithIndex[]> = this.indexes.pipe(
+    withLatestFrom(this.musicQueue.tracks),
+    map(([ indexes, tracks ]) => sortBy(mapSet(
       indexes,
       index => ({ index, track: tracks[index] })
-    ), 'index'))
-    .share()
+    ), 'index')),
+    share(), )
 
   constructor(private musicQueue: MusicQueue) {
     super()
 
     this.reactTo(
-      this.delete$.withLatestFrom(this.selectedTracks),
+      this.delete$.pipe(withLatestFrom(this.selectedTracks)),
       ([, selectedTracks]) => {
         selectedTracks.reverse().forEach(({ index, track }) => {
           this.musicQueue.removeTrack(track, index)
@@ -61,7 +62,7 @@ export class SelectedTracks extends Source {
     )
 
     this.reactTo(
-      this.move$.withLatestFrom(this.selectedTracks),
+      this.move$.pipe(withLatestFrom(this.selectedTracks)),
       ([ offset, tracks ]) => {
         this.musicQueue.moveTracks(tracks, offset)
       }
@@ -69,10 +70,10 @@ export class SelectedTracks extends Source {
   }
 
   private getIndexes() {
-    return Observable.merge(this.toggle$, this.clear$, this.musicQueue.changes)
-    .withLatestFrom(this.rangeStartIdx)
-    .scan(
-      ({ indexes, prevIndexes }, [ operation, rangeStartIdx ]) => {
+    return observableMerge(this.toggle$, this.clear$, this.musicQueue.changes).pipe(
+    withLatestFrom(this.rangeStartIdx),
+    scan(
+      ({ indexes, prevIndexes }: any, [ operation, rangeStartIdx ]) => {
         // clear
         if (! operation)
           return { indexes: new Set<number>(), prevIndexes: indexes }
@@ -108,10 +109,10 @@ export class SelectedTracks extends Source {
         }
       },
       { indexes: new Set<number>(), prevIndexes: new Set<number>() }
-    )
-    .map(({ indexes }) => indexes)
-    .startWith(new Set<number>())
-    .shareReplay(1)
+    ),
+    map(({ indexes }) => indexes),
+    startWith(new Set<number>()),
+    shareReplay(1), )
   }
 
   toggle(index: number, selectRange = false): void {

@@ -1,7 +1,9 @@
+
+import {pairwise, map, filter} from 'rxjs/operators'
 import { Component, ChangeDetectionStrategy } from '@angular/core'
 import { Router, NavigationStart } from '@angular/router'
-import 'rxjs/add/operator/pairwise'
-import 'rxjs/add/operator/filter'
+
+
 
 import { DeezerPlayer } from './deezer-player/deezer-player.service'
 
@@ -22,10 +24,10 @@ export class AppComponent {
     if (window.scrollTo) {
       let scrollBackup = 0
 
-      router.events
-      .filter(event => event instanceof NavigationStart)
-      .map((event: NavigationStart) => event.url)
-      .pairwise()
+      router.events.pipe(
+      filter(event => event instanceof NavigationStart),
+      map((event: NavigationStart) => event.url),
+      pairwise(), )
       .subscribe(([prevUrl, url]) => {
         if (url.match(searchUrlRegex) && url !== prevUrl) {
           if (prevUrl === '/')

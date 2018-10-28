@@ -1,7 +1,6 @@
 import { Component, ChangeDetectionStrategy, OnInit } from '@angular/core'
 import { Router } from '@angular/router'
-import { Subscription } from 'rxjs/Subscription'
-import { Observable } from 'rxjs/Observable'
+import { Subscription ,  Observable } from 'rxjs'
 
 import { DestructionCallbacks } from '../destruction-callbacks'
 import { SearchTerms } from './search-terms.service'

@@ -1,15 +1,16 @@
+
+import { combineLatest as observableCombineLatest, Observable, EMPTY } from 'rxjs'
+
+import { withLatestFrom, map, startWith, scan, distinctUntilChanged, switchMap, take, shareReplay, share } from 'rxjs/operators'
 import { Injectable } from '@angular/core'
-import { Subscription } from 'rxjs/Subscription'
-import { Observable } from 'rxjs/Observable'
-import { ReplaySubject } from 'rxjs/ReplaySubject'
-import 'rxjs/add/observable/empty'
-import 'rxjs/add/observable/combineLatest'
-import 'rxjs/add/operator/distinctUntilChanged'
-import 'rxjs/add/operator/take'
-import 'rxjs/add/operator/shareReplay'
-import 'rxjs/add/operator/share'
-import 'rxjs/add/operator/startWith'
-import 'rxjs/add/operator/withLatestFrom'
+
+
+
+
+
+
+
+
 
 import { Source } from '../source'
 import { MusicQueue } from '../music-queue/music-queue.service'
@@ -31,8 +32,8 @@ const fromDZEvent = (eventName: string) => new Observable<any>(observer => {
 
 @Injectable()
 export class DeezerPlayer extends Source {
-  private activated$ = this.playerControls.muted.map(val => ! val)
-  activated = this.activated$.startWith(true).distinctUntilChanged()
+  private activated$ = this.playerControls.muted.pipe(map(val => ! val))
+  activated = this.activated$.pipe(startWith(true), distinctUntilChanged(), )
 
   private load = new Observable<Events>(observer => {
     // DZ.Event.subscribe('player_play', this.onPlay.bind(this))
@@ -50,7 +51,7 @@ export class DeezerPlayer extends Source {
         }
       },
     })
-  }).take(1).shareReplay(1)
+  }).pipe(take(1), shareReplay(1), )
 
   constructor(
     private musicQueue: MusicQueue,
@@ -64,14 +65,14 @@ export class DeezerPlayer extends Source {
         DZ.player.pause()
     })
 
-    const events$ = this.activated.switchMap(
-      activated => activated ? this.load : Observable.empty<Events>()
-    ).share()
+    const events$ = this.activated.pipe(switchMap(
+      activated => activated ? this.load : EMPTY
+    ), share(), )
 
     this.reactTo(
-      events$
-        .switchMap(events => events.trackEnd)
-        .withLatestFrom(this.currentTrack.index, this.musicQueue.tracks),
+      events$.pipe(
+        switchMap((events: Events) => events.trackEnd),
+        withLatestFrom(this.currentTrack.index, this.musicQueue.tracks), ),
 
       ([end, index, tracks]) => {
         // console.log('track end', end, index, tracks)
@@ -85,9 +86,9 @@ export class DeezerPlayer extends Source {
     )
 
     this.reactTo(
-      events$.switchMap(events => events.play)
-        .withLatestFrom(this.currentTrack.elapsed, this.currentTrack.track)
-        .distinctUntilChanged(([, aElapsed ], [, bElapsed ]) => aElapsed === bElapsed),
+      events$.pipe(switchMap((events: Events) => events.play),
+        withLatestFrom(this.currentTrack.elapsed, this.currentTrack.track),
+        distinctUntilChanged(([, aElapsed ], [, bElapsed ]) => aElapsed === bElapsed), ),
 
       ([, elapsed, track]) => {
         // console.log('seek', elapsed, track.duration, (elapsed / track.duration) * 100)
@@ -97,19 +98,19 @@ export class DeezerPlayer extends Source {
     )
 
     this.reactTo(
-      Observable.combineLatest(
+      observableCombineLatest(
         this.currentTrack.status,
         this.currentTrack.track,
         // here just to ensure deezer has loaded
-        events$.take(1),
+        events$.pipe(take(1)),
         (status, track) => ({ ...status, track })
-      ).scan(
+      ).pipe(scan(
         (acc, status) => {
           const { elapsed: prevElapsed, trackIdx: playingTrackIdx, paused: prevPaused } = acc
           return { ...status, prevElapsed, playingTrackIdx, prevPaused }
         },
         { elapsed: -1, trackIdx: -1, paused: true }
-      ),
+      )),
 
       ({ trackIdx, prevElapsed, playingTrackIdx, elapsed, paused, prevPaused, track }) => {
         if (! track || paused) {

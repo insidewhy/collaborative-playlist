@@ -24,12 +24,12 @@ export function DestructionCallbacksMixin<T extends Constructor<{}>>(Base: T) {
       super(...args)
       this.__destroyCallbacks = []
 
-      this.onDestroy = onDestroyHelper.bind(null, this)
-      this.ngOnDestroy = ngOnDestroyHelper.bind(null, this)
+      ; (this as any).onDestroy = onDestroyHelper.bind(null, this)
+      ; (this as any).ngOnDestroy = ngOnDestroyHelper.bind(null, this)
     }
 
-    declare onDestroy(callback: Function): void
-    declare ngOnDestroy()
+    // onDestroy(callback: Function): void {}
+    // ngOnDestroy() {}
   }
 }
 

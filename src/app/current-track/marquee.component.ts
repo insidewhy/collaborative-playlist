@@ -1,13 +1,15 @@
+
+import {interval as observableInterval, fromEvent as observableFromEvent, merge as observableMerge,  Observable ,  Subscription } from 'rxjs'
+
+import {take, skipWhile, map, switchMap, startWith} from 'rxjs/operators'
 import { Component, ChangeDetectionStrategy, ElementRef, OnInit, Input } from '@angular/core'
-import { Observable } from 'rxjs/Observable'
-import { Subscription } from 'rxjs/Subscription'
-import 'rxjs/add/observable/of'
-import 'rxjs/add/observable/fromEvent'
-import 'rxjs/add/observable/merge'
-import 'rxjs/add/observable/interval'
-import 'rxjs/add/operator/map'
-import 'rxjs/add/operator/skipWhile'
-import 'rxjs/add/operator/take'
+
+
+
+
+
+
+
 
 import Animation from '../animation'
 
@@ -54,26 +56,26 @@ export class MarqueeComponent implements OnInit {
   constructor(private elementRef: ElementRef) {}
 
   ngOnInit() {
-    this.overflows = Observable.merge(
-      Observable.fromEvent(window, 'resize'),
+    this.overflows = observableMerge(
+      observableFromEvent(window, 'resize'),
       this.display,
-    )
-    .switchMap(() => {
+    ).pipe(
+    switchMap(() => {
       // disables overflow and waits until the content is not duplicated
       // before testing for overflow again
-      return Observable.interval(200)
-      .map(() => {
+      return observableInterval(200).pipe(
+      map(() => {
         const container: HTMLElement = this.elementRef.nativeElement
         return container && ! container.querySelector('span') && container
-      })
-      .skipWhile(container => !container)
-      .map(container => {
+      }),
+      skipWhile(container => !container),
+      map(container => {
         const { scrollWidth } = container
         return scrollWidth > container.offsetWidth
-      })
-      .take(1)
-      .startWith(false)
-    })
-    .startWith(false)
+      }),
+      take(1),
+      startWith(false), )
+    }),
+    startWith(false), )
   }
 }

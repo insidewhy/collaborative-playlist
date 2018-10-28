@@ -1,8 +1,10 @@
+
+import {combineLatest as observableCombineLatest,  Observable ,  Subscription } from 'rxjs'
+
+import {distinctUntilChanged, map} from 'rxjs/operators'
 import { Component, ChangeDetectionStrategy, OnDestroy } from '@angular/core'
-import { Observable } from 'rxjs/Observable'
-import { Subscription } from 'rxjs/Subscription'
-import 'rxjs/add/observable/combineLatest'
-import 'rxjs/add/operator/distinctUntilChanged'
+
+
 
 import { CurrentTrack, CurrentTrackStatus } from './current-track.service'
 import { MusicQueue } from '../music-queue/music-queue.service'
@@ -15,20 +17,20 @@ import { Track } from '../track'
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CurrentTrackComponent {
-  trackInfo: Observable<any> = Observable.combineLatest(
+  trackInfo: Observable<any> = observableCombineLatest(
     this.currentTrack.status,
     this.musicQueue.tracks,
     (trackStatus: CurrentTrackStatus, tracks) => ({trackStatus, tracks})
-  )
-  .map(({ trackStatus, tracks }) => ({
+  ).pipe(
+  map(({ trackStatus, tracks }) => ({
     trackIdx: trackStatus.trackIdx,
     track: tracks[trackStatus.trackIdx],
     elapsed: Math.round(trackStatus.elapsed / 1000) * 1000,
-  }))
+  })))
 
-  trackDisplay = this.trackInfo.map(
+  trackDisplay = this.trackInfo.pipe(map(
     ({track}) => track && `${track.artist.name} - ${track.album.title} - ${track.title}`
-  ).distinctUntilChanged()
+  ), distinctUntilChanged(), )
 
   constructor(
     private currentTrack: CurrentTrack,

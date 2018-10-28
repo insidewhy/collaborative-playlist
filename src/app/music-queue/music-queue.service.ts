@@ -1,8 +1,8 @@
+
+import {startWith, scan, map, distinctUntilChanged, shareReplay, filter, withLatestFrom} from 'rxjs/operators'
 import { Injectable } from '@angular/core'
-import { Subject } from 'rxjs/Subject'
-import { Observable } from 'rxjs/Observable'
-import { ReplaySubject } from 'rxjs/ReplaySubject'
-import 'rxjs/add/operator/map'
+import { Subject ,  Observable ,  ReplaySubject } from 'rxjs'
+
 
 import groupBy from '../lib/group-by'
 import { Track } from '../track'
@@ -38,15 +38,15 @@ export interface Move {
 export class MusicQueue extends Source {
   tracksWithChanges: Observable<TracksWithChange> = this.getTracksWithChanges()
 
-  tracks: Observable<Track[]> = this.tracksWithChanges
-    .map(({ tracks }: { tracks: Track[] }) => tracks)
-    .distinctUntilChanged()
-    .shareReplay(1)
+  tracks: Observable<Track[]> = this.tracksWithChanges.pipe(
+    map(({ tracks }: { tracks: Track[] }) => tracks),
+    distinctUntilChanged(),
+    shareReplay(1), )
 
-  changes: Observable<Change> = this.tracksWithChanges
-    .map(({ change }) => change)
-    .filter(val => !!val)
-    .shareReplay(1)
+  changes: Observable<Change> = this.tracksWithChanges.pipe(
+    map(({ change }) => change),
+    filter(val => !!val),
+    shareReplay(1), )
 
   private scrolls$ = new Subject<number>()
   scrolls = this.scrolls$.asObservable()
@@ -55,9 +55,9 @@ export class MusicQueue extends Source {
 
   private moveTracks$ = new Subject<Move>()
 
-  tracksById = this.tracks.map(
+  tracksById = this.tracks.pipe(map(
     tracks => groupBy(tracks, track => track.id)
-  ).shareReplay(1)
+  ), shareReplay(1), )
 
   constructor(private socket: ServerSocket) {
     super()
@@ -71,12 +71,12 @@ export class MusicQueue extends Source {
     )
 
     this.reactTo(
-      this.appendTrack$.withLatestFrom(this.tracks.map(tracks => tracks.length)),
+      this.appendTrack$.pipe(withLatestFrom(this.tracks.pipe(map(tracks => tracks.length)))),
       ([track, length]) => { this.insertTrack(track, length) }
     )
 
     this.reactTo(
-      this.moveTracks$.withLatestFrom(this.tracks),
+      this.moveTracks$.pipe(withLatestFrom(this.tracks)),
       ([ { tracksWithIndexes, offset }, tracks ]) => {
         let start, end, limit
 
@@ -121,9 +121,9 @@ export class MusicQueue extends Source {
 
   private getTracksWithChanges(): Observable<TracksWithChange> {
     return this.hot(
-      this.socket.messages
-      .scan(
-        ({ tracks }: { tracks: Track[] }, message) => {
+      this.socket.messages.pipe(
+      scan(
+        ({ tracks }: { tracks: Track[] }, message: any) => {
           switch (message.type) {
             case 'musicQueue':
               return {
@@ -184,9 +184,9 @@ export class MusicQueue extends Source {
           return { tracks, change: null }
         },
         { tracks: [] },
-      )
-      .startWith({ tracks: [], change: null })
-      .shareReplay(1)
+      ),
+      startWith({ tracks: [], change: null }),
+      shareReplay(1), )
     )
   }
 }
