@@ -1,8 +1,14 @@
-
-import {startWith, scan, map, distinctUntilChanged, shareReplay, filter, withLatestFrom} from 'rxjs/operators'
+import {
+  startWith,
+  scan,
+  map,
+  distinctUntilChanged,
+  shareReplay,
+  filter,
+  withLatestFrom,
+} from 'rxjs/operators'
 import { Injectable } from '@angular/core'
-import { Subject ,  Observable ,  ReplaySubject } from 'rxjs'
-
+import { Subject, Observable, ReplaySubject } from 'rxjs'
 
 import groupBy from '../lib/group-by'
 import { Track } from '../track'
@@ -17,21 +23,21 @@ export interface TrackWithIndex {
 }
 
 export interface Change {
-  insertIdx?: number,
-  track?: Track,
-  removeIdx?: number,
-  moveFrom?: number,
-  to?: number,
+  insertIdx?: number
+  track?: Track
+  removeIdx?: number
+  moveFrom?: number
+  to?: number
 }
 
 export interface TracksWithChange {
-  tracks: Track[],
-  change: Change,
+  tracks: Track[]
+  change: Change
 }
 
 export interface Move {
-  tracksWithIndexes: TrackWithIndex[],
-  offset: number,
+  tracksWithIndexes: TrackWithIndex[]
+  offset: number
 }
 
 @Injectable()
@@ -41,12 +47,14 @@ export class MusicQueue extends Source {
   tracks: Observable<Track[]> = this.tracksWithChanges.pipe(
     map(({ tracks }: { tracks: Track[] }) => tracks),
     distinctUntilChanged(),
-    shareReplay(1), )
+    shareReplay(1),
+  )
 
   changes: Observable<Change> = this.tracksWithChanges.pipe(
     map(({ change }) => change),
     filter(val => !!val),
-    shareReplay(1), )
+    shareReplay(1),
+  )
 
   private scrolls$ = new Subject<number>()
   scrolls = this.scrolls$.asObservable()
@@ -55,29 +63,28 @@ export class MusicQueue extends Source {
 
   private moveTracks$ = new Subject<Move>()
 
-  tracksById = this.tracks.pipe(map(
-    tracks => groupBy(tracks, track => track.id)
-  ), shareReplay(1), )
+  tracksById = this.tracks.pipe(
+    map(tracks => groupBy(tracks, track => track.id)),
+    shareReplay(1),
+  )
 
   constructor(private socket: ServerSocket) {
     super()
 
-    this.reactTo(
-      this.socket.connectionStatus,
-      nConnected => {
-        if (nConnected)
-          this.socket.send({ type: 'getMusicQueue' })
-      }
-    )
+    this.reactTo(this.socket.connectionStatus, nConnected => {
+      if (nConnected) this.socket.send({ type: 'getMusicQueue' })
+    })
 
     this.reactTo(
       this.appendTrack$.pipe(withLatestFrom(this.tracks.pipe(map(tracks => tracks.length)))),
-      ([track, length]) => { this.insertTrack(track, length) }
+      ([track, length]) => {
+        this.insertTrack(track, length)
+      },
     )
 
     this.reactTo(
       this.moveTracks$.pipe(withLatestFrom(this.tracks)),
-      ([ { tracksWithIndexes, offset }, tracks ]) => {
+      ([{ tracksWithIndexes, offset }, tracks]) => {
         let start, end, limit
 
         // if moving up start at the top, else the bottom
@@ -93,9 +100,12 @@ export class MusicQueue extends Source {
         for (let i = start; i !== end; i -= offset, limit -= offset) {
           const { index, track } = tracksWithIndexes[i]
           if (index !== limit)
-            this.socket.send({ type: 'moveTrack', payload: { index, trackId: track.id, offset } })
+            this.socket.send({
+              type: 'moveTrack',
+              payload: { index, trackId: track.id, offset },
+            })
         }
-      }
+      },
     )
   }
 
@@ -122,71 +132,65 @@ export class MusicQueue extends Source {
   private getTracksWithChanges(): Observable<TracksWithChange> {
     return this.hot(
       this.socket.messages.pipe(
-      scan(
-        ({ tracks }: { tracks: Track[] }, message: any) => {
-          switch (message.type) {
-            case 'musicQueue':
-              return {
-                tracks: message.payload,
-                change: null,
+        scan(
+          ({ tracks }: { tracks: Track[] }, message: any) => {
+            switch (message.type) {
+              case 'musicQueue':
+                return {
+                  tracks: message.payload,
+                  change: null,
+                }
+              case 'insert': {
+                const { track, index: insertIdx } = message.payload
+                return {
+                  change: { insertIdx, track },
+                  tracks: [...tracks.slice(0, insertIdx), track, ...tracks.slice(insertIdx)],
+                }
               }
-            case 'insert': {
-              const {track, index: insertIdx} = message.payload
-              return {
-                change: { insertIdx, track },
-                tracks: [
-                  ...tracks.slice(0, insertIdx),
-                  track,
-                  ...tracks.slice(insertIdx),
-                ],
+              case 'remove': {
+                const removeIdx = message.payload
+                return {
+                  change: { removeIdx },
+                  tracks: [...tracks.slice(0, removeIdx), ...tracks.slice(removeIdx + 1)],
+                }
               }
-            }
-            case 'remove': {
-              const removeIdx = message.payload
-              return {
-                change: { removeIdx },
-                tracks: [
-                  ...tracks.slice(0, removeIdx),
-                  ...tracks.slice(removeIdx + 1),
-                ],
-              }
-            }
-            case 'move': {
-              const { index, offset } = message.payload
-              const newIndex = index + offset
-              if (newIndex >= 0 && newIndex < tracks.length) {
-                const change = { moveFrom: index, to: newIndex }
+              case 'move': {
+                const { index, offset } = message.payload
+                const newIndex = index + offset
+                if (newIndex >= 0 && newIndex < tracks.length) {
+                  const change = { moveFrom: index, to: newIndex }
 
-                if (offset > 0) {
-                  return {
-                    change,
-                    tracks: [
-                      ...tracks.slice(0, index),
-                      ...tracks.slice(index + 1, newIndex + 1),
-                      tracks[index],
-                      ...tracks.slice(newIndex + 1)
-                    ]
-                  }
-                } else {
-                  return {
-                    change,
-                    tracks: [
-                      ...tracks.slice(0, newIndex),
-                      tracks[index],
-                      ...tracks.slice(newIndex, index),
-                      ...tracks.slice(index + 1),
-                    ]
+                  if (offset > 0) {
+                    return {
+                      change,
+                      tracks: [
+                        ...tracks.slice(0, index),
+                        ...tracks.slice(index + 1, newIndex + 1),
+                        tracks[index],
+                        ...tracks.slice(newIndex + 1),
+                      ],
+                    }
+                  } else {
+                    return {
+                      change,
+                      tracks: [
+                        ...tracks.slice(0, newIndex),
+                        tracks[index],
+                        ...tracks.slice(newIndex, index),
+                        ...tracks.slice(index + 1),
+                      ],
+                    }
                   }
                 }
               }
             }
-          }
-          return { tracks, change: null }
-        },
-        { tracks: [] },
+            return { tracks, change: null }
+          },
+          { tracks: [] },
+        ),
+        startWith({ tracks: [], change: null }),
+        shareReplay(1),
       ),
-      startWith({ tracks: [], change: null }),
-      shareReplay(1), )
     )
   }
 }

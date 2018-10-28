@@ -3,10 +3,8 @@ export default function groupBy<T, K>(vals: T[], mapper: (T) => K): Map<K, T[]> 
   vals.forEach(val => {
     const key = mapper(val)
     const existing = map.get(key)
-    if (existing)
-      existing.push(val)
-    else
-      map.set(key, [val])
+    if (existing) existing.push(val)
+    else map.set(key, [val])
   })
   return map
 }

@@ -1,8 +1,6 @@
-
-import {publishReplay} from 'rxjs/operators'
+import { publishReplay } from 'rxjs/operators'
 import { OnDestroy } from '@angular/core'
-import { Subject ,  Observable, ConnectableObservable } from 'rxjs'
-
+import { Subject, Observable, ConnectableObservable } from 'rxjs'
 
 export class Source implements OnDestroy {
   protected alive: Subject<void> = new Subject()
@@ -19,7 +17,9 @@ export class Source implements OnDestroy {
     //
     const connectable = observable.pipe(publishReplay(1))
     const connected = (connectable as ConnectableObservable<T>).connect()
-    this.onDestroy(() => { connected.unsubscribe() })
+    this.onDestroy(() => {
+      connected.unsubscribe()
+    })
     return connectable
   }
 

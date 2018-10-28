@@ -1,10 +1,7 @@
+import { of as observableOf, ReplaySubject, Observable } from 'rxjs'
 
-import {of as observableOf,  ReplaySubject ,  Observable } from 'rxjs'
-
-import {mergeMap} from 'rxjs/operators'
+import { mergeMap } from 'rxjs/operators'
 import { Injectable } from '@angular/core'
-
-
 
 @Injectable()
 export class SearchTerms {

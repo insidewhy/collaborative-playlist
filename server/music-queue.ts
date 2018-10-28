@@ -23,8 +23,7 @@ const saveQueue = _.debounce(async () => {
     const configPath = getConfigPath()
     await mkpath(configPath)
     await writeFile(`${configPath}/default.playlist.json`, JSON.stringify(musicQueue, null, 2))
-  }
-  catch (e) {
+  } catch (e) {
     console.log('error saving queue', e.stack || e)
   }
 }, 1000)
@@ -33,17 +32,18 @@ const loadQueue = _.once(async () => {
   try {
     const buffer = await readFile(`${getConfigPath()}/default.playlist.json`)
     musicQueue.splice(0, musicQueue.length, ...JSON.parse(buffer.toString()))
-  }
-  catch (e) {
+  } catch (e) {
     console.log('error loading queue', e.stack || e)
     musicQueue.splice(0)
   }
 })
 
-export function insertTrack(socket: SocketCommunicator, { index, track }: { index: number, track: Track }): void {
+export function insertTrack(
+  socket: SocketCommunicator,
+  { index, track }: { index: number; track: Track },
+): void {
   musicQueue.splice(index, 0, track)
-  if (index <= trackState.index)
-    ++trackState.index
+  if (index <= trackState.index) ++trackState.index
   saveQueue()
   socket.broadcast('insert', { track, index })
 }
@@ -54,7 +54,9 @@ function findTrack(index: number, trackId: string) {
   let nextIdx
   let bestDistance = Infinity
   // Array#findIndex doesn't accept fromIndex argument
-  while ((nextIdx = _.findIndex(musicQueue, track => track.id === trackId, searchIndex + 1)) !== -1) {
+  while (
+    (nextIdx = _.findIndex(musicQueue, track => track.id === trackId, searchIndex + 1)) !== -1
+  ) {
     const distance = Math.abs(nextIdx - index)
     if (distance > bestDistance) {
       // we're getting further so give up
@@ -70,18 +72,14 @@ function findTrack(index: number, trackId: string) {
 
 export function removeTrack(
   socket: SocketCommunicator,
-  { index, trackId } : { index: number, trackId: string }
-): void
-{
+  { index, trackId }: { index: number; trackId: string },
+): void {
   // find the entry for trackId closest to `index`
   index = findTrack(index, trackId)
-  if (index === -1)
-    return
+  if (index === -1) return
 
-  if (index === trackState.index)
-    trackState.play()
-  else if (index < trackState.index)
-    --trackState.index
+  if (index === trackState.index) trackState.play()
+  else if (index < trackState.index) --trackState.index
 
   musicQueue.splice(index, 1)
   saveQueue()
@@ -99,9 +97,8 @@ function sendCurrentTrackState(socket: SocketCommunicator) {
  */
 export function playTrack(
   socket: SocketCommunicator,
-  { index, trackId } : { index: number, trackId?: string }
-): void
-{
+  { index, trackId }: { index: number; trackId?: string },
+): void {
   const playNoTrack = index === -1
   index = playNoTrack ? -1 : findTrack(index, trackId)
   if (playNoTrack || index !== -1) {
@@ -112,25 +109,20 @@ export function playTrack(
 }
 
 export function pauseTrack(socket: SocketCommunicator, unpause: boolean): void {
-  if (unpause)
-    trackState.unpause()
-  else
-    trackState.pause()
+  if (unpause) trackState.unpause()
+  else trackState.pause()
   sendCurrentTrackState(socket)
 }
 
 export function moveTrack(
   socket: SocketCommunicator,
-  { index, trackId, offset } : { index: number, trackId: string, offset: number }
-): void
-{
+  { index, trackId, offset }: { index: number; trackId: string; offset: number },
+): void {
   index = findTrack(index, trackId)
-  if (index === -1)
-    return
+  if (index === -1) return
 
   const newIndex = index + offset
-  if (newIndex < 0 || newIndex >= musicQueue.length)
-    return
+  if (newIndex < 0 || newIndex >= musicQueue.length) return
 
   musicQueue.splice(newIndex, 0, ...musicQueue.splice(index, 1))
   socket.broadcast('move', { index, offset })

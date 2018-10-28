@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, OnInit } from '@angular/core'
 import { Router } from '@angular/router'
-import { Subscription ,  Observable } from 'rxjs'
+import { Subscription, Observable } from 'rxjs'
 
 import { DestructionCallbacks } from '../destruction-callbacks'
 import { SearchTerms } from './search-terms.service'
@@ -21,14 +21,16 @@ export class SearchInputComponent extends DestructionCallbacks implements OnInit
   }
 
   ngOnInit() {
-    const onTerms = this.termsStream.subscribe(terms => { this.terms = terms })
-    this.onDestroy(() => { onTerms.unsubscribe() })
+    const onTerms = this.termsStream.subscribe(terms => {
+      this.terms = terms
+    })
+    this.onDestroy(() => {
+      onTerms.unsubscribe()
+    })
   }
 
   onSubmit() {
-    if (! this.terms.length)
-      this.router.navigate([''])
-    else
-      this.router.navigate(['search', this.terms])
+    if (!this.terms.length) this.router.navigate([''])
+    else this.router.navigate(['search', this.terms])
   }
 }

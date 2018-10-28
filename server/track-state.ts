@@ -8,21 +8,21 @@ export class TrackState {
   // index within musicQueue of current playing track, -1 = no queued track
   public index = -1
 
-  public get paused() { return this.pausedAt !== 0 }
+  public get paused() {
+    return this.pausedAt !== 0
+  }
 
   public getElapsed(): number {
     return this.pausedAt || Date.now() - this.beginTime.getTime()
   }
 
   public pause(): void {
-    if (! this.pausedAt)
-      this.pausedAt = this.getElapsed()
+    if (!this.pausedAt) this.pausedAt = this.getElapsed()
   }
 
   public unpause(): void {
     const { pausedAt } = this
-    if (! pausedAt)
-      return
+    if (!pausedAt) return
 
     this.beginTime.setTime(Date.now() - pausedAt)
     this.pausedAt = 0

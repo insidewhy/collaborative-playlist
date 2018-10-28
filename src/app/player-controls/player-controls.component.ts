@@ -11,11 +11,7 @@ import { PlayerControls } from './player-controls.service'
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PlayerControlsComponent {
-  constructor(
-    public currentTrack: CurrentTrack,
-    public playerControls: PlayerControls,
-  ) {
-  }
+  constructor(public currentTrack: CurrentTrack, public playerControls: PlayerControls) {}
 
   public toggleMute() {
     this.playerControls.toggleMute()

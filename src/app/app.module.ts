@@ -27,13 +27,7 @@ import { CurrentTrackComponent } from './current-track/current-track.component'
 import { MarqueeComponent } from './current-track/marquee.component'
 
 @NgModule({
-  imports: [
-    BrowserModule,
-    FormsModule,
-    JsonpModule,
-    MatIconModule,
-    AppRoutingModule,
-  ],
+  imports: [BrowserModule, FormsModule, JsonpModule, MatIconModule, AppRoutingModule],
   declarations: [
     AppComponent,
     SearchInputComponent,
@@ -57,6 +51,6 @@ import { MarqueeComponent } from './current-track/marquee.component'
     DeezerPlayer,
     PlayerControls,
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
 export class AppModule {}

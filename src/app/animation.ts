@@ -7,8 +7,7 @@ export default class Animation {
   start() {
     let rateIdx = 0
     const nextFrame = () => {
-      if (! this.running)
-        return
+      if (!this.running) return
       if (++rateIdx % this.rate === 0) {
         this.callback()
       }

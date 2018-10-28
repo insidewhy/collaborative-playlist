@@ -1,23 +1,24 @@
-
 import {
   timer as observableTimer,
   combineLatest as observableCombineLatest,
   of as observableOf,
   interval as observableInterval,
-  ReplaySubject ,
-  Observable
+  ReplaySubject,
+  Observable,
 } from 'rxjs'
 
-import {map, debounce, switchMap, startWith, withLatestFrom, scan, share, distinctUntilChanged, filter} from 'rxjs/operators'
+import {
+  map,
+  debounce,
+  switchMap,
+  startWith,
+  withLatestFrom,
+  scan,
+  share,
+  distinctUntilChanged,
+  filter,
+} from 'rxjs/operators'
 import { Injectable } from '@angular/core'
-
-
-
-
-
-
-
-
 
 import { Source } from '../source'
 import { Track } from '../track'
@@ -35,7 +36,8 @@ export interface CurrentTrackStatus {
 const countSecondsFrom = startTime =>
   observableInterval(1000).pipe(
     map(val => startTime + (val + 1) * 1000),
-    startWith(startTime), )
+    startWith(startTime),
+  )
 
 @Injectable()
 export class CurrentTrack extends Source {
@@ -55,31 +57,34 @@ export class CurrentTrack extends Source {
           case 'remove':
             return payload < index ? index - 1 : index
         }
-      }, -1), )
+      }, -1),
+    ),
   )
 
   paused: Observable<boolean> = this.hot(
     this.socket.messages.pipe(
-    filter(message => message.type === 'currentTrack'),
-    map(({ payload: { paused } }) => paused), )
+      filter(message => message.type === 'currentTrack'),
+      map(({ payload: { paused } }) => paused),
+    ),
   )
 
   elapsed: Observable<number> = this.hot(
     this.socket.messages.pipe(
-    withLatestFrom(this.index),
-    filter(([ message, index ]) =>
-      message.type === 'currentTrack' ||
-      message.type === 'remove' && message.payload === index
-    ),
-    switchMap(([ message, index ]) => {
-      // TODO: if the final track was removed then interval isn't needed
-      if (message.type === 'remove')
-        return countSecondsFrom(0)
+      withLatestFrom(this.index),
+      filter(
+        ([message, index]) =>
+          message.type === 'currentTrack' ||
+          (message.type === 'remove' && message.payload === index),
+      ),
+      switchMap(([message, index]) => {
+        // TODO: if the final track was removed then interval isn't needed
+        if (message.type === 'remove') return countSecondsFrom(0)
 
-      const { index: trackIdx, elapsed, paused } = message.payload
-      return paused || trackIdx === -1 ? observableOf(elapsed) : countSecondsFrom(elapsed)
-    }),
-    startWith(0), )
+        const { index: trackIdx, elapsed, paused } = message.payload
+        return paused || trackIdx === -1 ? observableOf(elapsed) : countSecondsFrom(elapsed)
+      }),
+      startWith(0),
+    ),
   )
 
   // merge all the streams
@@ -87,14 +92,17 @@ export class CurrentTrack extends Source {
     this.index,
     this.elapsed,
     this.paused,
-    (trackIdx, elapsed, paused) => ({ trackIdx, elapsed, paused })
+    (trackIdx, elapsed, paused) => ({ trackIdx, elapsed, paused }),
   ).pipe(debounce(() => observableTimer(10)))
 
-  track: Observable<Track | null> =
-    observableCombineLatest(this.index, this.musicQueue.tracks).pipe(
+  track: Observable<Track | null> = observableCombineLatest(
+    this.index,
+    this.musicQueue.tracks,
+  ).pipe(
     map(([index, tracks]) => tracks[index]),
     distinctUntilChanged(),
-    share(), )
+    share(),
+  )
 
   constructor(
     private socket: ServerSocket,
@@ -104,16 +112,17 @@ export class CurrentTrack extends Source {
     super()
 
     this.reactTo(this.socket.connectionStatus, nConnected => {
-      if (nConnected)
-        this.socket.send({ type: 'getCurrentTrackStatus' })
+      if (nConnected) this.socket.send({ type: 'getCurrentTrackStatus' })
     })
 
-    this.reactTo(this.skip$.pipe(withLatestFrom(this.index, musicQueue.tracks)), ([offset, index, tracks]) => {
-      const nextIdx = index + offset
-      const track = tracks[nextIdx]
-      if (track)
-        this.play(track.id, nextIdx)
-    })
+    this.reactTo(
+      this.skip$.pipe(withLatestFrom(this.index, musicQueue.tracks)),
+      ([offset, index, tracks]) => {
+        const nextIdx = index + offset
+        const track = tracks[nextIdx]
+        if (track) this.play(track.id, nextIdx)
+      },
+    )
 
     this.reactTo(
       this.goToCurrent$.pipe(withLatestFrom(this.index, selectedTracks.indexes)),
@@ -125,7 +134,7 @@ export class CurrentTrack extends Source {
         } else {
           this.musicQueue.scrollToTrack(index)
         }
-      }
+      },
     )
   }
 
