@@ -14,6 +14,7 @@ import { Source } from '../source'
 import { Track } from '../track'
 import { ServerSocket } from '../server-socket.service'
 import { MusicQueue } from '../music-queue/music-queue.service'
+import { SelectedTracks } from '../music-queue/selected-tracks.service'
 
 export interface CurrentTrackStatus {
   trackIdx: number
@@ -30,6 +31,7 @@ const countSecondsFrom = startTime =>
 @Injectable()
 export class CurrentTrack extends Source {
   private skip$ = new ReplaySubject<number>(1)
+  private goToCurrent$ = new ReplaySubject<void>(1)
 
   index: Observable<number> = this.hot(
     this.socket.messages
@@ -85,7 +87,11 @@ export class CurrentTrack extends Source {
     .distinctUntilChanged()
     .share()
 
-  constructor(private socket: ServerSocket, private musicQueue: MusicQueue) {
+  constructor(
+    private socket: ServerSocket,
+    private musicQueue: MusicQueue,
+    selectedTracks: SelectedTracks,
+  ) {
     super()
 
     this.reactTo(this.socket.connectionStatus, nConnected => {
@@ -99,6 +105,19 @@ export class CurrentTrack extends Source {
       if (track)
         this.play(track.id, nextIdx)
     })
+
+    this.reactTo(
+      this.goToCurrent$.withLatestFrom(this.index, selectedTracks.indexes),
+      ([, index, selected]) => {
+        if (selected.size) {
+          const selIndexes = Array.from(selected).sort()
+          console.log('TODO: move after', index, selIndexes)
+          // TODO: move selected tracks after index
+        } else {
+          this.musicQueue.scrollToTrack(index)
+        }
+      }
+    )
   }
 
   pause() {
@@ -115,5 +134,9 @@ export class CurrentTrack extends Source {
 
   skip(offset: number): void {
     this.skip$.next(offset)
+  }
+
+  goToCurrent() {
+    this.goToCurrent$.next(undefined)
   }
 }

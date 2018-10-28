@@ -35,7 +35,7 @@ export class CurrentTrackComponent {
     private musicQueue: MusicQueue,
   ) {}
 
-  scrollToTrack(trackIdx: number) {
-    this.musicQueue.scrollToTrack(trackIdx)
+  clickedCurrentTrack() {
+    this.currentTrack.goToCurrent()
   }
 }
