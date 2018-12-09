@@ -2,7 +2,8 @@
 
 @import './app/_config';
 
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   height: 100%;
@@ -12,12 +13,15 @@ html {
   box-sizing: border-box;
 }
 
-ul, li {
+ul,
+li {
   margin: 0;
   padding: 0;
 }
 
-input:focus, button:focus, button:active {
+input:focus,
+button:focus,
+button:active {
   outline: 0;
 }
 
@@ -30,19 +34,25 @@ input:-webkit-autofill {
   -webkit-box-shadow: 0 0 0 300px white inset;
 }
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   -webkit-box-sizing: inherit;
   box-sizing: inherit;
 }
 
 #dz-root {
-  visibility: hidden;
+  // you still can't see it for whatever reason, but it needs so me width and height or chrome will
+  // block it for being an swf that is too small
+  width: 500px;
+  height: 500px;
 }
 
-ul.track-list, app-music-queue {
+ul.track-list,
+app-music-queue {
   list-style: none;
 
-  >* {
+  > * {
     display: flex;
     align-items: center;
     font-family: sans-serif;
