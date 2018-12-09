@@ -10,7 +10,7 @@
     "server:build": "tsc -p server",
     "server:run": "supervisor -t -n exit -w dist/server dist/server/app.js",
     "client:run": "ng serve --no-progress --host 0.0.0.0 --port 9100 --disable-host-check",
-    "client:build": "ng build -prod",
+    "client:build": "ng build --prod",
     "build": "npm run client:build && npm run server:build",
     "test": "ng test",
     "fix": "ng lint --fix && npm run make-prettier",
