@@ -25,6 +25,7 @@ export class ServerSocket {
     if (port === '') port = '80'
 
     const wsPort = port === '9100' ? '4201' : port
+    // const wsPort = port
 
     const { messages, connectionStatus } = jsonWebsocketConnect(
       `ws://${window.location.hostname}:${wsPort}/ws`,

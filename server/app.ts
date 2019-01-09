@@ -10,12 +10,13 @@ const websockify = require('koa-websocket')
 const app: Koa = websockify(new Koa())
 
 function main() {
-  console.log('TODO: start server')
+  const port = process.env.PORT || 4201
+  console.log('start server on port', port)
   installSocketRoutes()
 
   app.use(koaStatic(pathJoin(__dirname, '..', 'client')))
 
-  app.listen(process.env.PORT || 4201)
+  app.listen(port)
 }
 
 const messageHandlers = { ...musicQueueHandlers }
